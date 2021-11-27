@@ -122,6 +122,10 @@ var titleSelection=0;
 var titleSelectOptions=2;
 var titleSelected=false;
 
+function showContinueOptionOnTitleScreen(){
+	return (curlevel>0||curlevelTarget!==null)&&(curlevel in state.levels);
+}
+
 function unloadGame() {
 	state=introstate;
 	level = new Level(0, 5, 5, 2, null, null);
@@ -160,7 +164,7 @@ function generateTitleScreen()
 {
   tryLoadCustomFont();
 
-	titleMode=(curlevel>0||curlevelTarget!==null)?1:0;
+	titleMode=showContinueOptionOnTitleScreen()?1:0;
 
 	if (state.levels.length===0) {
 		titleImage=intro_template;
@@ -630,9 +634,10 @@ function loadLevelFromLevelDat(state,leveldat,randomseed,clearinputhistory) {
 	loadedLevelSeed = randomseed;
 	RandomGen = new RNG(loadedLevelSeed);
 	forceRegenImages=true;
+	ignoreNotJustPressedAction=true;
 	titleScreen=false;
-	titleMode=(curlevel>0||curlevelTarget!==null)?1:0;
-	titleSelection=0;
+	titleMode=showContinueOptionOnTitleScreen()?1:0;
+	titleSelection=showContinueOptionOnTitleScreen()?1:0;
   titleSelected=false;
   state.metadata = deepClone(state.default_metadata);
     againing=false;
@@ -643,6 +648,7 @@ function loadLevelFromLevelDat(state,leveldat,randomseed,clearinputhistory) {
     }
     if (leveldat.message !== undefined) {
       // This "level" is actually a message.
+      ignoreNotJustPressedAction=true;
       tryPlayShowMessageSound();
       drawMessageScreen();
       canvasResize();
@@ -963,13 +969,13 @@ function setGameState(_state, command, randomseed) {
 		    titleScreen=true;
 		    tryPlayTitleSound();
 		    textMode=true;
-		    titleSelection=0;
+		    titleSelection=showContinueOptionOnTitleScreen()?1:0;
 		    titleSelected=false;
 		    quittingMessageScreen=false;
 		    quittingTitleScreen=false;
 		    messageselected=false;
 		    titleMode = 0;
-		    if ((curlevel>0||curlevelTarget!==null)) {
+		    if (showContinueOptionOnTitleScreen()) {
 		    	titleMode=1;
 		    }
 		    generateTitleScreen();
@@ -986,12 +992,13 @@ function setGameState(_state, command, randomseed) {
 					continue;
 				}
 				var targetLevel = i;
-				curlevel=i;
+				curlevel=targetLevel;
+				curlevelTarget=null;
 			    winning=false;
 			    timer=0;
 			    titleScreen=false;
 			    textMode=false;
-			    //titleSelection=(curlevel>0||curlevelTarget!==null)?1:0;
+			    //titleSelection=showContinueOptionOnTitleScreen()?1:0;
 			    titleSelected=false;
 			    quittingMessageScreen=false;
 			    quittingTitleScreen=false;
@@ -1005,12 +1012,13 @@ function setGameState(_state, command, randomseed) {
 		case "loadLevel":
 		{
 			var targetLevel = command[1];
-			curlevel=i;
+			curlevel=targetLevel;
+			curlevelTarget=null;
 		    winning=false;
 		    timer=0;
 		    titleScreen=false;
 		    textMode=false;
-		    //titleSelection=(curlevel>0||curlevelTarget!==null)?1:0;
+		    //titleSelection=showContinueOptionOnTitleScreen()?1:0;
 		    titleSelected=false;
 		    quittingMessageScreen=false;
 		    quittingTitleScreen=false;
@@ -1026,11 +1034,12 @@ function setGameState(_state, command, randomseed) {
 				var level= state.levels[i];
 				if(level.lineNumber<=targetLine+1) {
 					curlevel=i;
+					curlevelTarget=null;
 				    winning=false;
 				    timer=0;
 				    titleScreen=false;
 				    textMode=false;
-				    //titleSelection=(curlevel>0||curlevelTarget!==null)?1:0;
+				    //titleSelection=showContinueOptionOnTitleScreen()?1:0;
 				    titleSelected=false;
 				    quittingMessageScreen=false;
 				    quittingTitleScreen=false;
@@ -1061,34 +1070,45 @@ function RebuildLevelArrays() {
 
     level.rigidMovementAppliedMask = [];
     level.rigidGroupIndexMask = [];
-  level.rowCellContents = [];
-  level.colCellContents = [];
-  level.mapCellContents = new BitVec(STRIDE_OBJ);
-  _movementVecs = [new BitVec(STRIDE_MOV),new BitVec(STRIDE_MOV),new BitVec(STRIDE_MOV)];
+	level.rowCellContents = [];
+	level.rowCellContents_Movements = [];
+	level.colCellContents = [];
+	level.colCellContents_Movements = [];
+	level.mapCellContents = new BitVec(STRIDE_OBJ);
+	level.mapCellContents_Movements = new BitVec(STRIDE_MOV);
 
-  _o1 = new BitVec(STRIDE_OBJ);
-  _o2 = new BitVec(STRIDE_OBJ);
-  _o2_5 = new BitVec(STRIDE_OBJ);
-  _o3 = new BitVec(STRIDE_OBJ);
-  _o4 = new BitVec(STRIDE_OBJ);
-  _o5 = new BitVec(STRIDE_OBJ);
-  _o6 = new BitVec(STRIDE_OBJ);
-  _o7 = new BitVec(STRIDE_OBJ);
-  _o8 = new BitVec(STRIDE_OBJ);
-  _o9 = new BitVec(STRIDE_OBJ);
-  _o10 = new BitVec(STRIDE_OBJ);
-  _o11 = new BitVec(STRIDE_OBJ);
-  _o12 = new BitVec(STRIDE_OBJ);
-  _m1 = new BitVec(STRIDE_MOV);
-  _m2 = new BitVec(STRIDE_MOV);
-  _m3 = new BitVec(STRIDE_MOV);
-  
+	_movementVecs = [new BitVec(STRIDE_MOV),new BitVec(STRIDE_MOV),new BitVec(STRIDE_MOV)];
+
+	_o1 = new BitVec(STRIDE_OBJ);
+	_o2 = new BitVec(STRIDE_OBJ);
+	_o2_5 = new BitVec(STRIDE_OBJ);
+	_o3 = new BitVec(STRIDE_OBJ);
+	_o4 = new BitVec(STRIDE_OBJ);
+	_o5 = new BitVec(STRIDE_OBJ);
+	_o6 = new BitVec(STRIDE_OBJ);
+	_o7 = new BitVec(STRIDE_OBJ);
+	_o8 = new BitVec(STRIDE_OBJ);
+	_o9 = new BitVec(STRIDE_OBJ);
+	_o10 = new BitVec(STRIDE_OBJ);
+	_o11 = new BitVec(STRIDE_OBJ);
+	_o12 = new BitVec(STRIDE_OBJ);
+	_m1 = new BitVec(STRIDE_MOV);
+	_m2 = new BitVec(STRIDE_MOV);
+	_m3 = new BitVec(STRIDE_MOV);
+	
 
     for (var i=0;i<level.height;i++) {
       level.rowCellContents[i]=new BitVec(STRIDE_OBJ);        
     }
     for (var i=0;i<level.width;i++) {
       level.colCellContents[i]=new BitVec(STRIDE_OBJ);        
+    }
+
+    for (var i=0;i<level.height;i++) {
+    	level.rowCellContents_Movements[i]=new BitVec(STRIDE_MOV);	    	
+    }
+    for (var i=0;i<level.width;i++) {
+    	level.colCellContents_Movements[i]=new BitVec(STRIDE_MOV);	    	
     }
 
     for (var i=0;i<level.n_tiles;i++)
@@ -1100,9 +1120,26 @@ function RebuildLevelArrays() {
 
 var messagetext="";
 function restoreLevel(lev, snapCamera) {
+	var diffing = lev.hasOwnProperty("diff");
+
 	oldflickscreendat=lev.oldflickscreendat.concat([]);
 
-	level.objects = new Int32Array(lev.dat);
+	if (diffing){
+		var index=0;
+		while (index<lev.dat.length){
+			var start_index = lev.dat[index];
+			var copy_length = lev.dat[index+1];
+			if (copy_length===0){
+				break;//tail of buffer is all 0s
+			}
+			for (j=0;j<copy_length;j++){
+				level.objects[start_index+j]=lev.dat[index+2+j];
+			}
+			index += 2 + copy_length;
+		}
+	} else {	
+		level.objects = new Int32Array(lev.dat);
+	}
 
 	if (level.width !== lev.width || level.height !== lev.height) {
 		level.width = lev.width;
@@ -1155,6 +1192,76 @@ var smoothscreen=false;
 var screenwidth=0;
 var screenheight=0;
 
+//compresses 'before' into diff
+function consolidateDiff(before,after){
+	if (before.width !== after.width || before.height!==after.height || before.dat.length!==after.dat.length){
+		return before;
+	}
+	if (before.hasOwnProperty("diff")||after.hasOwnProperty("diff")){
+		return before;
+	}
+	//only generate diffs if level size is bigger than this
+	if (before.dat.length<1024){
+		return before;
+	}
+	//diff structure: repeating ( start,length, [ data ] )
+	var result = new Int32Array(128);
+	var position=0;
+	var chain=false;
+	var chain_start_idx_in_diff=-1;
+	var before_dat = before.dat;
+	var after_dat = after.dat;
+	for (var i=0;i<before_dat.length;i++){
+		if (chain===false){
+			if (before_dat[i]!==after_dat[i]){
+				chain=true;
+				chain_start_idx_in_diff = position;
+
+				if (result.length<position+4){
+					var doubled = new Int32Array(2*result.length);
+					doubled.set(result);
+					result = doubled;
+				}
+
+				result[position+0]=i;
+				result[position+1]=1;
+				result[position+2]=before_dat[i];
+				position+=3;
+			}
+		} else {
+			if (before_dat[i]!==after_dat[i]){
+				
+				if (position+1>=result.length){
+					if (result.length<position+4){
+						var doubled = new Int32Array(2*result.length);
+						doubled.set(result);
+						result = doubled;
+					}	
+				}
+				result[chain_start_idx_in_diff+1]++;
+				result[position]=before_dat[i];
+				position++;
+			} else {
+				chain=false;
+			}
+		}
+	}
+	return {		
+		diff : true,
+		dat : result,
+		width : before.width,
+		height : before.height,
+		oldflickscreendat: before.oldflickscreendat
+	}
+}
+
+function addUndoState(state){
+	backups.push(state);
+	if(backups.length>2 && !backups[backups.length-1].hasOwnProperty("diff")){
+		backups[backups.length-3]=consolidateDiff(backups[backups.length-3],backups[backups.length-2]);
+	}
+}
+
 function DoRestart(force) {
 	if (restarting===true){
 		return;
@@ -1164,7 +1271,7 @@ function DoRestart(force) {
 	}
 	restarting=true;
 	if (force!==true) {
-		backups.push(backupLevel());
+		addUndoState(backupLevel());
 	}
 
 	if (verbose_logging) {
@@ -1186,16 +1293,21 @@ function DoRestart(force) {
 }
 
 function backupDiffers(){
-  if (backups.length==0){
-    return true;
-  }
-  var bak = backups[backups.length-1];
-  for (var i=0;i<level.objects.length;i++) {
-      if (level.objects[i]!==bak.dat[i]) {
-        return true;
-      }
-    }
-    return false;
+	if (backups.length==0){
+		return true;
+	}
+	var bak = backups[backups.length-1];
+
+	if (bak.hasOwnProperty("diff")){
+		return bak.dat.length!==0 && bak.dat[1]!==0;//if it's empty or if it's all 0s
+	} else {
+		for (var i=0;i<level.objects.length;i++) {
+			if (level.objects[i]!==bak.dat[i]) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
 function DoUndo(force,ignoreDuplicates) {
@@ -1256,6 +1368,12 @@ function moveEntitiesAtIndex(positionIndex, entityMask, dirMask) {
       movementMask.ishiftor(dirMask, 5 * layers[i]);
     }
     level.setMovements(positionIndex, movementMask);
+
+	var colIndex=(positionIndex/level.height)|0;
+	var rowIndex=(positionIndex%level.height);
+	level.colCellContents_Movements[colIndex].ior(movementMask);
+	level.rowCellContents_Movements[rowIndex].ior(movementMask);
+	level.mapCellContents_Movements.ior(movementMask);
 }
 
 
@@ -1336,12 +1454,14 @@ function repositionEntitiesOnLayer(positionIndex,layer,dirMask)
 
     level.setCell(positionIndex, sourceMask);
     level.setCell(targetIndex, targetMask);
-
+	
     var colIndex=(targetIndex/level.height)|0;
-  var rowIndex=(targetIndex%level.height);
+	var rowIndex=(targetIndex%level.height);
+	
     level.colCellContents[colIndex].ior(movingEntities);
     level.rowCellContents[rowIndex].ior(movingEntities);
     level.mapCellContents.ior(movingEntities);
+	//corresponding movement stuff in setmovements
     return true;
 }
 
@@ -1380,6 +1500,12 @@ function Level(lineNumber, width, height, layerCount, objects, section) {
 	this.commandQueueSourceRules = [];
 }
 
+Level.prototype.delta_index = function(direction)
+{
+	const [dx, dy] = dirMasksDelta[direction]
+	return dx*this.height + dy
+}
+
 Level.prototype.clone = function() {
 	var clone = new Level(this.lineNumber, this.width, this.height, this.layerCount, null, this.section);
 	clone.objects = new Int32Array(this.objects);
@@ -1415,10 +1541,30 @@ Level.prototype.getMovements = function(index) {
   return _movementsVec;
 }
 
+Level.prototype.getMovementsInto = function(index,targetarray) {
+	var _movementsVec=targetarray;
+
+	for (var i=0;i<STRIDE_MOV;i++) {
+		_movementsVec.data[i]=this.movements[index*STRIDE_MOV+i];	
+	}
+	return _movementsVec;
+}
+
 Level.prototype.setMovements = function(index, vec) {
-  for (var i = 0; i < vec.data.length; ++i) {
-    this.movements[index * STRIDE_MOV + i] = vec.data[i];
-  }
+	for (var i = 0; i < vec.data.length; ++i) {
+		this.movements[index * STRIDE_MOV + i] = vec.data[i];
+	}
+
+	var targetIndex = index*STRIDE_MOV + i;
+		
+	//corresponding object stuff in repositionEntitiesOnLayer
+	var colIndex=(index/this.height)|0;
+	var rowIndex=(index%this.height);
+	level.colCellContents_Movements[colIndex].ior(vec);
+	level.rowCellContents_Movements[rowIndex].ior(vec);
+	level.mapCellContents_Movements.ior(vec);
+
+
 }
 
 var ellipsisPattern = ['ellipsis'];
@@ -1551,92 +1697,92 @@ BitVec.prototype.anyBitsInCommon = function(other) {
 }
 
 function Rule(rule) {
-  this.direction = rule[0];     /* direction rule scans in */
-  this.patterns = rule[1];    /* lists of CellPatterns to match */
-  this.hasReplacements = rule[2];
-  this.lineNumber = rule[3];    /* rule source for debugging */
-  this.isEllipsis = rule[4];    /* true if pattern has ellipsis */
-  this.groupNumber = rule[5];   /* execution group number of rule */
-  this.isRigid = rule[6];
-  this.commands = rule[7];    /* cancel, restart, sfx, etc */
-  this.isRandom = rule[8];
-  this.cellRowMasks = rule[9];
-  this.isGlobal = rule[10]
-  this.cellRowMatches = [];
-  for (var i=0;i<this.patterns.length;i++) {
-    this.cellRowMatches.push(this.generateCellRowMatchesFunction(this.patterns[i],this.isEllipsis[i]));
-  }
-  /* TODO: eliminate isRigid, groupNumber, isRandom
-  from this class by moving them up into a RuleGroup class */
+	this.direction = rule[0]; 		/* direction rule scans in */
+	this.patterns = rule[1];		/* lists of CellPatterns to match */
+	this.hasReplacements = rule[2];
+	this.lineNumber = rule[3];		/* rule source for debugging */
+	this.isEllipsis = rule[4];		/* true if pattern has ellipsis */
+	this.groupNumber = rule[5];		/* execution group number of rule */
+	this.isRigid = rule[6];
+	this.commands = rule[7];		/* cancel, restart, sfx, etc */
+	this.isRandom = rule[8];
+	this.cellRowMasks = rule[9];
+  this.cellRowMasks_Movements = rule[10];
+  this.isGlobal = rule[11];
+	this.ruleMask = this.cellRowMasks.reduce( (acc, m) => { acc.ior(m); return acc }, new BitVec(STRIDE_OBJ) );
+
+	/*I tried out doing a ruleMask_movements as well along the lines of the above,
+	but it didn't help at all - I guess because almost every tick there are movements 
+	somewhere on the board - move filtering works well at a row/col level, but is pretty 
+	useless (or worse than useless) on a boardwide level*/
+
+	this.cellRowMatches = [];
+	for (var i=0;i<this.patterns.length;i++) {
+		this.cellRowMatches.push(this.generateCellRowMatchesFunction(this.patterns[i],this.isEllipsis[i]));
+	}
+	/* TODO: eliminate isRigid, groupNumber, isRandom
+	from this class by moving them up into a RuleGroup class */
 }
 
 
 Rule.prototype.generateCellRowMatchesFunction = function(cellRow,hasEllipsis)  {
-  if (hasEllipsis==false) {
-    var delta = dirMasksDelta[this.direction];
-    var d0 = delta[0];
-    var d1 = delta[1];
-    var cr_l = cellRow.length;
+	if (hasEllipsis==false) {
+		var cr_l = cellRow.length;
 
-      /*
-      hard substitute in the first one - if I substitute in all of them, firefox chokes.
-      */
-    var fn = "var d = "+d1+"+"+d0+"*level.height;\n";
-    var mul = STRIDE_OBJ === 1 ? '' : '*'+STRIDE_OBJ; 
-    for (var i = 0; i < STRIDE_OBJ; ++i) {
-      fn += 'var cellObjects' + i + ' = level.objects[i' + mul + (i ? '+'+i: '') + '];\n';
-    }
-    mul = STRIDE_MOV === 1 ? '' : '*'+STRIDE_MOV;
-    for (var i = 0; i < STRIDE_MOV; ++i) {
-      fn += 'var cellMovements' + i + ' = level.movements[i' + mul + (i ? '+'+i: '') + '];\n';
-    }
-    fn += "return "+cellRow[0].generateMatchString('0_');// cellRow[0].matches(i)";
-    for (var cellIndex=1;cellIndex<cr_l;cellIndex++) {
-      fn+="&&cellRow["+cellIndex+"].matches((i+"+cellIndex+"*d))";
-    }
-    fn+=";";
+		/*
+		hard substitute in the first one - if I substitute in all of them, firefox chokes.
+		*/
+		var fn = "";
+		var mul = STRIDE_OBJ === 1 ? '' : '*'+STRIDE_OBJ;	
+		for (var i = 0; i < STRIDE_OBJ; ++i) {
+			fn += 'var cellObjects' + i + ' = objects[i' + mul + (i ? '+'+i: '') + '];\n';
+		}
+		mul = STRIDE_MOV === 1 ? '' : '*'+STRIDE_MOV;
+		for (var i = 0; i < STRIDE_MOV; ++i) {
+			fn += 'var cellMovements' + i + ' = movements[i' + mul + (i ? '+'+i: '') + '];\n';
+		}
+		fn += "return "+cellRow[0].generateMatchString('0_');// cellRow[0].matches(i)";
+		for (var cellIndex=1;cellIndex<cr_l;cellIndex++) {
+			fn+="&&cellRow["+cellIndex+"].matches(i+"+cellIndex+"*d, objects, movements)";
+		}
+		fn+=";";
 
-    if (fn in matchCache) {
-      return matchCache[fn];
-    }
-    //console.log(fn.replace(/\s+/g, ' '));
-    return matchCache[fn] = new Function("cellRow","i",fn);
-  } else {
-    var delta = dirMasksDelta[this.direction];
-    var d0 = delta[0];
-    var d1 = delta[1];
-    var cr_l = cellRow.length;
+		if (fn in matchCache) {
+			return matchCache[fn];
+		}
+		//console.log(fn.replace(/\s+/g, ' '));
+		return matchCache[fn] = new Function("cellRow","i", 'd', 'objects', 'movements',fn);
+	} else {
+		var cr_l = cellRow.length;
 
-
-    var fn = "var d = "+d1+"+"+d0+"*level.height;\n";
-    fn += "var result = [];\n"
-    fn += "if(cellRow[0].matches(i)";
-    var cellIndex=1;
-    for (;cellRow[cellIndex]!==ellipsisPattern;cellIndex++) {
-      fn+="&&cellRow["+cellIndex+"].matches((i+"+cellIndex+"*d))";
-    }
-    cellIndex++;
-    fn+=") {\n";
-    fn+="\tfor (var k=kmin;k<kmax;k++) {\n"
-    fn+="\t\tif(cellRow["+cellIndex+"].matches((i+d*(k+"+(cellIndex-1)+")))";
-    cellIndex++;
-    for (;cellIndex<cr_l;cellIndex++) {
-      fn+="&&cellRow["+cellIndex+"].matches((i+d*(k+"+(cellIndex-1)+")))";      
-    }
-    fn+="){\n";
-    fn+="\t\t\tresult.push([i,k]);\n";
-    fn+="\t\t}\n"
-    fn+="\t}\n";        
-    fn+="}\n";    
-    fn+="return result;"
+		var fn = "var result = [];\n"
+		fn += "if(cellRow[0].matches(i, objects, movements)";
+		var cellIndex=1;
+		for (;cellRow[cellIndex]!==ellipsisPattern;cellIndex++) {
+			fn+="&&cellRow["+cellIndex+"].matches(i+"+cellIndex+"*d, objects, movements)";
+		}
+		cellIndex++;
+		fn+=") {\n";
+		fn+="\tfor (var k=kmin;k<kmax;k++) {\n"
+		fn+="\t\tif(cellRow["+cellIndex+"].matches((i+d*(k+"+(cellIndex-1)+")), objects, movements)";
+		cellIndex++;
+		for (;cellIndex<cr_l;cellIndex++) {
+			fn+="&&cellRow["+cellIndex+"].matches((i+d*(k+"+(cellIndex-1)+")), objects, movements)";			
+		}
+		fn+="){\n";
+		fn+="\t\t\tresult.push([i,k]);\n";
+		fn+="\t\t}\n"
+		fn+="\t}\n";				
+		fn+="}\n";		
+		fn+="return result;"
 
 
-    if (fn in matchCache) {
-      return matchCache[fn];
-    }
-    //console.log(fn.replace(/\s+/g, ' '));
-    return matchCache[fn] = new Function("cellRow","i","kmax","kmin",fn);
-  }
+		if (fn in matchCache) {
+			return matchCache[fn];
+		}
+		//console.log(fn.replace(/\s+/g, ' '));
+		return matchCache[fn] = new Function("cellRow","i","kmax","kmin", 'd', "objects", "movements",fn);
+	}
 //say cellRow has length 3, with a split in the middle
 /*
 function cellRowMatchesWildcardFunctionGenerate(direction,cellRow,i, maxk, mink) {
@@ -1658,11 +1804,12 @@ function cellRowMatchesWildcardFunctionGenerate(direction,cellRow,i, maxk, mink)
 
 
 Rule.prototype.toJSON = function() {
-  /* match construction order for easy deserialization */
-  return [
-    this.direction, this.patterns, this.hasReplacements, this.lineNumber, this.isEllipsis,
-    this.groupNumber, this.isRigid, this.commands, this.isRandom, this.cellRowMasks, this.isGlobal
-  ];
+	/* match construction order for easy deserialization */
+	return [
+		this.direction, this.patterns, this.hasReplacements, this.lineNumber, this.isEllipsis,
+		this.groupNumber, this.isRigid, this.commands, this.isRandom, this.cellRowMasks,
+		this.cellRowMasks_Movements
+	];
 };
 
 var STRIDE_OBJ = 1;
@@ -1733,22 +1880,22 @@ CellPattern.prototype.generateMatchString = function() {
 }
 
 CellPattern.prototype.generateMatchFunction = function() {
-  var i;
-  var fn = '';
-  var mul = STRIDE_OBJ === 1 ? '' : '*'+STRIDE_OBJ; 
-  for (var i = 0; i < STRIDE_OBJ; ++i) {
-    fn += '\tvar cellObjects' + i + ' = level.objects[i' + mul + (i ? '+'+i: '') + '];\n';
-  }
-  mul = STRIDE_MOV === 1 ? '' : '*'+STRIDE_MOV;
-  for (var i = 0; i < STRIDE_MOV; ++i) {
-    fn += '\tvar cellMovements' + i + ' = level.movements[i' + mul + (i ? '+'+i: '') + '];\n';
-  }
-  fn += "return " + this.generateMatchString()+';';
-  if (fn in matchCache) {
-    return matchCache[fn];
-  }
-  //console.log(fn.replace(/\s+/g, ' '));
-  return matchCache[fn] = new Function("i",fn);
+	var i;
+	var fn = '';
+	var mul = STRIDE_OBJ === 1 ? '' : '*'+STRIDE_OBJ;	
+	for (var i = 0; i < STRIDE_OBJ; ++i) {
+		fn += '\tvar cellObjects' + i + ' = objects[i' + mul + (i ? '+'+i: '') + '];\n';
+	}
+	mul = STRIDE_MOV === 1 ? '' : '*'+STRIDE_MOV;
+	for (var i = 0; i < STRIDE_MOV; ++i) {
+		fn += '\tvar cellMovements' + i + ' = movements[i' + mul + (i ? '+'+i: '') + '];\n';
+	}
+	fn += "return " + this.generateMatchString()+';';
+	if (fn in matchCache) {
+		return matchCache[fn];
+	}
+	//console.log(fn.replace(/\s+/g, ' '));
+	return matchCache[fn] = new Function("i", "objects", "movements", fn);
 }
 
 CellPattern.prototype.toJSON = function() {
@@ -1847,22 +1994,27 @@ CellPattern.prototype.replace = function(rule, currentIndex) {
       level.rigidMovementAppliedMask[currentIndex] = curRigidMovementAppliedMask;
     }
 
-    var created = curCellMask.cloneInto(_o4);
-    created.iclear(oldCellMask);
-    sfxCreateMask.ior(created);
-    var destroyed = oldCellMask.cloneInto(_o5);
-    destroyed.iclear(curCellMask);
-    sfxDestroyMask.ior(destroyed);
+		var created = curCellMask.cloneInto(_o4);
+		created.iclear(oldCellMask);
+		sfxCreateMask.ior(created);
+		var destroyed = oldCellMask.cloneInto(_o5);
+		destroyed.iclear(curCellMask);
+		sfxDestroyMask.ior(destroyed);
 
-    level.setCell(currentIndex, curCellMask);
-    level.setMovements(currentIndex, curMovementMask);
+		level.setCell(currentIndex, curCellMask);
+		level.setMovements(currentIndex, curMovementMask);
 
-    var colIndex=(currentIndex/level.height)|0;
-    var rowIndex=(currentIndex%level.height);
-    level.colCellContents[colIndex].ior(curCellMask);
-    level.rowCellContents[rowIndex].ior(curCellMask);
-    level.mapCellContents.ior(curCellMask);
-  }
+		var colIndex=(currentIndex/level.height)|0;
+		var rowIndex=(currentIndex%level.height);
+		level.colCellContents[colIndex].ior(curCellMask);
+		level.rowCellContents[rowIndex].ior(curCellMask);
+		level.mapCellContents.ior(curCellMask);
+
+		level.colCellContents_Movements[colIndex].ior(curMovementMask);
+		level.rowCellContents_Movements[rowIndex].ior(curMovementMask);
+		level.mapCellContents_Movements.ior(curMovementMask);
+
+	}
 
   return result;
 }
@@ -1883,7 +2035,7 @@ function cellRowMatchesWildcardFunctionGenerate(direction,cellRow,i, maxk, mink)
   return result;
 }
 */
-
+/*
 function DoesCellRowMatchWildCard(direction,cellRow,i,maxk,mink) {
   if (mink === undefined) {
     mink = 0;
@@ -1929,7 +2081,7 @@ function DoesCellRowMatchWildCard(direction,cellRow,i,maxk,mink) {
     }  
     return false;
 }
-
+*/
 //say cellRow has length 3
 /*
 CellRow Matches can be specialized to look something like:
@@ -1939,7 +2091,7 @@ function cellRowMatchesFunctionGenerate(direction,cellRow,i) {
   return cellRow[0].matches(i)&&cellRow[1].matches((i+d)%level.n_tiles)&&cellRow[2].matches((i+2*d)%level.n_tiles);
 }
 */
-
+/*
 function DoesCellRowMatch(direction,cellRow,i,k) {
   var cellPattern = cellRow[0];
     if (cellPattern.matches(i)) {
@@ -1969,14 +2121,15 @@ function DoesCellRowMatch(direction,cellRow,i,k) {
     }  
     return false;
 }
+*/
+function matchCellRow(direction, cellRowMatch, cellRow, cellRowMask,cellRowMask_Movements,d, isGlobal) {	
+	var result=[];
+	
+	if ((!cellRowMask.bitsSetInArray(level.mapCellContents.data))||
+	(!cellRowMask_Movements.bitsSetInArray(level.mapCellContents_Movements.data))) {
+		return result;
+	}
 
-function matchCellRow(direction, cellRowMatch, cellRow, cellRowMask, isGlobal) {  
-  var result=[];
-  
-  if ((!cellRowMask.bitsSetInArray(level.mapCellContents.data))) {
-    return result;
-  }
-  var xmin, xmax, ymin, ymax;
   if(isGlobal || state.metadata.local_radius === undefined){
     xmin=0;
     xmax=level.width;
@@ -2023,48 +2176,52 @@ function matchCellRow(direction, cellRowMatch, cellRow, cellRowMask, isGlobal) {
 
     var horizontal=direction>2;
     if (horizontal) {
-    for (var y=ymin;y<ymax;y++) {
-      if (!cellRowMask.bitsSetInArray(level.rowCellContents[y].data)) {
-        continue;
-      }
+		for (var y=ymin;y<ymax;y++) {
+			if (!cellRowMask.bitsSetInArray(level.rowCellContents[y].data) 
+			|| !cellRowMask_Movements.bitsSetInArray(level.rowCellContents_Movements[y].data)) {
+				continue;
+			}
 
-      for (var x=xmin;x<xmax;x++) {
-        var i = x*level.height+y;
-        if (cellRowMatch(cellRow,i))
-        {
-          result.push(i);
-        }
-      }
-    }
-  } else {
-    for (var x=xmin;x<xmax;x++) {
-      if (!cellRowMask.bitsSetInArray(level.colCellContents[x].data)) {
-        continue;
-      }
+			for (var x=xmin;x<xmax;x++) {
+				var i = x*level.height+y;
+				if (cellRowMatch(cellRow,i,d, level.objects, level.movements))
+				{
+					result.push(i);
+				}
+			}
+		}
+	} else {
+		for (var x=xmin;x<xmax;x++) {
+			if (!cellRowMask.bitsSetInArray(level.colCellContents[x].data)
+			|| !cellRowMask_Movements.bitsSetInArray(level.colCellContents_Movements[x].data)) {
+				continue;
+			}
 
-      for (var y=ymin;y<ymax;y++) {
-        var i = x*level.height+y;
-        if (cellRowMatch( cellRow,i))
-        {
-          result.push(i);
-        }
-      }
-    }   
-  }
+			for (var y=ymin;y<ymax;y++) {
+				var i = x*level.height+y;
+				if (cellRowMatch(	cellRow,i, d, level.objects, level.movements))
+				{
+					result.push(i);
+				}
+			}
+		}		
+	}
 
   return result;
 }
 
 
-function matchCellRowWildCard(direction, cellRowMatch, cellRow,cellRowMask) {
-  var result=[];
-  if ((!cellRowMask.bitsSetInArray(level.mapCellContents.data))) {
-    return result;
-  }
-  var xmin=0;
-  var xmax=level.width;
-  var ymin=0;
-  var ymax=level.height;
+function matchCellRowWildCard(direction, cellRowMatch, cellRow,cellRowMask,cellRowMask_Movements,d) {
+	var result=[];
+	if ((!cellRowMask.bitsSetInArray(level.mapCellContents.data))
+	|| (!cellRowMask_Movements.bitsSetInArray(level.mapCellContents_Movements.data))) {
+		return result;
+	}
+	
+	var xmin=0;
+	var xmax=level.width;
+	var ymin=0;
+	var ymax=level.height;
 
   var len=cellRow.length-1;//remove one to deal with wildcard
     switch(direction) {
@@ -2098,35 +2255,38 @@ function matchCellRowWildCard(direction, cellRowMatch, cellRow,cellRowMask) {
 
     var horizontal=direction>2;
     if (horizontal) {
-    for (var y=ymin;y<ymax;y++) {
-      if (!cellRowMask.bitsSetInArray(level.rowCellContents[y].data)) {
-        continue;
-      }
+		for (var y=ymin;y<ymax;y++) {
+			if (!cellRowMask.bitsSetInArray(level.rowCellContents[y].data)
+			|| !cellRowMask_Movements.bitsSetInArray(level.rowCellContents_Movements[y].data) ) {
+				continue;
+			}
 
-      for (var x=xmin;x<xmax;x++) {
-        var i = x*level.height+y;
-        var kmax;
+			for (var x=xmin;x<xmax;x++) {
+				var i = x*level.height+y;
+				var kmax;
 
-        if (direction === 4) { //left
-          kmax=x-len+2;
-        } else if (direction === 8) { //right
-          kmax=level.width-(x+len)+1; 
-        } else {
-          window.console.log("EEEP2 "+direction);         
-        }
+				if (direction === 4) { //left
+					kmax=x-len+2;
+				} else if (direction === 8) { //right
+					kmax=level.width-(x+len)+1;	
+				} else {
+					window.console.log("EEEP2 "+direction);					
+				}
 
-        result.push.apply(result, cellRowMatch(cellRow,i,kmax,0));
-      }
-    }
-  } else {
-    for (var x=xmin;x<xmax;x++) {
-      if (!cellRowMask.bitsSetInArray(level.colCellContents[x].data)) {
-        continue;
-      }
+				result.push.apply(result, cellRowMatch(cellRow,i,kmax,0, d, level.objects, level.movements));
+			}
+		}
+	} else {
+		for (var x=xmin;x<xmax;x++) {
+			if (!cellRowMask.bitsSetInArray(level.colCellContents[x].data)
+			|| !cellRowMask_Movements.bitsSetInArray(level.colCellContents_Movements[x].data)) {
+				continue;
+			}
 
-      for (var y=ymin;y<ymax;y++) {
-        var i = x*level.height+y;
-        var kmax;
+			for (var y=ymin;y<ymax;y++) {
+				var i = x*level.height+y;
+				var kmax;
+
 
         if (direction === 2) { // down
           kmax=level.height-(y+len)+1;
@@ -2135,7 +2295,7 @@ function matchCellRowWildCard(direction, cellRowMatch, cellRow,cellRowMask) {
         } else {
           window.console.log("EEEP2 "+direction);
         }
-        result.push.apply(result, cellRowMatch(cellRow,i,kmax,0));
+        result.push.apply(result, cellRowMatch(cellRow,i,kmax,0, d, level.objects, level.movements));
       }
     }   
   }
@@ -2163,48 +2323,23 @@ function generateTuples(lists) {
     return tuples;
 }
 
-var rigidBackups=[]
 
-function commitPreservationState(ruleGroupIndex) {
-  var propagationState = {
-    ruleGroupIndex:ruleGroupIndex,
-    objects:new Int32Array(level.objects),
-    movements:new Int32Array(level.movements),
-    rigidGroupIndexMask:level.rigidGroupIndexMask.concat([]),
-    rigidMovementAppliedMask:level.rigidMovementAppliedMask.concat([]),
-    bannedGroup:level.bannedGroup.concat([]),
-    commandQueue:level.commandQueue.concat([]),
-    commandQueueSourceRules:level.commandQueueSourceRules.concat([])
-  };
-  rigidBackups[ruleGroupIndex]=propagationState;
-  return propagationState;
-}
+Rule.prototype.findMatches = function() {	
+	if ( ! this.ruleMask.bitsSetInArray(level.mapCellContents.data) )
+		return [];
 
-function restorePreservationState(preservationState) {;
-//don't need to concat or anythign here, once something is restored it won't be used again.
-  level.objects = new Int32Array(preservationState.objects);
-  level.movements = new Int32Array(preservationState.movements);
-  level.rigidGroupIndexMask = preservationState.rigidGroupIndexMask.concat([]);
-    level.rigidMovementAppliedMask = preservationState.rigidMovementAppliedMask.concat([]);
-    level.commandQueue = preservationState.commandQueue.concat([]);
-    level.commandQueueSourceRules = preservationState.commandQueueSourceRules.concat([]);
-    sfxCreateMask.setZero();
-    sfxDestroyMask.setZero();
-  consolePrint("Rigid movement application failed, rolling back");
+	const d = level.delta_index(this.direction)
 
-//  rigidBackups = preservationState.rigidBackups;
-}
-
-Rule.prototype.findMatches = function() {
-  var matches=[];
-  var cellRowMasks=this.cellRowMasks;
+	var matches=[];
+	var cellRowMasks=this.cellRowMasks;
+	var cellRowMasks_Movements=this.cellRowMasks_Movements;
     for (var cellRowIndex=0;cellRowIndex<this.patterns.length;cellRowIndex++) {
         var cellRow = this.patterns[cellRowIndex];
         var matchFunction = this.cellRowMatches[cellRowIndex];
         if (this.isEllipsis[cellRowIndex]) {//if ellipsis     
-          var match = matchCellRowWildCard(this.direction,matchFunction,cellRow,cellRowMasks[cellRowIndex]);  
+        	var match = matchCellRowWildCard(this.direction,matchFunction,cellRow,cellRowMasks[cellRowIndex],cellRowMasks_Movements[cellRowIndex],d);  
         } else {
-          var match = matchCellRow(this.direction,matchFunction,cellRow,cellRowMasks[cellRowIndex], this.isGlobal);                
+        	var match = matchCellRow(this.direction,matchFunction,cellRow,cellRowMasks[cellRowIndex],cellRowMasks_Movements[cellRowIndex],d, this.isGlobal);               	
         }
         if (match.length===0) {
             return [];
@@ -2233,35 +2368,28 @@ Rule.prototype.directional = function(){
     return false;
 }
 
-Rule.prototype.applyAt = function(delta,tuple,check) {
-  var rule = this;
-  //have to double check they apply
-  //Q: why?
-    if (check) {
-        var ruleMatches=true;                
-        for (var cellRowIndex=0;cellRowIndex<rule.patterns.length;cellRowIndex++) {
-          if (rule.isEllipsis[cellRowIndex]) {//if ellipsis
-              if (DoesCellRowMatchWildCard(rule.direction,rule.patterns[cellRowIndex],tuple[cellRowIndex][0],
-                tuple[cellRowIndex][1]+1, tuple[cellRowIndex][1])===false) { /* pass mink to specify */
-                    ruleMatches=false;
-                    break;
-                }
-          } else {
-              if (DoesCellRowMatch(rule.direction,rule.patterns[cellRowIndex],tuple[cellRowIndex])===false) {
-                    ruleMatches=false;
-                    break;
-                }
-          }
-        }
-        if (ruleMatches === false ) {
-            return false;
-        }
-    }
+Rule.prototype.applyAt = function(level,tuple,check,delta) {
+	var rule = this;
+	//have to double check they apply 
+	//(cf test ellipsis bug: rule matches two candidates, first replacement invalidates second)
+	if (check)
+	{
+		for (var cellRowIndex=0; cellRowIndex<this.patterns.length; cellRowIndex++)
+		{
+			if (this.isEllipsis[cellRowIndex]) //if ellipsis
+			{
+				if ( this.cellRowMatches[cellRowIndex](this.patterns[cellRowIndex], tuple[cellRowIndex][0], tuple[cellRowIndex][1]+1, tuple[cellRowIndex][1], delta, level.objects, level.movements).length == 0 )
+					return false
+			}
+			else if ( ! this.cellRowMatches[cellRowIndex](this.patterns[cellRowIndex], tuple[cellRowIndex], delta, level.objects, level.movements) )
+				return false
+		}
+	}
+
+
     var result=false;
     
     //APPLY THE RULE
-    var d0 = delta[0]*level.height;
-    var d1 = delta[1];
     for (var cellRowIndex=0;cellRowIndex<rule.patterns.length;cellRowIndex++) {
         var preRow = rule.patterns[cellRowIndex];
         
@@ -2270,14 +2398,14 @@ Rule.prototype.applyAt = function(delta,tuple,check) {
             var preCell = preRow[cellIndex];
 
             if (preCell === ellipsisPattern) {
-              var k = tuple[cellRowIndex][1];
-              currentIndex = (currentIndex+(d1+d0)*k);
-              continue;
+            	var k = tuple[cellRowIndex][1];
+            	currentIndex += delta*k;
+            	continue;
             }
 
             result = preCell.replace(rule, currentIndex) || result;
 
-            currentIndex = (currentIndex+d1+d0);
+            currentIndex += delta;
         }
     }
 
@@ -2287,16 +2415,17 @@ Rule.prototype.applyAt = function(delta,tuple,check) {
       ruleDirection="";
     }
 
-    var logString = '<font color="green">Rule <a onclick="jumpToLine(' + rule.lineNumber + ');"  href="javascript:void(0);">' + rule.lineNumber + '</a> ' + 
-      ruleDirection + ' applied.</font>';
-    consolePrint(logString);
-  }
+		var inspect_ID =  addToDebugTimeline(level,rule.lineNumber);
+		var logString = `<font color="green">Rule <a onclick="jumpToLine(${rule.lineNumber});"  href="javascript:void(0);">${rule.lineNumber}</a> ${ruleDirection} applied.</font>`;
+		consolePrint(logString,false,rule.lineNumber,inspect_ID);
+		
+	}
 
     return result;
 };
 
-Rule.prototype.tryApply = function() {
-  var delta = dirMasksDelta[this.direction];
+Rule.prototype.tryApply = function(level) {
+	const delta = level.delta_index(this.direction);
 
     //get all cellrow matches
     var matches = this.findMatches();
@@ -2304,16 +2433,16 @@ Rule.prototype.tryApply = function() {
       return false;
     }
 
-    var result=false; 
-  if (this.hasReplacements) {
-      var tuples = generateTuples(matches);
-      for (var tupleIndex=0;tupleIndex<tuples.length;tupleIndex++) {
-          var tuple = tuples[tupleIndex];
-          var shouldCheck=tupleIndex>0;
-          var success = this.applyAt(delta,tuple,shouldCheck);
-          result = success || result;
-      }
-  }
+    var result=false;	
+	if (this.hasReplacements) {
+	    var tuples = generateTuples(matches);
+	    for (var tupleIndex=0;tupleIndex<tuples.length;tupleIndex++) {
+	        var tuple = tuples[tupleIndex];
+	        var shouldCheck=tupleIndex>0;
+	        var success = this.applyAt(level,tuple,shouldCheck,delta);
+	        result = success || result;
+	    }
+	}
 
     if (matches.length>0) {
       this.queueCommands();
@@ -2356,6 +2485,7 @@ Rule.prototype.queueCommands = function() {
 	//if you are writing a cancel or restart, clear the current queue
 	if (currule_cancel || currule_restart){
 		level.commandQueue=[];
+        level.commandQueueSourceRules=[];
 		messagetext="";
 	}
 
@@ -2372,7 +2502,7 @@ Rule.prototype.queueCommands = function() {
 			var lineNumber = this.lineNumber;
 			var ruleDirection = dirMaskName[this.direction];
 			var logString = '<font color="green">Rule <a onclick="jumpToLine(' + lineNumber.toString() + ');"  href="javascript:void(0);">' + lineNumber.toString() + '</a> triggers command '+command[0]+'.</font>';
-			consolePrint(logString,true);
+			consolePrint(logString,false,lineNumber,null);
 		}
 
     if (command[0]==='message') {     
@@ -2461,14 +2591,15 @@ function twiddleMetadataExtras() {
 }
 
 function showTempMessage() {
-  keybuffer=[];
-  textMode=true;
-  titleScreen=false;
-  quittingMessageScreen=false;
-  messageselected=false;
-  tryPlayShowMessageSound();
-  drawMessageScreen();
-  canvasResize();
+	keybuffer=[];
+	textMode=true;
+	titleScreen=false;
+	quittingMessageScreen=false;
+	messageselected=false;
+	ignoreNotJustPressedAction=true;
+	tryPlayShowMessageSound();
+	drawMessageScreen();
+	canvasResize();
 }
 
 function processOutputCommands(commands) {
@@ -2485,48 +2616,50 @@ function processOutputCommands(commands) {
 	}
 }
 
-function applyRandomRuleGroup(ruleGroup) {
-  var propagated=false;
+function applyRandomRuleGroup(level,ruleGroup) {
+	var propagated=false;
 
-  var matches=[];
-  for (var ruleIndex=0;ruleIndex<ruleGroup.length;ruleIndex++) {
-    var rule=ruleGroup[ruleIndex];
-    var ruleMatches = rule.findMatches();
-    if (ruleMatches.length>0) {
-        var tuples  = generateTuples(ruleMatches);
-        for (var j=0;j<tuples.length;j++) {
-          var tuple=tuples[j];
-        matches.push([ruleIndex,tuple]);
-        }
-    }   
-  }
+	var matches=[];
+	for (var ruleIndex=0;ruleIndex<ruleGroup.length;ruleIndex++) {
+		var rule=ruleGroup[ruleIndex];
+		var ruleMatches = rule.findMatches();
+		if (ruleMatches.length>0) {
+	    	var tuples  = generateTuples(ruleMatches);
+	    	for (var j=0;j<tuples.length;j++) {
+	    		var tuple=tuples[j];
+				matches.push([ruleIndex,tuple]);
+	    	}
+		}		
+	}
 
   if (matches.length===0)
   {
     return false;
   } 
 
-  var match = matches[Math.floor(RandomGen.uniform()*matches.length)];
-  var ruleIndex=match[0];
-  var rule=ruleGroup[ruleIndex];
-  var delta = dirMasksDelta[rule.direction];
-  var tuple=match[1];
-  var check=false;
-  var modified = rule.applyAt(delta,tuple,check);
+	var match = matches[Math.floor(RandomGen.uniform()*matches.length)];
+	var ruleIndex=match[0];
+	var rule=ruleGroup[ruleIndex];
+	var tuple=match[1];
+	var check=false;
+	const delta = level.delta_index(rule.direction)
+	var modified = rule.applyAt(level,tuple,check,delta);
 
     rule.queueCommands();
 
   return modified;
 }
 
+
 function applyRuleGroup(ruleGroup) {
-  if (ruleGroup[0].isRandom) {
-    return applyRandomRuleGroup(ruleGroup);
-  }
+	if (ruleGroup[0].isRandom) {
+		return applyRandomRuleGroup(level,ruleGroup);
+	}
 
   var loopPropagated=false;
     var propagated=true;
     var loopcount=0;
+	var nothing_happened_counter = -1;
     while(propagated) {
       loopcount++;
       if (loopcount>200) 
@@ -2535,12 +2668,25 @@ function applyRuleGroup(ruleGroup) {
         break;
       }
         propagated=false;
+
         for (var ruleIndex=0;ruleIndex<ruleGroup.length;ruleIndex++) {
-            var rule = ruleGroup[ruleIndex];            
-            propagated = rule.tryApply() || propagated;
+            var rule = ruleGroup[ruleIndex];     
+			if (rule.tryApply(level)){
+				propagated=true;
+				nothing_happened_counter=0;//why am I resetting to 1 rather than 0? because I've just verified that applications of the current rule are exhausted
+			} else {
+				nothing_happened_counter++;
+			}
+			if ( nothing_happened_counter === ruleGroup.length)
+				break;
         }
         if (propagated) {
-          loopPropagated=true;
+        	loopPropagated=true;
+			
+			if (verbose_logging){
+				debugger_turnIndex++;
+				addToDebugTimeline(level,-2);//pre-movement-applied debug state
+			}
         }
     }
 
@@ -2564,35 +2710,45 @@ function applyRules(rules, loopPoint, startRuleGroupindex, bannedGroup){
       loopPropagated = applyRuleGroup(ruleGroup) || loopPropagated;
       }
         if (loopPropagated && loopPoint[ruleGroupIndex]!==undefined) {
-          ruleGroupIndex = loopPoint[ruleGroupIndex];
-          loopPropagated=false;
-          loopCount++;
-      if (loopCount > 200) {
-          var ruleGroup=rules[ruleGroupIndex];
-          logErrorCacheable("got caught in an endless startloop...endloop vortex, escaping!", ruleGroup[0].lineNumber,true);
-          break;
-      }
+        	ruleGroupIndex = loopPoint[ruleGroupIndex];
+        	loopPropagated=false;
+        	loopCount++;
+			if (loopCount > 200) {
+    			var ruleGroup=rules[ruleGroupIndex];
+			   	logErrorCacheable("got caught in an endless startloop...endloop vortex, escaping!", ruleGroup[0].lineNumber,true);
+			   	break;
+			}
+			
+			if (verbose_logging){
+				debugger_turnIndex++;
+				addToDebugTimeline(level,-2);//pre-movement-applied debug state
+			}
         } else {
-          ruleGroupIndex++;
-          if (ruleGroupIndex===rules.length) {
-            if (loopPropagated && loopPoint[ruleGroupIndex]!==undefined) {
-              ruleGroupIndex = loopPoint[ruleGroupIndex];
-              loopPropagated=false;
-              loopCount++;
-          if (loopCount > 200) {
-              var ruleGroup=rules[ruleGroupIndex];
-              logErrorCacheable("got caught in an endless startloop...endloop vortex, escaping!", ruleGroup[0].lineNumber,true);
-              break;
-          }
-            } 
-          }
+        	ruleGroupIndex++;
+        	if (ruleGroupIndex===rules.length) {
+        		if (loopPropagated && loopPoint[ruleGroupIndex]!==undefined) {
+		        	ruleGroupIndex = loopPoint[ruleGroupIndex];
+		        	loopPropagated=false;
+		        	loopCount++;
+					if (loopCount > 200) {
+		    			var ruleGroup=rules[ruleGroupIndex];
+					   	logErrorCacheable("got caught in an endless startloop...endloop vortex, escaping!", ruleGroup[0].lineNumber,true);
+					   	break;
+					}
+		        } 
+        	}
+			
+			if (verbose_logging){
+				debugger_turnIndex++;
+				addToDebugTimeline(level,-2);//pre-movement-applied debug state
+			}
         }
     }
 }
 
 
 //if this returns!=null, need to go back and reprocess
-function resolveMovements(dir){
+function resolveMovements(level, bannedGroup){
     var moved=true;
     while(moved){
         moved=false;
@@ -2602,48 +2758,48 @@ function resolveMovements(dir){
     }
     var doUndo=false;
 
-  for (var i=0;i<level.n_tiles;i++) {
-    var cellMask = level.getCellInto(i,_o6);
-    var movementMask = level.getMovements(i);
-    if (!movementMask.iszero()) {
-      var rigidMovementAppliedMask = level.rigidMovementAppliedMask[i];
-      if (rigidMovementAppliedMask !== 0) {
-        movementMask.iand(rigidMovementAppliedMask);
-        if (!movementMask.iszero()) {
-          //find what layer was restricted
-          for (var j=0;j<level.layerCount;j++) {
-            var layerSection = movementMask.getshiftor(0x1f, 5*j);
-            if (layerSection!==0) {
-              //this is our layer!
-              var rigidGroupIndexMask = level.rigidGroupIndexMask[i];
-              var rigidGroupIndex = rigidGroupIndexMask.getshiftor(0x1f, 5*j);
-              rigidGroupIndex--;//group indices start at zero, but are incremented for storing in the bitfield
-              var groupIndex = state.rigidGroupIndex_to_GroupIndex[rigidGroupIndex];
-              level.bannedGroup[groupIndex]=true;
-              //backtrackTarget = rigidBackups[rigidGroupIndex];
-              doUndo=true;
-              break;
-            }
-          }
-        }
-      }
-      for (var j=0;j<state.sfx_MovementFailureMasks.length;j++) {
-        var o = state.sfx_MovementFailureMasks[j];
-        var objectMask = o.objectMask;
-        if (objectMask.anyBitsInCommon(cellMask)) {
-          var directionMask = o.directionMask;
-          if (movementMask.anyBitsInCommon(directionMask) && seedsToPlay_CantMove.indexOf(o.seed)===-1) {
-            seedsToPlay_CantMove.push(o.seed);
-          }
-        }
-      }
-      }
+	for (var i=0;i<level.n_tiles;i++) {
+		var cellMask = level.getCellInto(i,_o6);
+		var movementMask = level.getMovements(i);
+		if (!movementMask.iszero()) {
+			var rigidMovementAppliedMask = level.rigidMovementAppliedMask[i];
+			if (rigidMovementAppliedMask !== 0) {
+				movementMask.iand(rigidMovementAppliedMask);
+				if (!movementMask.iszero()) {
+					//find what layer was restricted
+					for (var j=0;j<level.layerCount;j++) {
+						var layerSection = movementMask.getshiftor(0x1f, 5*j);
+						if (layerSection!==0) {
+							//this is our layer!
+							var rigidGroupIndexMask = level.rigidGroupIndexMask[i];
+							var rigidGroupIndex = rigidGroupIndexMask.getshiftor(0x1f, 5*j);
+							rigidGroupIndex--;//group indices start at zero, but are incremented for storing in the bitfield
+							var groupIndex = state.rigidGroupIndex_to_GroupIndex[rigidGroupIndex];
+							bannedGroup[groupIndex]=true;
+							//backtrackTarget = rigidBackups[rigidGroupIndex];
+							doUndo=true;
+							break;
+						}
+					}
+				}
+			}
+			for (var j=0;j<state.sfx_MovementFailureMasks.length;j++) {
+				var o = state.sfx_MovementFailureMasks[j];
+				var objectMask = o.objectMask;
+				if (objectMask.anyBitsInCommon(cellMask)) {
+					var directionMask = o.directionMask;
+					if (movementMask.anyBitsInCommon(directionMask) && seedsToPlay_CantMove.indexOf(o.seed)===-1) {
+						seedsToPlay_CantMove.push(o.seed);
+					}
+				}
+			}
+    	}
 
-      for (var j=0;j<STRIDE_MOV;j++) {
-        level.movements[j+i*STRIDE_MOV]=0;
-      }
-      level.rigidGroupIndexMask[i]=0;
-      level.rigidMovementAppliedMask[i]=0;
+    	for (var j=0;j<STRIDE_MOV;j++) {
+    		level.movements[j+i*STRIDE_MOV]=0;
+    	}
+	    level.rigidGroupIndexMask[i]=0;
+	    level.rigidMovementAppliedMask[i]=0;
     }
     return doUndo;
 }
@@ -2652,29 +2808,40 @@ var sfxCreateMask=null;
 var sfxDestroyMask=null;
 
 function calculateRowColMasks() {
-  for(var i=0;i<level.mapCellContents.length;i++) {
-    level.mapCellContents[i]=0;
-  }
+	for(var i=0;i<level.mapCellContents.length;i++) {
+		level.mapCellContents[i]=0;
+		level.mapCellContents_Movements[i]=0;	
+	}
 
-  for (var i=0;i<level.width;i++) {
-    var ccc = level.colCellContents[i];
-    ccc.setZero();
-  }
+	for (var i=0;i<level.width;i++) {
+		var ccc = level.colCellContents[i];
+		ccc.setZero();
+		var ccc_Movements = level.colCellContents_Movements[i];
+		ccc_Movements.setZero();
+	}
 
-  for (var i=0;i<level.height;i++) {
-    var rcc = level.rowCellContents[i];
-    rcc.setZero();
-  }
+	for (var i=0;i<level.height;i++) {
+		var rcc = level.rowCellContents[i];
+		rcc.setZero();
+		var rcc_Movements = level.rowCellContents_Movements[i];
+		rcc_Movements.setZero();
+	}
 
-  for (var i=0;i<level.width;i++) {
-    for (var j=0;j<level.height;j++) {
-      var index = j+i*level.height;
-      var cellContents=level.getCellInto(index,_o9);
-      level.mapCellContents.ior(cellContents);
-      level.rowCellContents[j].ior(cellContents);
-      level.colCellContents[i].ior(cellContents);
-    }
-  }
+	for (var i=0;i<level.width;i++) {
+		for (var j=0;j<level.height;j++) {
+			var index = j+i*level.height;
+			var cellContents=level.getCellInto(index,_o9);
+			level.mapCellContents.ior(cellContents);
+			level.rowCellContents[j].ior(cellContents);
+			level.colCellContents[i].ior(cellContents);
+
+			
+			var mapCellContents_Movements=level.getMovementsInto(index,_m1);
+			level.mapCellContents_Movements.ior(mapCellContents_Movements);
+			level.rowCellContents_Movements[j].ior(mapCellContents_Movements);
+			level.colCellContents_Movements[i].ior(mapCellContents_Movements);
+		}
+	}
 }
 
 var playerPositions;
@@ -2684,23 +2851,20 @@ var playerPositionsAtTurnStart;
 function processInput(dir,dontDoWin,dontModify,bak) {
 	againing = false;
 
-	if (verbose_logging) { 
-	 	if (dir===-1) {
-	 		consolePrint('Turn starts with no input.')
-	 	} else {
-	 		consolePrint('=======================');
-			consolePrint('Turn starts with input of ' + ['up','left','down','right','action','mouse'][dir]+'.');
-	 	}
-	}
-
 	if (bak==undefined) {
 		bak = backupLevel();
-  }
+	}
   
-  playerPositions= getPlayerPositions();
+  playerPositions= [];
 playerPositionsAtTurnStart = getPlayerPositions();
 
     if (dir<=5) {
+
+      if (verbose_logging) { 
+        debugger_turnIndex++;
+        addToDebugTimeline(level,-2);//pre-movement-applied debug state
+      }
+
     	if (dir>=0 && dir<=4) {
 	        switch(dir){
 	            case 0://up
@@ -2730,41 +2894,100 @@ playerPositionsAtTurnStart = getPlayerPositions();
 				      }
 	        }
 	        playerPositions = startMovement(dir);
-		    }
+		}
+			
+		
+		if (verbose_logging) { 
+			consolePrint('Applying rules');
 
-        var i=0;
-        level.bannedGroup = [];
-        rigidBackups = [];
+			var inspect_ID = addToDebugTimeline(level,-1);
+				
+			 if (dir===-1) {
+				 consolePrint(`Turn starts with no input.`,false,null,inspect_ID)
+			 } else {
+				//  consolePrint('=======================');
+				consolePrint(`Turn starts with input of ${['up','left','down','right','action','mouse'][inputindex]}.`,false,null,inspect_ID);
+			 }
+		}
+
+		
+        bannedGroup = [];
         level.commandQueue=[];
         level.commandQueueSourceRules=[];
         var startRuleGroupIndex=0;
         var rigidloop=false;
-        var startState = commitPreservationState();
-      sfxCreateMask.setZero();
-      sfxDestroyMask.setZero();
+		const startState = {
+			objects: new Int32Array(level.objects),
+			movements: new Int32Array(level.movements),
+			rigidGroupIndexMask: level.rigidGroupIndexMask.concat([]),
+			rigidMovementAppliedMask: level.rigidMovementAppliedMask.concat([]),
+			commandQueue: [],
+			commandQueueSourceRules: []
+		}
+	    sfxCreateMask.setZero();
+	    sfxDestroyMask.setZero();
 
     seedsToPlay_CanMove=[];
     seedsToPlay_CantMove=[];
 
     calculateRowColMasks();
 
+        var i=0;
         do {
         //not particularly elegant, but it'll do for now - should copy the world state and check
         //after each iteration
         	rigidloop=false;
         	i++;
         	
-        	if (verbose_logging){consolePrint('applying rules');}
 
-        	applyRules(state.rules, state.loopPoint, startRuleGroupIndex, level.bannedGroup);
-        	var shouldUndo = resolveMovements();
+
+        	applyRules(state.rules, state.loopPoint, startRuleGroupIndex, bannedGroup);
+        	var shouldUndo = resolveMovements(level,bannedGroup);
 
         	if (shouldUndo) {
         		rigidloop=true;
-        		restorePreservationState(startState);
+
+				{
+					// trackback
+					consolePrint("Rigid movement application failed. Rolling back...")
+					//don't need to concat or anythign here, once something is restored it won't be used again.
+					level.objects = new Int32Array(startState.objects)
+					level.movements = new Int32Array(startState.movements)
+					level.rigidGroupIndexMask = startState.rigidGroupIndexMask.concat([])
+					level.rigidMovementAppliedMask = startState.rigidMovementAppliedMask.concat([])
+					// TODO: shouldn't we also save/restore the level data computed by level.calculateRowColMasks() ?
+					level.commandQueue = startState.commandQueue.concat([])
+					level.commandQueueSourceRules = startState.commandQueueSourceRules.concat([])
+					sfxCreateMask.setZero()
+					sfxDestroyMask.setZero()
+					// TODO: should
+
+				}
+
+				if (verbose_logging && rigidloop && i>0){				
+					consolePrint('Relooping through rules because of rigid.');
+						
+					debugger_turnIndex++;
+					addToDebugTimeline(level,-2);//pre-movement-applied debug state
+				}
+
         		startRuleGroupIndex=0;//rigidGroupUndoDat.ruleGroupIndex+1;
         	} else {
-        		if (verbose_logging){consolePrint('applying late rules');}
+        		if (verbose_logging){
+
+					var eof_idx = debug_visualisation_array[debugger_turnIndex].length+1;//just need some number greater than any rule group
+					var inspect_ID = addToDebugTimeline(level,eof_idx);
+
+					consolePrint(`Processed movements.`,false,null,inspect_ID);
+					
+					if (state.lateRules.length>0){
+											
+						debugger_turnIndex++;
+						addToDebugTimeline(level,-2);//pre-movement-applied debug state
+					
+						consolePrint('Applying late rules');
+					}
+				}
         		applyRules(state.lateRules, state.lateLoopPoint, 0);
         		startRuleGroupIndex=0;
         	}
@@ -2797,7 +3020,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
 	    			consolePrint('require_player_movement set, but no player movement detected, so cancelling turn.');
 	    			consoleCacheDump();
 				}
-        		backups.push(bak);
+        		addUndoState(bak);
         		DoUndo(true,false);
         		return false;
         	}
@@ -2824,7 +3047,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
 	    		consolePrintFromRule('CANCEL command executed, cancelling turn.',r,true);
 			}
 			processOutputCommands(level.commandQueue);
-    		backups.push(bak);
+    		addUndoState(bak);
     		DoUndo(true,false);
     		tryPlayCancelSound();
     		return false;
@@ -2837,7 +3060,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
 	    		consoleCacheDump();
 			}
 			processOutputCommands(level.commandQueue);
-    		backups.push(bak);
+    		addUndoState(bak);
 	    	DoRestart(true);
     		return true;
 		}
@@ -2878,12 +3101,12 @@ playerPositionsAtTurnStart = getPlayerPositions();
 	        		if (verbose_logging) {
 	        			consoleCacheDump();
 	        		}
-	        		backups.push(bak);
+	        		addUndoState(bak);
 	        		DoUndo(true,false);
 					return true;
 				} else {
 					if (dir!==-1 && save_backup) {
-	    				backups.push(bak);
+	    				addUndoState(bak);
 	    			}
 	    			modified=true;
 	    			updateCameraPositionTarget();
@@ -2929,7 +3152,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
 
 	    if (textMode===false) {
 	    	if (verbose_logging) { 
-	    		consolePrint('Checking win condition.');
+	    		consolePrint('Checking win conditions.');
 			}
 			if (dontDoWin===undefined){
 				dontDoWin = false;
@@ -2946,10 +3169,8 @@ playerPositionsAtTurnStart = getPlayerPositions();
 				restartTarget=level4Serialization();
 				hasUsedCheckpoint=true;
 				var backupStr = JSON.stringify(restartTarget);
-				if (!!window.localStorage) {
-					localStorage[document.URL+'_checkpoint']=backupStr;
-					localStorage[document.URL]=curlevel;
-				}
+				storage_set(document.URL+'_checkpoint',backupStr);
+				storage_set(document.URL,curlevel);				
 			}	 
 
 		    if (level.commandQueue.indexOf('again')>=0 && modified) {
@@ -2979,10 +3200,13 @@ playerPositionsAtTurnStart = getPlayerPositions();
 			    messagetext = oldmessagetext;
 		    }   
 		}
-		    
-
-      level.commandQueue=[];
-      level.commandQueueSourceRules=[];
+		
+		if (verbose_logging) { 
+			consolePrint(`Turn complete`);    
+		}
+		
+	    level.commandQueue=[];
+	    level.commandQueueSourceRules=[];
 
     }
 
@@ -3117,7 +3341,8 @@ function nextLevel() {
 	if (state && state.levels && (curlevel>state.levels.length) ){
 		curlevel=state.levels.length-1;
 	}
-	
+  
+  ignoreNotJustPressedAction=true;
 	if (titleScreen && titleMode <= 1) {
 		if(isContinueOptionSelected()) {
 			// continue
@@ -3163,6 +3388,7 @@ function nextLevel() {
 
 			if(!skip) {
 				curlevel++;
+				curlevelTarget=null;
 				textMode=false;
 				titleScreen=false;
 				quittingMessageScreen=false;
@@ -3174,7 +3400,11 @@ function nextLevel() {
 			if(solvedSections.length == state.sections.length) {
 				if(state.metadata["level_select"] === undefined) {
 					// solved all
-					clearLocalStorage();
+          try{
+            storage_remove(document.URL);
+            storage_remove(document.URL+'_checkpoint');				
+          } catch(ex){
+          }
 					
 					curlevel=0;
 					curlevelTarget=null;
@@ -3213,7 +3443,7 @@ function goToTitleScreen(){
 	titleScreen=true;
 	textMode=true;
 	doSetupTitleScreenLevelContinue();
-  //titleSelection=(curlevel>0||curlevelTarget!==null)?1:0;
+  //titleSelection=showContinueOptionOnTitleScreen()?1:0;
   
   state.metadata = deepClone(state.default_metadata);
   twiddleMetadataExtras();
@@ -3233,17 +3463,18 @@ function resetFlickDat() {
 
 function updateLocalStorage() {
 	try {
-		if (!!window.localStorage) {
-			localStorage[document.URL]=curlevel;
-			if (curlevelTarget!==null){
-				restartTarget=level4Serialization();
-				var backupStr = JSON.stringify(restartTarget);
-				localStorage[document.URL+'_checkpoint']=backupStr;
-			} else {
-				localStorage.removeItem(document.URL+"_checkpoint");
-			}
-		}
-	} catch (ex) { }
+		
+		storage_set(document.URL,curlevel);
+		if (curlevelTarget!==null){
+			restartTarget=level4Serialization();
+			var backupStr = JSON.stringify(restartTarget);
+			storage_set(document.URL+'_checkpoint',backupStr);
+		} else {
+			storage_remove(document.URL+"_checkpoint");
+		}		
+		
+	} catch (ex) {
+  }
 }
 
 function setSectionSolved(section) {
@@ -3279,4 +3510,93 @@ function clearLocalStorage() {
 			localStorage.removeItem(document.URL+'_sections');
 		}
 	} catch(ex){ }
+}
+
+var cameraPositionTarget = null;
+
+var cameraPosition = {
+  x: 0,
+  y: 0
+};
+
+function initSmoothCamera() {
+    if (state===undefined || state.metadata.smoothscreen===undefined) {
+        return;
+    }
+
+    screenwidth=state.metadata.smoothscreen.screenSize.width;
+    screenheight=state.metadata.smoothscreen.screenSize.height;
+
+    var boundarySize = state.metadata.smoothscreen.boundarySize;
+    var flick = state.metadata.smoothscreen.flick;
+
+    var playerPositions = getPlayerPositions();
+    if (playerPositions.length>0) {
+        var playerPosition = {
+            x: (playerPositions[0]/(level.height))|0,
+            y: (playerPositions[0]%level.height)|0
+        };
+
+        cameraPositionTarget = {
+            x: flick
+              ? getFlickCameraPosition(playerPosition.x, level.width, screenwidth, boundarySize.width)
+              : getCameraPosition(playerPosition.x, level.width, screenwidth),
+            y: flick
+              ? getFlickCameraPosition(playerPosition.y, level.height, screenheight, boundarySize.height)
+              : getCameraPosition(playerPosition.y, level.height, screenheight)
+        };
+
+        cameraPosition.x = cameraPositionTarget.x;
+        cameraPosition.y = cameraPositionTarget.y;
+    }
+}
+
+function getCameraPosition (targetPosition, levelDimension, screenDimension) {
+    return Math.min(
+        Math.max(targetPosition, Math.floor(screenDimension / 2)),
+        levelDimension - Math.ceil(screenDimension / 2)
+    );
+}
+
+function getFlickCameraPosition (targetPosition, levelDimension, screenDimension, boundaryDimension) {
+    var flickGridOffset = (Math.floor(screenDimension / 2) - Math.floor(boundaryDimension / 2));
+    var flickGridPlayerPosition = targetPosition - flickGridOffset;
+    var flickGridPlayerCell = Math.floor(flickGridPlayerPosition / boundaryDimension);
+    var maxFlickGridCell = Math.floor((levelDimension - Math.ceil(screenDimension / 2) - Math.floor(boundaryDimension / 2) - flickGridOffset) / boundaryDimension);
+
+    return Math.min(Math.max(flickGridPlayerCell, 0), maxFlickGridCell) * boundaryDimension + Math.floor(screenDimension / 2);
+}
+
+function updateCameraPositionTarget() {
+    var smoothscreenConfig = state.metadata.smoothscreen;
+    var playerPositions = getPlayerPositions();
+
+    if (!smoothscreenConfig || playerPositions.length === 0) {
+        return
+    }
+
+    var playerPosition = {
+        x: (playerPositions[0]/(level.height))|0,
+        y: (playerPositions[0]%level.height)|0
+    };
+
+    ['x', 'y'].forEach(function (coord) {
+        var screenDimension = coord === 'x' ? screenwidth : screenheight;
+
+        var dimensionName = coord === 'x' ? 'width' : 'height';
+        var levelDimension = level[dimensionName];
+        var boundaryDimension = smoothscreenConfig.boundarySize[dimensionName];
+
+        var playerVector = playerPosition[coord] - cameraPositionTarget[coord];
+        var direction = Math.sign(playerVector);
+        var boundaryVector = direction > 0
+          ? Math.ceil(boundaryDimension / 2)
+          : -(Math.floor(boundaryDimension / 2) + 1);
+
+        if (Math.abs(playerVector) - Math.abs(boundaryVector) >= 0) {
+            cameraPositionTarget[coord] = smoothscreenConfig.flick
+              ? getFlickCameraPosition(playerPosition[coord], levelDimension, screenDimension, boundaryDimension)
+              : getCameraPosition(playerPosition[coord] - boundaryVector + direction, levelDimension, screenDimension);
+        }
+    })
 }

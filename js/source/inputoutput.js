@@ -24,7 +24,10 @@ function selectText(containerid,e) {
 	    } else if (window.getSelection) {
 	        var range = document.createRange();
 	        range.selectNode(myspan);
-	        window.getSelection().addRange(range);
+			var selection = window.getSelection();
+			//why removeallranges? https://stackoverflow.com/a/43443101 whatever...
+			selection.removeAllRanges();
+	        selection.addRange(range);
 	    }
 	}
 }
@@ -754,7 +757,7 @@ function onKeyDown(event) {
 		    } else {
     		    keybuffer.splice(keyRepeatIndex,0,event.keyCode);
 	    	    keyRepeatTimer=0;
-	    	    checkKey(event,true);
+	    	    checkKey(event,!event.repeat);
 		    }
 		}
 	}
@@ -1134,6 +1137,12 @@ function checkKey(e,justPressed) {
         case 88://x
         {
 //            window.console.log("ACTION");
+			if (justPressed && ignoreNotJustPressedAction){
+				ignoreNotJustPressedAction=false;
+			}
+			if (justPressed===false && ignoreNotJustPressedAction){
+				return;
+			}
 			if (norepeat_action===false || justPressed) {
             	inputdir=4;
             } else {
@@ -1392,6 +1401,7 @@ function update() {
 				titleScreen=false;
 				titleMode=(curlevel>0||curlevelTarget!==null)?1:0;
 				titleSelected=false;
+				ignoreNotJustPressedAction=true;
 				titleSelection=0;
     			canvasResize();  
     			checkWin();          	

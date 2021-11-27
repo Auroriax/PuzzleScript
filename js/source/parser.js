@@ -211,11 +211,11 @@ var codeMirrorFn = function() {
     var reg_equalsrow = /[\=]+/;
     var reg_notcommentstart = /[^\(]+/;
     var reg_csv_separators = /[ \,]*/;
-    var reg_soundverbs = /(move|action|create|destroy|cantmove|undo|restart|titlescreen|startgame|cancel|endgame|startlevel|endlevel|showmessage|closemessage|sfx0|sfx1|sfx2|sfx3|sfx4|sfx5|sfx6|sfx7|sfx8|sfx9|sfx10)[\p{Z}\s]+/u;
+    var reg_soundverbs = /(move|action|create|destroy|cantmove|undo|restart|titlescreen|startgame|cancel|endgame|startlevel|endlevel|showmessage|closemessage|sfx0|sfx1|sfx2|sfx3|sfx4|sfx5|sfx6|sfx7|sfx8|sfx9|sfx10)\b[\p{Z}\s]*/u;
     var reg_directions = /^(action|up|down|left|right|\^|v|\<|\>|moving|stationary|parallel|perpendicular|horizontal|orthogonal|vertical|no|randomdir|random)$/;
     var reg_loopmarker = /^(startloop|endloop)$/;
     var reg_ruledirectionindicators = /^(up|down|left|right|horizontal|vertical|orthogonal|late|rigid)$/;
-    var reg_sounddirectionindicators = /[\p{Z}\s]*(up|down|left|right|horizontal|vertical|orthogonal)[\p{Z}\s]*/u;
+    var reg_sounddirectionindicators = /[\p{Z}\s]*(up|down|left|right|horizontal|vertical|orthogonal)(?![\p{L}\p{N}_])[\p{Z}\s]*/u;
     var reg_winconditionquantifiers = /^(all|any|no|some)$/;
     var reg_keywords = /(checkpoint|objects|collisionlayers|legend|sounds|rules|winconditions|\.\.\.|levels|up|down|left|right|^|\||\[|\]|v|\>|\<|no|horizontal|orthogonal|vertical|any|all|no|some|moving|stationary|parallel|perpendicular|action|nosave)/;
     var preamble_params = ['title','author','homepage','background_color','text_color','key_repeat_interval','realtime_interval','again_interval','flickscreen','zoomscreen','smoothscreen','color_palette','youtube',
@@ -431,7 +431,7 @@ var codeMirrorFn = function() {
                 }
 
                 //MATCH SECTION NAME
-                if (stream.match(reg_sectionNames, true)) {
+                if (sol && stream.match(reg_sectionNames, true)) {
                     state.section = stream.string.slice(0, stream.pos).trim().toLowerCase();
                     if (state.visitedSections.indexOf(state.section) >= 0) {
                         logError('cannot duplicate sections (you tried to duplicate \"' + state.section + '").', state.lineNumber);
@@ -722,9 +722,10 @@ var codeMirrorFn = function() {
                        		if (state.names.indexOf(m)>=0) {
                        			return 'NAME';
                        		}
-                       	}
-
-                        candname = stream.match(reg_notcommentstart, true);
+                       	} else {
+                            //can we ever get here?
+                            candname = stream.match(reg_notcommentstart, true);
+                        }
                         logError('unexpected sound token "'+candname+'".' , state.lineNumber);
                         stream.match(reg_notcommentstart, true);
                         return 'ERROR';
@@ -816,10 +817,10 @@ var codeMirrorFn = function() {
                             if (foundOthers.length>0){
                                 var warningStr = 'Object "'+candname+'" included in multiple collision layers ( layers ';
                                 for (var i=0;i<foundOthers.length;i++){
-                                    warningStr+=foundOthers[i]+", ";
+                                    warningStr+="#"+(foundOthers[i]+1)+", ";
                                 }
-                                warningStr+=state.collisionLayers.length-1;
-                                logWarning(warningStr +'). You should fix this!',state.lineNumber);                                        
+                                warningStr+="#"+state.collisionLayers.length;
+                                logWarning(warningStr +' ). You should fix this!',state.lineNumber);                                        
                             }
 
                             state.collisionLayers[state.collisionLayers.length - 1] = state.collisionLayers[state.collisionLayers.length - 1].concat(ar);
@@ -855,8 +856,8 @@ var codeMirrorFn = function() {
 	                                logWarning('You named an object "' + candname + '", but this is a keyword. Don\'t do that!', state.lineNumber);
 	                            }
                                 if (splits.indexOf(candname, 2)>=2) {
-                                    logError("You can't define object " + candname + " in terms of itself!", state.lineNumber);
-                                    ok = false;
+                                    logError("You can't define object " + candname.toUpperCase() + " in terms of itself!", state.lineNumber);
+                                    // ok = false;
                                 }
                                 checkNameNew(state,candname);
                         	}

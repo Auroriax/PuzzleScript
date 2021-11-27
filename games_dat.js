@@ -364,13 +364,6 @@ var games_gallery = [
     "author": "Connorses [Loneship Games]"
   },
   {
-    "url": "https://www.ben-reilly.com/weakly-games/007-dinnertime/",
-    "thumb": "dinnertime.gif",
-    "title": "Dinnertime!",
-    "author": "Ben Reilly",
-    "homepage": "https://www.ben-reilly.com/"
-  },
-  {
     "url": "https://www.puzzlescript.net/play.html?p=09d9778d0e69116c5406",
     "thumb": "09d9778d0e69116c5406.gif",
     "title": "pretender to the crown",
@@ -734,13 +727,6 @@ var games_gallery = [
     "homepage": "https://www.activeupgames.com/"
   },
   {
-    "url": "https://zacharybarbanell.itch.io/loop-deleter",
-    "thumb": "deleter.gif",
-    "title": "Loop Deleter",
-    "author": "Zachary Barbanell",
-    "homepage": "https://zacharybarbanell.itch.io/"
-  },
-  {
     "url": "https://www.puzzlescript.net/play.html?p=58325085befa37ab497168cd803c64cb",
     "thumb": "58325085befa37ab497168cd803c64cb.gif",
     "title": "Fall Leaves",
@@ -758,13 +744,6 @@ var games_gallery = [
     "thumb": "35861399c74d3f57f39aaf64daadde65.gif",
     "title": "Indigestion",
     "author": "Le Slo"
-  },
-  {
-    "url": "https://thinkycollective.itch.io/ahoist-cratey",
-    "thumb": "ahoist.gif",
-    "title": "Ahoist Cratey",
-    "author": "Thinky Collective",
-    "homepage": "https://thinkycollective.itch.io/"
   },
   {
     "url": "https://www.puzzlescript.net/play.html?p=2fe3172d2b9fe684977d184f1b6226d5",
@@ -787,10 +766,17 @@ var games_gallery = [
     "homepage": "https://galactical.itch.io/"
   },
   {
-    "url": "https://www.puzzlescript.net/editor.html?hack=3754910c54ef200ac105b4152654bbea",
+    "url": "https://www.puzzlescript.net/play.html?p=3754910c54ef200ac105b4152654bbea",
     "thumb": "ezra.gif",
     "title": "Sokodig",
     "author": "Ezra Szanton",
     "homepage": "https://www.ezras.work/"
+  },
+  {
+    "url": "https://nebu-soku.itch.io/two-worlds",
+    "thumb": "twoworlds.gif",
+    "title": "Two Worlds",
+    "author": "nebu soku",
+    "homepage": "https://nebu-soku.itch.io"
   },
 ]

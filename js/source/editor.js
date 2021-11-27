@@ -14,8 +14,8 @@ if (fileToOpen!==null&&fileToOpen.length>0) {
 		code.value = "loading...";
 	} else {
 		try {
-			if (localStorage!==undefined && localStorage['saves']!==undefined) {
-					var curSaveArray = JSON.parse(localStorage['saves']);
+			if (storage_has('saves')) {
+					var curSaveArray = JSON.parse(storage_get('saves'));
 					var sd = curSaveArray[curSaveArray.length-1];
 					code.value = sd.text;
 					var loadDropdown = document.getElementById('loadDropDown');
@@ -33,11 +33,14 @@ CodeMirror.commands.swapLineUp = function(cm) {
       var range = ranges[i], from = range.from().line - 1, to = range.to().line;
       newSels.push({anchor: CodeMirror.Pos(range.anchor.line - 1, range.anchor.ch),
                     head: CodeMirror.Pos(range.head.line - 1, range.head.ch)});
-      if (range.to().ch == 0 && !range.empty()) --to;
+    //   if (range.to().ch == 0 && !range.empty()) --to;
       if (from > at) linesToMove.push(from, to);
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;
     }
+	if (linesToMove.length===0){
+		return;
+	}
     cm.operation(function() {
       for (var i = 0; i < linesToMove.length; i += 2) {
         var from = linesToMove[i], to = linesToMove[i + 1];
@@ -57,7 +60,7 @@ CodeMirror.commands.swapLineUp = function(cm) {
     var ranges = cm.listSelections(), linesToMove = [], at = cm.lastLine() + 1;
     for (var i = ranges.length - 1; i >= 0; i--) {
       var range = ranges[i], from = range.to().line + 1, to = range.from().line;
-      if (range.to().ch == 0 && !range.empty()) from--;
+    //   if (range.to().ch == 0 && !range.empty()) from--;
       if (from < at) linesToMove.push(from, to);
       else if (linesToMove.length) linesToMove[linesToMove.length - 1] = to;
       at = to;
@@ -192,17 +195,18 @@ function tryLoadGist(id) {
 			var code=result["files"]["script.txt"]["content"];
 			editor.setValue(code);
 			editor.clearHistory();
+			clearConsole();
 			setEditorClean();
 			unloadGame();
 			compile(["restart"],code);
 		}
 	}
-	if (window.localStorage!==undefined && localStorage['oauth_access_token']!==undefined) {
-        var oauthAccessToken = window.localStorage.getItem("oauth_access_token");
-        if (typeof oauthAccessToken === "string") {
-            githubHTTPClient.setRequestHeader("Authorization","token "+oauthAccessToken);
-        }
-    }
+	// if (storage_has('oauth_access_token')) {
+    //     var oauthAccessToken = storage_get("oauth_access_token");
+    //     if (typeof oauthAccessToken === "string") {
+    //         githubHTTPClient.setRequestHeader("Authorization","token "+oauthAccessToken);
+    //     }
+    // }
 	githubHTTPClient.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 	githubHTTPClient.send();
 }
@@ -217,6 +221,7 @@ function tryLoadFile(fileName) {
   		}
   		
 		editor.setValue(fileOpenClient.responseText);
+		clearConsole();
 		setEditorClean();
 		unloadGame();
 		compile(["restart"]);
@@ -245,13 +250,40 @@ function dropdownChange() {
 editor.on('keyup', function (editor, event) {
 	if (!CodeMirror.ExcludedIntelliSenseTriggerKeys[(event.keyCode || event.which).toString()])
 	{
-		var dosuggest=true;
-		if (editor.doc.sel.ranges.length>0){
-			console.log(editor.getRange(editor.doc.sel.ranges[0].anchor, {line:53,ch:59}));
-		}
-
-		if (dosuggest){
-			CodeMirror.commands.autocomplete(editor, null, { completeSingle: false });
-		}
+		CodeMirror.commands.autocomplete(editor, null, { completeSingle: false });
 	}
 });
+
+
+function debugPreview(turnIndex,lineNumber){
+	diffToVisualize=debug_visualisation_array[turnIndex][lineNumber];
+	redraw();
+}
+
+function debugUnpreview(){
+	diffToVisualize=null;
+	redraw();
+}
+
+function addToDebugTimeline(level,lineNumber){
+
+	if (!debug_visualisation_array.hasOwnProperty(debugger_turnIndex)){
+		debug_visualisation_array[debugger_turnIndex]=[];
+	}
+
+	var debugTimelineSnapshot = {
+		width:level.width,
+		height:level.height,
+		layerCount:level.layerCount,
+		turnIndex:debugger_turnIndex,
+		lineNumber:lineNumber,
+		objects:new Int32Array(level.objects),
+		movements:new Int32Array(level.movements),
+		commandQueue:level.commandQueue.concat([]),
+		commandQueueSourceRules:level.commandQueueSourceRules.concat([])
+	};
+	
+
+	debug_visualisation_array[debugger_turnIndex][lineNumber]=debugTimelineSnapshot;
+	return `${debugger_turnIndex},${lineNumber}`;
+}

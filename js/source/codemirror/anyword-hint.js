@@ -34,7 +34,7 @@
             ["text_color", "orange", "Can accept a color name or hex code (in the form #412bbc). Controls the font color of title/message screens, as well as the font color in the website. Background_color is its sibling."],
             ["title", "My Amazing Puzzle Game", "The name of your game. Appears on the title screen."],
             ["throttle_movement", "", "For use in conjunction with realtime_interval - this stops you from moving crazy fast - repeated keypresses of the same movement direction will not increase your speed. This doesn't apply to the action button."],
-            ["verbose_logging", "", "As you play the game, spits out information about all rules applied as you play"],
+            ["verbose_logging", "", "As you play the game, spits out information about all rules applied as you play, and also allows visual inspection of what exactly the rules do by hovering over them with your mouse (or tapping them on touchscreen)."],
             ["zoomscreen", "WxH", "Zooms the camera in to a WxH section of the map around the player, centered on the player."],
             ["mouse_left","lmb","Sets the object to place when pressing left mouse button."],
             ["mouse_drag","drag","Sets the object to place when moving the mouse while left mouse button is held."],
@@ -170,6 +170,7 @@
             var excludeProperties = false;
             var excludeAggregates = false;
             var candlists = [];
+            var toexclude = [];
             switch (state.section) {
                 case 'objects':
                     {
@@ -180,6 +181,10 @@
                     }
                 case 'legend':
                     {
+                        var splits = lineToCursor.toLowerCase().split(/[\p{Z}\s]/u).filter(function(v) {
+                            return v !== '';
+                        });
+                        toexclude=splits;
                         if (lineToCursor.indexOf('=')>=0){
                             if ((lineToCursor.trim().split(/\s+/ ).length%2)===1){
                                 addObjects=true;
@@ -199,7 +204,12 @@
                     }
                 case 'collisionlayers':
                     {
+                        var splits = lineToCursor.toLowerCase().split(/[,\p{Z}\s]/u).filter(function(v) {
+                            return v !== '';
+                        });
+                        toexclude=splits;
                         addObjects=true;
+                        excludeAggregates=true;
                         break;
                     }
                 case 'rules':
@@ -336,7 +346,22 @@
             //state.legend_properties
             //state.objects
 
-            //if list is a single word and that matches what the current word is, don't show hint
+            //remove words from the toexclude list
+
+            
+            if (toexclude.length>0){
+                if (toexclude[toexclude.length-1]===curWord){
+                    splits.pop();
+                }
+                for (var i=0;i<list.length;i++){
+                    var lc = list[i].text.toLowerCase();
+                    if (toexclude.indexOf(lc)>=0){
+                        list.splice(i,1);
+                        i--;
+                    }
+                }
+            }
+                    //if list is a single word and that matches what the current word is, don't show hint
             if (list.length===1 && list[0].text.toLowerCase()===curWord){
                 list=[];
             }
@@ -403,7 +428,7 @@
         "186": "semicolon",
         "187": "equalsign",
         "188": "comma",
-        "189": "dash",
+        // "189": "dash",
         "190": "period",
         "191": "slash",
         "192": "graveaccent",
