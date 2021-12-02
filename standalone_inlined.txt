@@ -8038,7 +8038,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
         } 
    
   /// Taken from zarawesome, thank you :) 
-     if (level.commandQueue.indexOf('undo')>=0) { 
+     if (level.commandQueue.indexOf('undo')>=0) {  
       if (verbose_logging) { 
        consoleCacheDump(); 
        consolePrint('UNDO command executed, undoing turn.',true); 
@@ -11657,7 +11657,7 @@ function compile(command, text, randomseed) {
          
         if (IDE){ 
             if (state.metadata.title!==undefined) { 
-                document.title="PuzzleScript - " + state.metadata.title; 
+                document.title="PS Plus - " + state.metadata.title; 
             } 
         } 
     } 

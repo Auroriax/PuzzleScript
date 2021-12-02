@@ -3028,7 +3028,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
         }
 		
 		/// Taken from zarawesome, thank you :)
-	    if (level.commandQueue.indexOf('undo')>=0) {
+	    if (level.commandQueue.indexOf('undo')>=0) { 
 	    	if (verbose_logging) {
 	    		consoleCacheDump();
 	    		consolePrint('UNDO command executed, undoing turn.',true);
