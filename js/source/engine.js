@@ -969,7 +969,7 @@ function setGameState(_state, command, randomseed) {
 		    titleScreen=true;
 		    tryPlayTitleSound();
 		    textMode=true;
-		    titleSelection=showContinueOptionOnTitleScreen()?1:0;
+		    titleSelection=0;
 		    titleSelected=false;
 		    quittingMessageScreen=false;
 		    quittingTitleScreen=false;
@@ -978,7 +978,21 @@ function setGameState(_state, command, randomseed) {
 		    if (showContinueOptionOnTitleScreen()) {
 		    	titleMode=1;
 		    }
-		    generateTitleScreen();
+
+			if (state.metadata.skip_title_screen!==undefined) {
+				consolePrint("skip_title_screen enabled, proceeding to do exactly as it says on the tin.")
+				if(state.metadata["continue_is_level_select"] !== undefined) {
+					gotoLevelSelectScreen();
+				}
+				else if(titleMode <= 1) {
+					nextLevel();
+				} else if(titleMode == 2) {
+					gotoLevel(titleSelection);
+				}
+			} else {
+				generateTitleScreen();
+			}
+
 		    break;
 		}
 		case "rebuild":
@@ -1177,6 +1191,11 @@ function restoreLevel(lev, snapCamera) {
     }
     
     if (state.metadata.runtime_metadata_twiddling !== undefined) {
+		if (lev.metadata === undefined) {
+			lev.metadata = deepClone(state.default_metadata);
+			consolePrint("RUNTIME METADATA TWIDDLING: Reloaded level state that did not have saved metadata. "+
+			"Likely this state was recovered from a CHECKPOINT. Using the default metadata instead.", true);
+		}
      state.metadata = deepClone(lev.metadata);
      twiddleMetadataExtras();
     }
@@ -2849,6 +2868,8 @@ var playerPositionsAtTurnStart;
 
 /* returns a bool indicating if anything changed */
 function processInput(dir,dontDoWin,dontModify,bak) {
+var startDir = dir;
+
 	againing = false;
 
 	if (bak==undefined) {
@@ -2906,7 +2927,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
 				 consolePrint(`Turn starts with no input.`,false,null,inspect_ID)
 			 } else {
 				//  consolePrint('=======================');
-				consolePrint(`Turn starts with input of ${['up','left','down','right','action','mouse'][dir]}.`,false,null,inspect_ID);
+				consolePrint(`Turn starts with input of ${['up','left','down','right','action','mouse'][startDir]}.`,false,null,inspect_ID);
 			 }
 		}
 
@@ -3028,7 +3049,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
         }
 		
 		/// Taken from zarawesome, thank you :)
-	    if (level.commandQueue.indexOf('undo')>=0) { 
+	    if (level.commandQueue.indexOf('undo')>=0) {
 	    	if (verbose_logging) {
 	    		consoleCacheDump();
 	    		consolePrint('UNDO command executed, undoing turn.',true);
