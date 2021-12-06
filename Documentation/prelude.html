@@ -198,7 +198,7 @@ late [ Temp ] -> [ ]</code></pre>
       <dt>mouse_up <i>object</i></dt>
       <dd>If the player has clicked and is releasing their mouse button, it will place this object then do a turn.</dd>
       <dt>mouse_right, mouse_rdrag, mouse_rup <i>object</i></dt>
-      <dd>Similar to the above three, but for the right mouse button. Note that you can also Ctrl + Left Click to get the right mouse button behaviour in-game.</dd>
+      <dd>Similar to the above three, but for the right mouse button.</dd>
       <h2>Level Select (Dario)</h2>
       <dt>level_select</dt>
       <dd>Adding this will add a level select to your game. By default, this will allow the player to play all levels in any order. In order to add entries to the level select, add a <b>section</b> in-between your levels.</dd>
@@ -236,10 +236,7 @@ global [> GCrate | GCrate] -> [> GCrate | > GCrate ]</code></pre>
       <dd>Will force the engine to be case sensitive, to see "a" and "A" or "moved" and "moveD" as different objects.</dd>
       <dt>sprite_size <i>size</i></dt>
       <dd>Instead of 5x5, this option allows you to pick other square resolutions for your sprites. Do note that all sprites MUST be of this size for the game to display correctly. If you need help with upscaling your sprites, <a href="plus_sprite_upscaler_tool.html">there's a helpful tool available here.</a></dd>
-      <h2>Misc. (PS+)</h2>
-      <dt>skip_title_screen</dt>
-      <dd>Will skip the title screen when the game initializes. Instead, it will act like the "continue" button has been pressed, opening either the level, message, or level select based on game progress and other prelude flags.</dd>
-    </dl>
+		</dl>
 
 
 
