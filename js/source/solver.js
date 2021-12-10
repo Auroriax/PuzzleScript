@@ -149,8 +149,8 @@ async function solve() {
 					deltatime = oldDT;
 					DoRestart();
 
-					verbose_logging = was_verbose_logging;
 					cache_console_messages = was_verbose_logging;
+					verbose_logging = was_verbose_logging;
 
 					solving = false;
 					muted = false;
