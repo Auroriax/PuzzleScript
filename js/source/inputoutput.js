@@ -549,7 +549,6 @@ function mouseAction(event,click,id) {
 							quittingTitleScreen=true;
 							
 							generateLevelSelectScreen();
-							redraw();
 						}
 					}
 				}
@@ -857,7 +856,11 @@ var mousePixelX=0;
 var mousePixelY=0;
 
 function setMouseCoord(e){
-    var coords = canvas.relMouseCoords(e);
+	var coords = canvas.relMouseCoords(e);
+	if (isNaN(coords.x) || isNaN(coords.y)) {
+		console.warn("[SetMouseCoord] Did not recieve valid mouse coords from event. \
+			Ignoring it (since I'm assuming this is a faked keypress that was generated on mobile).")
+	}
     mousePixelX=coords.x-xoffset;
 	mousePixelY=coords.y-yoffset;
 	mouseCoordX=Math.floor(mousePixelX/cellwidth);
@@ -943,9 +946,8 @@ function onMouseWheel(event) {
 function levelSelectScroll(direction) {
 	levelSelectScrollPos = clamp(levelSelectScrollPos + direction, 0, Math.max(state.sections.length - amountOfLevelsOnScreen, 0));
 	titleSelection = clamp(titleSelection + direction, 0, state.sections.length - 1);
-	console.log(levelSelectScrollPos + " " + titleSelection);
+	//console.log(levelSelectScrollPos + " " + titleSelection);
 	generateLevelSelectScreen();
-	redraw();
 }
 
 function clamp(number, min, max) {
