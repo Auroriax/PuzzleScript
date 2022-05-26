@@ -6,7 +6,16 @@ function createSprite(name,spritegrid, colors, padding) {
 	var sprite = makeSpriteCanvas(name);
 	var spritectx = sprite.getContext('2d');
 
-    spritectx.clearRect(0, 0, cellwidth, cellheight);
+    renderSprite(spritectx, spritegrid, colors, padding, 0, 0);
+
+    return sprite;
+}
+
+function renderSprite(spritectx, spritegrid, colors, padding, x, y) {
+    var offsetX = x * cellwidth;
+    var offsetY = y * cellheight;
+
+    spritectx.clearRect(offsetX, offsetY, cellwidth, cellheight);
 
 	var w = spritegrid[0].length;
 	var h = spritegrid.length;
@@ -24,12 +33,10 @@ function createSprite(name,spritegrid, colors, padding) {
                 var cy = (j * ch)|0;
                 var cx = (k * cw)|0;
                 spritectx.fillStyle = colors[val];
-                spritectx.fillRect(cx, cy, cw, pixh);
+                spritectx.fillRect(offsetX + cx, offsetY + cy, cw, pixh);
             }
         }
     }
-
-    return sprite;
 }
 
 function drawTextWithCustomFont(txt, ctx, x, y) {
@@ -38,7 +45,7 @@ function drawTextWithCustomFont(txt, ctx, x, y) {
     ctx.textAlign = "center";
     var fontSize = 1;
     if (state.metadata.font_size !== undefined) {
-        fontSize = parseFloat(state.metadata.font_size)
+        fontSize = Math.max(parseFloat(state.metadata.font_size), 0)
     }
     ctx.font = (cellheight * fontSize) + "px PuzzleCustomFont";
     ctx.fillText(txt, x, y);
@@ -63,6 +70,7 @@ function regenText(spritecanvas,spritectx) {
 var editor_s_grille=[[0,1,1,1,0],[1,0,0,0,0],[0,1,1,1,0],[0,0,0,0,1],[0,1,1,1,0]];
 
 var spriteimages;
+var spritesheetCanvas = null;
 function regenSpriteImages() {
 	if (textMode) {
         spriteimages = [];
@@ -78,12 +86,30 @@ function regenSpriteImages() {
         return;
     }
     spriteimages = [];
+    
+    var spritesheetSize = Math.ceil(Math.sqrt(sprites.length));
+
+    if (spritesheetCanvas == null) {
+        spritesheetCanvas = document.createElement('canvas');
+    }
+
+    spritesheetCanvas.width = spritesheetSize * cellwidth;
+    spritesheetCanvas.height = spritesheetSize * cellheight;
+
+    var spritesheetContext = spritesheetCanvas.getContext('2d')
 
     for (var i = 0; i < sprites.length; i++) {
         if (sprites[i] == undefined) {
             continue;
         }
-        spriteimages[i] = createSprite(i.toString(),sprites[i].dat, sprites[i].colors);
+
+        if (canOpenEditor) {
+            spriteimages[i] = createSprite(i.toString(),sprites[i].dat, sprites[i].colors);
+        }
+        
+        var spriteX = (i % spritesheetSize)|0;
+        var spriteY = (i / spritesheetSize)|0;
+        renderSprite(spritesheetContext, sprites[i].dat, sprites[i].colors, 0, spriteX, spriteY);
     }
 
     if (canOpenEditor) {
@@ -144,7 +170,7 @@ function generateGlyphImages() {
 				var id = g[i];
 				if (id===-1) {
 					continue;
-				}
+                }
 				spritectx.drawImage(spriteimages[id], 0, 0);
 			}
 			glyphImages.push(sprite);
@@ -295,7 +321,7 @@ function redraw() {
     if (cellwidth===0||cellheight===0) {
         return;
     }
-    if (spriteimages===undefined) {
+    if (spritesheetCanvas===null) {
         regenSpriteImages();
     }
 
@@ -396,6 +422,7 @@ function redraw() {
                     }
 
                     cameraPosition[coord] += cameraTargetVector * state.metadata.smoothscreen.cameraSpeed;
+                    //console.log(coord + " "+ cameraPosition[coord])
                     cameraOffset[coord] = cameraPosition[coord] % 1;
                 })
 
@@ -425,15 +452,104 @@ function redraw() {
 		screenOffsetY = minj;
 
         var renderBorderSize = smoothscreen ? 1 : 0;
+        var spritesheetSize = Math.ceil(Math.sqrt(sprites.length));
+        var tweening = state.metadata.tween_length && currentMovedEntities;
 
-        for (var i = Math.max(mini - renderBorderSize, 0); i < Math.min(maxi + renderBorderSize, curlevel.width); i++) {
-            for (var j = Math.max(minj - renderBorderSize, 0); j < Math.min(maxj + renderBorderSize, curlevel.height); j++) {
-                var posIndex = j + i * curlevel.height;
-                var posMask = curlevel.getCellInto(posIndex,_o12);                
-                for (var k = 0; k < state.objectCount; k++) {
-                    if (posMask.get(k) != 0) {                  
-                        var sprite = spriteimages[k];
-                        ctx.drawImage(sprite, Math.floor(xoffset + (i-mini-cameraOffset.x) * cellwidth), Math.floor(yoffset + (j-minj-cameraOffset.y) * cellheight));
+        if (!tweening) { //Seperated tweening/non-tweening draw loops for performance considerations
+            for (var i = Math.max(mini - renderBorderSize, 0); i < Math.min(maxi + renderBorderSize, curlevel.width); i++) {
+                for (var j = Math.max(minj - renderBorderSize, 0); j < Math.min(maxj + renderBorderSize, curlevel.height); j++) {
+                    var posIndex = j + i * curlevel.height;
+                    var posMask = curlevel.getCellInto(posIndex,_o12);    
+                    for (var k = 0; k < state.objectCount; k++) {            
+                
+                        if (posMask.get(k) != 0) {                  
+                            var spriteX = (k % spritesheetSize)|0;
+                            var spriteY = (k / spritesheetSize)|0;
+
+                            var x = xoffset + (i-mini-cameraOffset.x) * cellwidth;
+                            var y = yoffset + (j-minj-cameraOffset.y) * cellheight;
+                                
+                            ctx.drawImage(
+                                spritesheetCanvas, 
+                                spriteX * cellwidth, spriteY * cellheight, cellwidth, cellheight,
+                                Math.floor(x), Math.floor(y), cellwidth, cellheight);
+                        }
+                    }
+                }
+            }
+        } else { //Loop when tweening
+            var tween = 1-clamp(tweentimer/tweeninterval, 0, 1);
+
+            //Defaults
+            var tween_name = "linear";
+            var tween_snap = state.sprite_size;
+
+            //Lookup
+            if (state.metadata.tween_easing!==undefined){
+                tween_name = state.metadata.tween_easing;
+                if (parseInt(tween_name) != NaN && easingAliases[parseInt(tween_name)]) {
+                    tween_name = easingAliases[parseInt(tween_name)];
+                    //console.log(tween_name);
+                }
+                tween_name = tween_name.toLowerCase();
+            }
+            if (state.metadata.tween_snap!==undefined) {
+                tween_snap = Math.max(parseInt(state.metadata.tween_snap), 1);
+            }
+
+            //Apply
+
+            if (EasingFunctions[tween_name] != null) {
+                tween = EasingFunctions[tween_name](tween);
+            }
+            tween = Math.floor(tween * tween_snap) / tween_snap;
+
+            var objectArray = [];
+
+            for (var n in state.objects) {
+                objectArray.push(state.objects[n]);
+            }
+
+            objectArray = objectArray.sort((a, b) => a.id > b.id ? 1 : -1)
+
+            for (var k = 0; k < state.objectCount; k++) {
+                var object = objectArray[k];
+                var layerID = object.layer;
+
+                for (var i = Math.max(mini - renderBorderSize, 0); i < Math.min(maxi + renderBorderSize, curlevel.width); i++) {
+                    for (var j = Math.max(minj - renderBorderSize, 0); j < Math.min(maxj + renderBorderSize, curlevel.height); j++) {
+                        var posIndex = j + i * curlevel.height;
+                        var posMask = curlevel.getCellInto(posIndex,_o12);                
+                    
+                        if (posMask.get(k) != 0) {                  
+                            var spriteX = (k % spritesheetSize)|0;
+                            var spriteY = (k / spritesheetSize)|0;
+
+                            
+                        //console.log(posIndex + " " + layerID);
+    
+                            var x = xoffset + (i-mini-cameraOffset.x) * cellwidth;
+                            var y = yoffset + (j-minj-cameraOffset.y) * cellheight;
+    
+                            if (currentMovedEntities && currentMovedEntities["p"+posIndex+"-l"+layerID]) {
+                                var dir = currentMovedEntities["p"+posIndex+"-l"+layerID];
+
+                                if (dir != 16) { //Cardinal directions
+                                    var delta = dirMasksDelta[dir];
+                
+                                    x -= cellwidth*delta[0]*tween
+                                    y -= cellheight*delta[1]*tween
+                                } else if (dir == 16) { //Action button
+                                    ctx.globalAlpha = 1-tween;
+                                }
+                            }
+                            
+                            ctx.drawImage(
+                                spritesheetCanvas, 
+                                spriteX * cellwidth, spriteY * cellheight, cellwidth, cellheight,
+                                Math.floor(x), Math.floor(y), cellwidth, cellheight);
+                            ctx.globalAlpha = 1;
+                        }
                     }
                 }
             }
@@ -754,3 +870,53 @@ function canvasResize() {
 
     redraw();
 }
+
+//Source: https://gist.github.com/gre/1650294
+/*
+ * Easing Functions - inspired from http://gizma.com/easing/
+ * only considering the t value for the range [0, 1] => [0, 1]
+ */
+EasingFunctions = {
+    // no easing, no acceleration
+    linear: t => t,
+    // accelerating from zero velocity
+    easeinquad: t => t*t,
+    // decelerating to zero velocity
+    easeoutquad: t => t*(2-t),
+    // acceleration until halfway, then deceleration
+    easeinoutquad: t => t<.5 ? 2*t*t : -1+(4-2*t)*t,
+    // accelerating from zero velocity 
+    easeincubic: t => t*t*t,
+    // decelerating to zero velocity 
+    easeoutcubic: t => (--t)*t*t+1,
+    // acceleration until halfway, then deceleration 
+    easeinoutcubic: t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1,
+    // accelerating from zero velocity 
+    easeinquart: t => t*t*t*t,
+    // decelerating to zero velocity 
+    easeoutquart: t => 1-(--t)*t*t*t,
+    // acceleration until halfway, then deceleration
+    easeinoutquart: t => t<.5 ? 8*t*t*t*t : 1-8*(--t)*t*t*t,
+    // accelerating from zero velocity
+    easeinquint: t => t*t*t*t*t,
+    // decelerating to zero velocity
+    easeoutquint: t => 1+(--t)*t*t*t*t,
+    // acceleration until halfway, then deceleration 
+    easeinoutquint: t => t<.5 ? 16*t*t*t*t*t : 1+16*(--t)*t*t*t*t
+  }
+
+  easingAliases = {
+      1: "linear",
+      2: "easeInQuad",
+      3: "easeOutQuad",
+      4: "easeInOutQuad",
+      5: "easeInCubic",
+      6: "easeOutCubic",
+      7: "easeInOutCubic",
+      8: "easeInQuart",
+      9: "easeOutQuart",
+      10: "easeInOutQuart",
+      11: "easeInQuint",
+      12: "easeOutQuint",
+      13: "easeInOutQuint"
+  }

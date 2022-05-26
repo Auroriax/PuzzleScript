@@ -58,6 +58,13 @@
             ["runtime_metadata_twiddling", "", "Allows you to change some prelude flags during runtime using rules"],
             ["runtime_metadata_twiddling_debug", "", "Prints in the console each time the metadata is twiddled"],
             ["skip_title_screen", "", "Will skip the title screen when the game initializes, booting straight into the level or level select"],
+            ["tween_length", "0.05", "Will animate objects that are moving using LEFT, RIGHT, UP, and DOWN. Duration in seconds."],
+            ["tween_easing", "linear", "How movement animations should lerp when using TWEEN_LENGTH, e.g. 'easeInQuad', 'easeOutCubic', etc."],
+            ["tween_snap", "5", "With how much granularity to snap to the underlying sprite grid. Uses the SPRITE_SIZE by default."],
+            ["message_text_align", "center", "Towards which side message text should align. left, center (default), or right."],
+            ["text_controls", "arrow keys to move /nX to action", "Overwrite keyboard/mouse control description on the title screen."],
+            ["text_message_continue", "[x] or [space] to continue!", "Overwrite the text below messages that normally says 'X to continue'."],
+            ["level_select_unlocked_rollover", "3", "An alternative to LEVEL_SELECT_UNLOCKED_AHEAD, which applies a strict maximum number of unsolved levels."],
         ];
 
         var COLOR_WORDS = [
@@ -66,7 +73,7 @@
         var RULE_COMMAND_WORDS = [
             "COMMAND",
             "sfx0", "sfx1", "sfx2", "sfx3", "sfx4", "sfx5", "sfx6", "sfx7", "sfx8", "sfx9", "sfx10", "cancel", "checkpoint", "restart", "win", "message", "again", "nosave", "quit",
-            "global", "zoomscreen", "flickscreen", "smoothscreen", "key_repeat_interval", "again_interval", "realtime_interval", "background_color", "text_color", "noundo", "norestart", "goto", "undo"];
+            "global", "zoomscreen", "flickscreen", "smoothscreen", "key_repeat_interval", "again_interval", "realtime_interval", "background_color", "text_color", "noundo", "norestart", "goto", "undo", "message_text_align"];
 
         var CARDINAL_DIRECTION_WORDS = [
             "DIRECTION",

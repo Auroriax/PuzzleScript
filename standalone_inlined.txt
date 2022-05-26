@@ -1,4 +1,4 @@
-<!doctype html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="description" content="__GAMETITLE__"> <title>__GAMETITLE__</title> <style>body{ background-color:black;font-family:"Courier New", Courier, monospace }#gameCanvas{ position:absolute;top:0px;left:0px;width:100%;height:100%;bottom:0px;right:0px;border:0px;background-color:black;-webkit-tap-highlight-color:rgba(0,0,0,0);image-rendering:-moz-crisp-edges;image-rendering:-webkit-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;}h1{ color:lightblue;font-weight:normal;}a{ color:lightblue;}.title{ background-color:none;text-align:center;font-size:100%;float:center;color:gray;position:absolute;left:10%;right:10%;top:0%;height:10%;}.footer{ background-color:none;text-align:center;float:center;color:white;position:absolute;margin-top:10px;left:10%;right:10%;top:90%;bottom:10%;}.gameContainer{ background-color:none;position:absolute;left:10%;right:10%;top:70px;bottom:70px;touch-action:none;}.mobile-menu{ position:relative;top:4em;margin-left:auto;margin-right:auto;font-weight:bold;border-radius:0.25em;}.mobile-menu.item-count-3{ width:30em;}.mobile-menu.item-count-3 .button{ width:28.3333%; padding:7.5% 0%;}.mobile-menu.item-count-2{ width:20em;}.mobile-menu.item-count-2 .button{ width:46%; padding:12.1765% 0%;}.mobile-menu.item-count-1{ width:10em;}.mobile-menu.item-count-1 .button{ width:98%; padding:26.5% 0%;}.mobile-menu, .tab-icon, .mobile-menu .close{ background:rgba(0,0,0,0.4);border:2px solid rgba(255, 255, 255, 0.4);color:rgba(255, 255, 255, 1);}.mobile-menu .button{ margin:2%;border-radius:0.25em;text-align:center;float:left;}.mobile-menu .clear{ clear:both;}.tab-affordance, .close-affordance{ width:6em;height:6em;position:absolute;z-index:1000;}.tab-affordance{ left:-2em;top:55px;}.close-affordance{ left:-4em;top:-1em;}.tab-icon, .mobile-menu .close{ height:48px;position:absolute;border-radius:6px;}.tab-icon{ left:-0.5em;top:70px;width:18px;border-radius:0 6px 6px 0;border-left:0;}.mobile-menu .close{ left:-18px;width:18px;top:0px;border-radius:6px 0 0 6px;border-right:0;}.tab-icon .slice, .mobile-menu .close .slice{ margin:4.5px 1px;width:2px;height:80%;background:rgba(255, 255, 255, 0.4);}.tab-icon .slice{ float:right;}.tab-icon .slice:first-child{ margin-right:4.5px;}.mobile-menu .close .slice{ float:left;}.mobile-menu .close .slice:first-child{ margin-left:4.5px;}@media screen and (max-width:32em){ .mobile-menu{ font-size:0.8em;width:90%;}}@media screen and (max-width:24em){ .mobile-menu{ font-size:0.65em;width:90%;}}.disable-select{ -webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}</style> <style> .gameContainer{ left:0;right:0;top:0;bottom:0;}</style> <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"> </head> <body> <div class="gameContainer"> <canvas id="gameCanvas"></canvas> </div> <script>function storage_has(e){return null!==localStorage.getItem(e)}function storage_get(e){return localStorage.getItem(e)}function storage_set(e,t){return localStorage.setItem(e,t)}function storage_remove(e){localStorage.removeItem(e)}</script> <script>function doSetupTitleScreenLevelContinue(){try{if(storage_has(document.URL)){if(storage_has(document.URL+"_checkpoint")){var e=storage_get(document.URL+"_checkpoint");curlevelTarget=JSON.parse(e);var t=[];for(var n in Object.keys(curlevelTarget.dat))t[n]=curlevelTarget.dat[n];curlevelTarget.dat=new Int32Array(t)}curlevel=storage_get(document.URL),void 0!==localStorage[document.URL+"_sections"]&&(solvedSections=JSON.parse(localStorage.getItem(document.URL+"_sections")))}}catch(e){}}var unitTesting=!1,curlevel=0,solvedSections=[],curlevelTarget=null,hasUsedCheckpoint=!1,levelEditorOpened=!1,muted=0,runrulesonlevelstart_phase=!1,ignoreNotJustPressedAction=!0;doSetupTitleScreenLevelContinue();var verbose_logging=!1,throttle_movement=!1,cache_console_messages=!1,quittingTitleScreen=!1,quittingMessageScreen=!1,deltatime=17,timer=0,repeatinterval=150,autotick=0,autotickinterval=0,winning=!1,againing=!1,againinterval=150,norepeat_action=!1,oldflickscreendat=[],keybuffer=[],restarting=!1,messageselected=!1,textImages={},initLevel={width:5,height:5,layerCount:2,dat:[1,3,3,1,1,2,2,3,3,1,2,1,2,2,3,3,1,1,2,2,3,2,1,3,2,1,3,2,1,3,1,3,3,1,1,2,2,3,3,1,2,1,2,2,3,3,1,1,2,2],movementMask:[1,3,3,1,1,2,2,3,3,1,2,1,2,2,3,3,1,1,2,2,3,2,1,3,2,1,3,2,1,3,1,3,3,1,1,2,2,3,3,1,2,1,2,2,3,3,1,1,2,2],rigidGroupIndexMask:[],rigidMovementAppliedMask:[],bannedGroup:[],colCellContents:[],rowCellContents:[],colCellContents_Movements:[],rowCellContents_Movements:[]},level=initLevel;</script> <script>function stripTags(n){var e=document.createElement("div");return e.innerHTML=n,e.textContent||e.innerText||""}function consolePrint(n,e){}function consolePrintFromRule(n,e,r){}function consoleCacheDump(n){}function consoleError(n,e){var r=document.getElementById("errormessage");n=stripTags(n),r.innerHTML+=n+"<br>"}function logErrorNoLine(n){var e=document.getElementById("errormessage");n=stripTags(n),e.innerHTML+=n+"<br>"}function logBetaMessage(n){var e=document.getElementById("errormessage");n=stripTags(n),e.innerHTML+=n+"<br>"}function clearInputHistory(){}function pushInput(n){}solving=!1;var canSetHTMLColors=!0,canDump=!1,canOpenEditor=!1,canYoutube=!0,IDE=!1;const diffToVisualize=null;</script> <script>var font = { 
+<!doctype html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="description" content="__GAMETITLE__"> <title>__GAMETITLE__</title> <style>body{ background-color:black;font-family:"Courier New", Courier, monospace }#gameCanvas{ position:absolute;top:0px;left:0px;width:100%;height:100%;bottom:0px;right:0px;border:0px;background-color:black;-webkit-tap-highlight-color:rgba(0,0,0,0);image-rendering:-moz-crisp-edges;image-rendering:-webkit-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;}h1{ color:lightblue;font-weight:normal;}a{ color:lightblue;}.title{ background-color:none;text-align:center;font-size:100%;float:center;color:gray;position:absolute;left:10%;right:10%;top:0%;height:10%;}.footer{ background-color:none;text-align:center;float:center;color:white;position:absolute;margin-top:10px;left:10%;right:10%;top:90%;bottom:10%;}.gameContainer{ background-color:none;position:absolute;left:10%;right:10%;top:70px;bottom:70px;touch-action:none;}.mobile-menu{ position:relative;top:4em;margin-left:auto;margin-right:auto;font-weight:bold;border-radius:0.25em;}.mobile-menu.item-count-3{ width:30em;}.mobile-menu.item-count-3 .button{ width:28.3333%; padding:7.5% 0%;}.mobile-menu.item-count-2{ width:20em;}.mobile-menu.item-count-2 .button{ width:46%; padding:12.1765% 0%;}.mobile-menu.item-count-1{ width:10em;}.mobile-menu.item-count-1 .button{ width:98%; padding:26.5% 0%;}.mobile-menu, .tab-icon, .mobile-menu .close{ background:rgba(0,0,0,0.4);border:2px solid rgba(255, 255, 255, 0.4);color:rgba(255, 255, 255, 1);}.mobile-menu .button{ margin:2%;border-radius:0.25em;text-align:center;float:left;}.mobile-menu .clear{ clear:both;}.tab-affordance, .close-affordance{ width:6em;height:6em;position:absolute;z-index:1000;}.tab-affordance{ left:-2em;top:55px;}.close-affordance{ left:-4em;top:-1em;}.tab-icon, .mobile-menu .close{ height:48px;position:absolute;border-radius:6px;}.tab-icon{ left:-0.5em;top:70px;width:18px;border-radius:0 6px 6px 0;border-left:0;}.mobile-menu .close{ left:-18px;width:18px;top:0px;border-radius:6px 0 0 6px;border-right:0;}.tab-icon .slice, .mobile-menu .close .slice{ margin:4.5px 1px;width:2px;height:80%;background:rgba(255, 255, 255, 0.4);}.tab-icon .slice{ float:right;}.tab-icon .slice:first-child{ margin-right:4.5px;}.mobile-menu .close .slice{ float:left;}.mobile-menu .close .slice:first-child{ margin-left:4.5px;}@media screen and (max-width:32em){ .mobile-menu{ font-size:0.8em;width:90%;}}@media screen and (max-width:24em){ .mobile-menu{ font-size:0.65em;width:90%;}}.disable-select{ -webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}</style> <style> .gameContainer{ left:0;right:0;top:0;bottom:0;}</style> <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"> </head> <body> <div class="gameContainer"> <canvas id="gameCanvas"></canvas> </div> <script>function storage_has(e){return null!==localStorage.getItem(e)}function storage_get(e){return localStorage.getItem(e)}function storage_set(e,t){return localStorage.setItem(e,t)}function storage_remove(e){localStorage.removeItem(e)}</script> <script>function doSetupTitleScreenLevelContinue(){try{if(storage_has(document.URL)){if(storage_has(document.URL+"_checkpoint")){var e=storage_get(document.URL+"_checkpoint");curlevelTarget=JSON.parse(e);var t=[];for(var n in Object.keys(curlevelTarget.dat))t[n]=curlevelTarget.dat[n];curlevelTarget.dat=new Int32Array(t)}curlevel=storage_get(document.URL),void 0!==localStorage[document.URL+"_sections"]&&(solvedSections=JSON.parse(localStorage.getItem(document.URL+"_sections")))}}catch(e){}}var unitTesting=!1,curlevel=0,solvedSections=[],curlevelTarget=null,hasUsedCheckpoint=!1,levelEditorOpened=!1,muted=0,runrulesonlevelstart_phase=!1,ignoreNotJustPressedAction=!0;doSetupTitleScreenLevelContinue();var verbose_logging=!1,throttle_movement=!1,cache_console_messages=!1,quittingTitleScreen=!1,quittingMessageScreen=!1,deltatime=17,timer=0,repeatinterval=150,autotick=0,autotickinterval=0,winning=!1,againing=!1,againinterval=150,norepeat_action=!1,oldflickscreendat=[],keybuffer=[],tweeninterval=0,tweentimer=0,restarting=!1,messageselected=!1,textImages={},initLevel={width:5,height:5,layerCount:2,dat:[1,3,3,1,1,2,2,3,3,1,2,1,2,2,3,3,1,1,2,2,3,2,1,3,2,1,3,2,1,3,1,3,3,1,1,2,2,3,3,1,2,1,2,2,3,3,1,1,2,2],movementMask:[1,3,3,1,1,2,2,3,3,1,2,1,2,2,3,3,1,1,2,2,3,2,1,3,2,1,3,2,1,3,1,3,3,1,1,2,2,3,3,1,2,1,2,2,3,3,1,1,2,2],rigidGroupIndexMask:[],rigidMovementAppliedMask:[],bannedGroup:[],colCellContents:[],rowCellContents:[],colCellContents_Movements:[],rowCellContents_Movements:[]},level=initLevel;</script> <script>function stripTags(n){var e=document.createElement("div");return e.innerHTML=n,e.textContent||e.innerText||""}function consolePrint(n,e){}function consolePrintFromRule(n,e,r){}function consoleCacheDump(n){}function consoleError(n,e){var r=document.getElementById("errormessage");r?(n=stripTags(n),r.innerHTML+=n+"<br>"):console.error(n,e)}function logErrorNoLine(n){var e=document.getElementById("errormessage");n=stripTags(n),e.innerHTML+=n+"<br>"}function logBetaMessage(n){var e=document.getElementById("errormessage");n=stripTags(n),e.innerHTML+=n+"<br>"}function clearInputHistory(){}function pushInput(n){}solving=!1;var canSetHTMLColors=!0,canDump=!1,canOpenEditor=!1,canYoutube=!0,IDE=!1;const diffToVisualize=null;</script> <script>var font = { 
     '0':` 
 00000 
 00000 
@@ -4262,7 +4262,16 @@
  var sprite = makeSpriteCanvas(name); 
  var spritectx = sprite.getContext('2d'); 
  
-    spritectx.clearRect(0, 0, cellwidth, cellheight); 
+    renderSprite(spritectx, spritegrid, colors, padding, 0, 0); 
+ 
+    return sprite; 
+} 
+ 
+function renderSprite(spritectx, spritegrid, colors, padding, x, y) { 
+    var offsetX = x * cellwidth; 
+    var offsetY = y * cellheight; 
+ 
+    spritectx.clearRect(offsetX, offsetY, cellwidth, cellheight); 
  
  var w = spritegrid[0].length; 
  var h = spritegrid.length; 
@@ -4280,12 +4289,10 @@
                 var cy = (j * ch)|0; 
                 var cx = (k * cw)|0; 
                 spritectx.fillStyle = colors[val]; 
-                spritectx.fillRect(cx, cy, cw, pixh); 
+                spritectx.fillRect(offsetX + cx, offsetY + cy, cw, pixh); 
             } 
         } 
     } 
- 
-    return sprite; 
 } 
  
 function drawTextWithCustomFont(txt, ctx, x, y) { 
@@ -4294,7 +4301,7 @@ function drawTextWithCustomFont(txt, ctx, x, y) {
     ctx.textAlign = "center"; 
     var fontSize = 1; 
     if (state.metadata.font_size !== undefined) { 
-        fontSize = parseFloat(state.metadata.font_size) 
+        fontSize = Math.max(parseFloat(state.metadata.font_size), 0) 
     } 
     ctx.font = (cellheight * fontSize) + "px PuzzleCustomFont"; 
     ctx.fillText(txt, x, y); 
@@ -4319,6 +4326,7 @@ function regenText(spritecanvas,spritectx) {
 var editor_s_grille=[[0,1,1,1,0],[1,0,0,0,0],[0,1,1,1,0],[0,0,0,0,1],[0,1,1,1,0]]; 
  
 var spriteimages; 
+var spritesheetCanvas = null; 
 function regenSpriteImages() { 
  if (textMode) { 
         spriteimages = []; 
@@ -4334,12 +4342,30 @@ function regenSpriteImages() {
         return; 
     } 
     spriteimages = []; 
+     
+    var spritesheetSize = Math.ceil(Math.sqrt(sprites.length)); 
+ 
+    if (spritesheetCanvas == null) { 
+        spritesheetCanvas = document.createElement('canvas'); 
+    } 
+ 
+    spritesheetCanvas.width = spritesheetSize * cellwidth; 
+    spritesheetCanvas.height = spritesheetSize * cellheight; 
+ 
+    var spritesheetContext = spritesheetCanvas.getContext('2d') 
  
     for (var i = 0; i < sprites.length; i++) { 
         if (sprites[i] == undefined) { 
             continue; 
         } 
-        spriteimages[i] = createSprite(i.toString(),sprites[i].dat, sprites[i].colors); 
+ 
+        if (canOpenEditor) { 
+            spriteimages[i] = createSprite(i.toString(),sprites[i].dat, sprites[i].colors); 
+        } 
+         
+        var spriteX = (i % spritesheetSize)|0; 
+        var spriteY = (i / spritesheetSize)|0; 
+        renderSprite(spritesheetContext, sprites[i].dat, sprites[i].colors, 0, spriteX, spriteY); 
     } 
  
     if (canOpenEditor) { 
@@ -4400,7 +4426,7 @@ function generateGlyphImages() {
     var id = g[i]; 
     if (id===-1) { 
      continue; 
-    } 
+                } 
     spritectx.drawImage(spriteimages[id], 0, 0); 
    } 
    glyphImages.push(sprite); 
@@ -4551,7 +4577,7 @@ function redraw() {
     if (cellwidth===0||cellheight===0) { 
         return; 
     } 
-    if (spriteimages===undefined) { 
+    if (spritesheetCanvas===null) { 
         regenSpriteImages(); 
     } 
  
@@ -4652,6 +4678,7 @@ function redraw() {
                     } 
  
                     cameraPosition[coord] += cameraTargetVector * state.metadata.smoothscreen.cameraSpeed; 
+                    //console.log(coord + " "+ cameraPosition[coord]) 
                     cameraOffset[coord] = cameraPosition[coord] % 1; 
                 }) 
  
@@ -4681,15 +4708,104 @@ function redraw() {
   screenOffsetY = minj; 
  
         var renderBorderSize = smoothscreen ? 1 : 0; 
+        var spritesheetSize = Math.ceil(Math.sqrt(sprites.length)); 
+        var tweening = state.metadata.tween_length && currentMovedEntities; 
  
-        for (var i = Math.max(mini - renderBorderSize, 0); i < Math.min(maxi + renderBorderSize, curlevel.width); i++) { 
-            for (var j = Math.max(minj - renderBorderSize, 0); j < Math.min(maxj + renderBorderSize, curlevel.height); j++) { 
-                var posIndex = j + i * curlevel.height; 
-                var posMask = curlevel.getCellInto(posIndex,_o12);                 
-                for (var k = 0; k < state.objectCount; k++) { 
-                    if (posMask.get(k) != 0) {                   
-                        var sprite = spriteimages[k]; 
-                        ctx.drawImage(sprite, Math.floor(xoffset + (i-mini-cameraOffset.x) * cellwidth), Math.floor(yoffset + (j-minj-cameraOffset.y) * cellheight)); 
+        if (!tweening) { //Seperated tweening/non-tweening draw loops for performance considerations 
+            for (var i = Math.max(mini - renderBorderSize, 0); i < Math.min(maxi + renderBorderSize, curlevel.width); i++) { 
+                for (var j = Math.max(minj - renderBorderSize, 0); j < Math.min(maxj + renderBorderSize, curlevel.height); j++) { 
+                    var posIndex = j + i * curlevel.height; 
+                    var posMask = curlevel.getCellInto(posIndex,_o12);     
+                    for (var k = 0; k < state.objectCount; k++) {             
+                 
+                        if (posMask.get(k) != 0) {                   
+                            var spriteX = (k % spritesheetSize)|0; 
+                            var spriteY = (k / spritesheetSize)|0; 
+ 
+                            var x = xoffset + (i-mini-cameraOffset.x) * cellwidth; 
+                            var y = yoffset + (j-minj-cameraOffset.y) * cellheight; 
+                                 
+                            ctx.drawImage( 
+                                spritesheetCanvas,  
+                                spriteX * cellwidth, spriteY * cellheight, cellwidth, cellheight, 
+                                Math.floor(x), Math.floor(y), cellwidth, cellheight); 
+                        } 
+                    } 
+                } 
+            } 
+        } else { //Loop when tweening 
+            var tween = 1-clamp(tweentimer/tweeninterval, 0, 1); 
+ 
+            //Defaults 
+            var tween_name = "linear"; 
+            var tween_snap = state.sprite_size; 
+ 
+            //Lookup 
+            if (state.metadata.tween_easing!==undefined){ 
+                tween_name = state.metadata.tween_easing; 
+                if (parseInt(tween_name) != NaN && easingAliases[parseInt(tween_name)]) { 
+                    tween_name = easingAliases[parseInt(tween_name)]; 
+                    //console.log(tween_name); 
+                } 
+                tween_name = tween_name.toLowerCase(); 
+            } 
+            if (state.metadata.tween_snap!==undefined) { 
+                tween_snap = Math.max(parseInt(state.metadata.tween_snap), 1); 
+            } 
+ 
+            //Apply 
+ 
+            if (EasingFunctions[tween_name] != null) { 
+                tween = EasingFunctions[tween_name](tween); 
+            } 
+            tween = Math.floor(tween * tween_snap) / tween_snap; 
+ 
+            var objectArray = []; 
+ 
+            for (var n in state.objects) { 
+                objectArray.push(state.objects[n]); 
+            } 
+ 
+            objectArray = objectArray.sort((a, b) => a.id > b.id ? 1 : -1) 
+ 
+            for (var k = 0; k < state.objectCount; k++) { 
+                var object = objectArray[k]; 
+                var layerID = object.layer; 
+ 
+                for (var i = Math.max(mini - renderBorderSize, 0); i < Math.min(maxi + renderBorderSize, curlevel.width); i++) { 
+                    for (var j = Math.max(minj - renderBorderSize, 0); j < Math.min(maxj + renderBorderSize, curlevel.height); j++) { 
+                        var posIndex = j + i * curlevel.height; 
+                        var posMask = curlevel.getCellInto(posIndex,_o12);                 
+                     
+                        if (posMask.get(k) != 0) {                   
+                            var spriteX = (k % spritesheetSize)|0; 
+                            var spriteY = (k / spritesheetSize)|0; 
+ 
+                             
+                        //console.log(posIndex + " " + layerID); 
+     
+                            var x = xoffset + (i-mini-cameraOffset.x) * cellwidth; 
+                            var y = yoffset + (j-minj-cameraOffset.y) * cellheight; 
+     
+                            if (currentMovedEntities && currentMovedEntities["p"+posIndex+"-l"+layerID]) { 
+                                var dir = currentMovedEntities["p"+posIndex+"-l"+layerID]; 
+ 
+                                if (dir != 16) { //Cardinal directions 
+                                    var delta = dirMasksDelta[dir]; 
+                 
+                                    x -= cellwidth*delta[0]*tween 
+                                    y -= cellheight*delta[1]*tween 
+                                } else if (dir == 16) { //Action button 
+                                    ctx.globalAlpha = 1-tween; 
+                                } 
+                            } 
+                             
+                            ctx.drawImage( 
+                                spritesheetCanvas,  
+                                spriteX * cellwidth, spriteY * cellheight, cellwidth, cellheight, 
+                                Math.floor(x), Math.floor(y), cellwidth, cellheight); 
+                            ctx.globalAlpha = 1; 
+                        } 
                     } 
                 } 
             } 
@@ -5009,7 +5125,57 @@ function canvasResize() {
     oldfgcolor=state.fgcolor; 
  
     redraw(); 
-}</script> <script>var RandomGen = new RNG(); 
+} 
+ 
+//Source: https://gist.github.com/gre/1650294 
+/* 
+ * Easing Functions - inspired from http://gizma.com/easing/ 
+ * only considering the t value for the range [0, 1] => [0, 1] 
+ */ 
+EasingFunctions = { 
+    // no easing, no acceleration 
+    linear: t => t, 
+    // accelerating from zero velocity 
+    easeinquad: t => t*t, 
+    // decelerating to zero velocity 
+    easeoutquad: t => t*(2-t), 
+    // acceleration until halfway, then deceleration 
+    easeinoutquad: t => t<.5 ? 2*t*t : -1+(4-2*t)*t, 
+    // accelerating from zero velocity  
+    easeincubic: t => t*t*t, 
+    // decelerating to zero velocity  
+    easeoutcubic: t => (--t)*t*t+1, 
+    // acceleration until halfway, then deceleration  
+    easeinoutcubic: t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1, 
+    // accelerating from zero velocity  
+    easeinquart: t => t*t*t*t, 
+    // decelerating to zero velocity  
+    easeoutquart: t => 1-(--t)*t*t*t, 
+    // acceleration until halfway, then deceleration 
+    easeinoutquart: t => t<.5 ? 8*t*t*t*t : 1-8*(--t)*t*t*t, 
+    // accelerating from zero velocity 
+    easeinquint: t => t*t*t*t*t, 
+    // decelerating to zero velocity 
+    easeoutquint: t => 1+(--t)*t*t*t*t, 
+    // acceleration until halfway, then deceleration  
+    easeinoutquint: t => t<.5 ? 16*t*t*t*t*t : 1+16*(--t)*t*t*t*t 
+  } 
+ 
+  easingAliases = { 
+      1: "linear", 
+      2: "easeInQuad", 
+      3: "easeOutQuad", 
+      4: "easeInOutQuad", 
+      5: "easeInCubic", 
+      6: "easeOutCubic", 
+      7: "easeInOutCubic", 
+      8: "easeInQuart", 
+      9: "easeOutQuart", 
+      10: "easeInOutQuart", 
+      11: "easeInQuint", 
+      12: "easeOutQuint", 
+      13: "easeInOutQuint" 
+  }</script> <script>var RandomGen = new RNG(); 
  
 var intro_template = [ 
   "..................................", 
@@ -5234,36 +5400,49 @@ function generateTitleScreen()
   } 
  } 
  
- var noAction = 'noaction' in state.metadata;  
- var noUndo = 'noundo' in state.metadata; 
- var noRestart = 'norestart' in state.metadata; 
+ if (state.metadata.text_controls) { 
+  for (var i=0;i<titleImage.length;i++) 
+  { 
+   titleImage[i]=titleImage[i].replace(/\./g, ' '); 
+  } 
  
- titleImage[10] = ".arrow keys to move..............."; 
- 
- if (noAction) { 
-  titleImage[11]=".X to select......................"; 
+  var customText = state.metadata.text_controls; 
+  var wrappedText = wordwrap(customText, 35, true); 
+  if (wrappedText[0]) {titleImage[10] = wrappedText[0]} 
+  if (wrappedText[1]) {titleImage[11] = wrappedText[1]} 
+  if (wrappedText[2]) {titleImage[12] = wrappedText[2]} 
  } else { 
-  titleImage[11]=" X to action......................" 
- } 
+  var noAction = 'noaction' in state.metadata;  
+  var noUndo = 'noundo' in state.metadata; 
+  var noRestart = 'norestart' in state.metadata; 
  
- if (noUndo && noRestart) { 
-  titleImage[12]=".................................."; 
- } else if (noUndo) { 
-  titleImage[12]=".R to restart....................."; 
- } else if (noRestart) { 
-  titleImage[12]=".Z to undo........................"; 
- } else { 
-  titleImage[12]=".Z to undo, R to restart.........."; 
- } 
+  titleImage[10] = ".arrow keys to move..............."; 
  
- if ("mouse_left" in state.metadata || "mouse_drag" in state.metadata || "mouse_up" in state.metadata) { 
-  titleImage[10]=".................................."; 
-  titleImage[11]=".MOUSE to interact................"; 
-  titleImage[12]=".MMB to undo, R to restart........"; 
- } 
- for (var i=0;i<titleImage.length;i++) 
- { 
-  titleImage[i]=titleImage[i].replace(/\./g, ' '); 
+  if (noAction) { 
+   titleImage[11]=".X to select......................"; 
+  } else { 
+   titleImage[11]=" X to action......................" 
+  } 
+ 
+  if (noUndo && noRestart) { 
+   titleImage[12]=".................................."; 
+  } else if (noUndo) { 
+   titleImage[12]=".R to restart....................."; 
+  } else if (noRestart) { 
+   titleImage[12]=".Z to undo........................"; 
+  } else { 
+   titleImage[12]=".Z to undo, R to restart.........."; 
+  } 
+ 
+  if ("mouse_left" in state.metadata || "mouse_drag" in state.metadata || "mouse_up" in state.metadata) { 
+   titleImage[10]=".................................."; 
+   titleImage[11]=".MOUSE to interact................"; 
+   titleImage[12]=".MMB to undo, R to restart........"; 
+  } 
+  for (var i=0;i<titleImage.length;i++) 
+  { 
+   titleImage[i]=titleImage[i].replace(/\./g, ' '); 
+  } 
  } 
  
  var width = titleImage[0].length; 
@@ -5406,11 +5585,19 @@ function generateLevelSelectScreen() {
    } 
   } 
  
-  if(state.metadata.level_select_unlocked_ahead === undefined) { 
+  if(state.metadata.level_select_unlocked_ahead !== undefined && state.metadata.level_select_unlocked_rollover !== undefined) { 
+   logErrorNoLine("You can't both have level select unlocked ahead & rollover methods, please choose just one!", true); 
+   unlockedUntil += 1; 
+  } else if (state.metadata.level_select_unlocked_rollover !== undefined) { 
+   unlockedUntil = solvedSections.length + Number(state.metadata.level_select_unlocked_rollover) - 1; 
+  } 
+  else if(state.metadata.level_select_unlocked_ahead === undefined) { 
    unlockedUntil += 1; 
   } else { 
    unlockedUntil += Number(state.metadata.level_select_unlocked_ahead); 
   }  
+ 
+  console.log("total: " + state.sections.length + "unsolved: " + unsolvedSections + " until:" + unlockedUntil) 
  } 
  //console.log(unlockedUntil); 
  
@@ -5557,16 +5744,31 @@ function deepClone(item) {
     return result; 
 } 
  
-function wordwrap( str, width ) { 
+function wordwrap( str, width, handleNewlines = false ) { 
   
     width = width || 75; 
     var cut = true; 
   
-    if (!str) { return str; } 
+ if (!str) { return str; } 
   
-    var regex = '.{1,' +width+ '}(\\s|$)' + (cut ? '|.{' +width+ '}|.+$' : '|\\S+?(\\s|$)'); 
+ //console.log("Before: "+str) 
   
-    return str.match( RegExp(regex, 'g') ); 
+ var regex = '.{1,' +width+ '}(\\s|$)' + (cut ? '|.{' +width+ '}|.+$' : '|\\S+?(\\s|$)'); 
+ 
+ if (!handleNewlines) { 
+  
+  return str.match( RegExp(regex, 'g') ); 
+ } else { 
+  splitNewlines = str.split("\\n"); 
+  var splitString  = []; 
+  
+  splitNewlines.forEach(splitStr => { 
+   splitString = splitString.concat(splitStr.match( RegExp(regex, 'g') )); 
+  })  
+   
+  //console.log(splitString); 
+  return splitString; 
+ } 
   
 } 
  
@@ -5577,14 +5779,25 @@ function drawMessageScreen() {
  
  titleMode=0; 
  textMode=true; 
- if ("mouse_left" in state.metadata || "mouse_drag" in state.metadata || "mouse_up" in state.metadata) 
-  titleImage = deepClone(messagecontainer_template_mouse); 
- else 
+ if ("text_message_continue" in state.metadata) { 
   titleImage = deepClone(messagecontainer_template); 
  
- for (var i=0;i<titleImage.length;i++) 
- { 
-  titleImage[i]=titleImage[i].replace(/\./g, ' '); 
+  for (var i=0;i<titleImage.length;i++) 
+  { 
+   titleImage[i]=titleImage[i].replace(/\./g, ' '); 
+  } 
+ 
+  titleImage[10] = state.metadata.text_message_continue; 
+ } else { 
+  if ("mouse_left" in state.metadata || "mouse_drag" in state.metadata || "mouse_up" in state.metadata) 
+   titleImage = deepClone(messagecontainer_template_mouse); 
+  else 
+   titleImage = deepClone(messagecontainer_template); 
+ 
+  for (var i=0;i<titleImage.length;i++) 
+  { 
+   titleImage[i]=titleImage[i].replace(/\./g, ' '); 
+  } 
  } 
  
  var emptyLineStr = titleImage[9]; 
@@ -5602,7 +5815,7 @@ function drawMessageScreen() {
   message = messagetext; 
  } 
   
- splitMessage = wordwrap(message,titleImage[0].length); 
+ splitMessage = wordwrap(message,titleImage[0].length, true); 
  
  
  var offset = 5-((splitMessage.length/2)|0); 
@@ -5612,11 +5825,20 @@ function drawMessageScreen() {
  
  var count = Math.min(splitMessage.length,12); 
  for (var i=0;i<count;i++) { 
-  var m = splitMessage[i]; 
+  if (!splitMessage[i]) {continue;} 
+  var m = splitMessage[i].trimRight(); 
   var row = offset+i;  
   var messageLength=m.length; 
   var lmargin = ((width-messageLength)/2)|0; 
-  var rmargin = width-messageLength-lmargin; 
+  if (state.metadata.message_text_align) { 
+   var align = state.metadata.message_text_align.toLowerCase(); 
+   if (align == "left") { 
+    lmargin = 0; 
+   } else if (align == "right") { 
+    lmargin = (width-messageLength); 
+   } 
+  } 
+  //var rmargin = width-messageLength-lmargin; 
   var rowtext = titleImage[row]; 
   titleImage[row]=rowtext.slice(0,lmargin)+m+rowtext.slice(lmargin+m.length);   
  } 
@@ -5652,6 +5874,8 @@ function loadLevelFromLevelDat(state,leveldat,randomseed,clearinputhistory) {
  titleMode=showContinueOptionOnTitleScreen()?1:0; 
  titleSelection=0; 
   titleSelected=false; 
+  dragging = false; 
+  rightdragging = false; 
   state.metadata = deepClone(state.default_metadata); 
     againing=false; 
     if (leveldat===undefined) { 
@@ -5662,7 +5886,8 @@ function loadLevelFromLevelDat(state,leveldat,randomseed,clearinputhistory) {
     if (leveldat.message !== undefined) { 
       // This "level" is actually a message. 
       ignoreNotJustPressedAction=true; 
-      tryPlayShowMessageSound(); 
+   tryPlayShowMessageSound(); 
+   twiddleMetadataExtras(); 
       drawMessageScreen(); 
       canvasResize(); 
       clearInputHistory(); 
@@ -5955,9 +6180,15 @@ function setGameState(_state, command, randomseed) {
     } 
  
     if (state.metadata.key_repeat_interval!==undefined) { 
-    repeatinterval=state.metadata.key_repeat_interval*1000; 
+     repeatinterval=state.metadata.key_repeat_interval*1000; 
     } else { 
       repeatinterval=150; 
+ } 
+  
+ if (state.metadata.tween_length!==undefined) { 
+  tweeninterval=state.metadata.tween_length*1000; 
+    } else { 
+  tweeninterval = 0; 
     } 
  
     if (state.metadata.again_interval!==undefined) { 
@@ -6146,10 +6377,17 @@ function RebuildLevelArrays() {
 } 
  
 var messagetext=""; 
-function restoreLevel(lev, snapCamera) { 
+var currentMovedEntities = {}; 
+var newMovedEntities = {}; 
+function restoreLevel(lev, snapCamera, resetTween = true) { 
  var diffing = lev.hasOwnProperty("diff"); 
  
  oldflickscreendat=lev.oldflickscreendat.concat([]); 
+ 
+ if (resetTween) { 
+  currentMovedEntities = {}; 
+  //console.log("Wiped movedEntities (level)") 
+ } 
  
  if (diffing){ 
   var index=0; 
@@ -6342,7 +6580,7 @@ function backupDiffers(){
  } 
 } 
  
-function DoUndo(force,ignoreDuplicates) { 
+function DoUndo(force,ignoreDuplicates, resetTween = true) { 
   if ((!levelEditorOpened)&&('noundo' in state.metadata && force!==true)) { 
     return; 
   } 
@@ -6358,7 +6596,7 @@ function DoUndo(force,ignoreDuplicates) {
  
   if (backups.length>0) { 
     var torestore = backups[backups.length-1]; 
-    restoreLevel(torestore); 
+    restoreLevel(torestore, null, resetTween); 
     backups = backups.splice(0,backups.length-1); 
     if (! force) { 
       tryPlayUndoSound(); 
@@ -6461,7 +6699,7 @@ function repositionEntitiesOnLayer(positionIndex,layer,dirMask)
  
     var layerMask = state.layerMasks[layer]; 
     var targetMask = level.getCellInto(targetIndex,_o7); 
-    var sourceMask = level.getCellInto(positionIndex,_o8); 
+ var sourceMask = level.getCellInto(positionIndex,_o8); 
  
     if (layerMask.anyBitsInCommon(targetMask) && (dirMask!=16)) { 
         return false; 
@@ -6485,7 +6723,7 @@ function repositionEntitiesOnLayer(positionIndex,layer,dirMask)
     targetMask.ior(movingEntities); 
  
     level.setCell(positionIndex, sourceMask); 
-    level.setCell(targetIndex, targetMask); 
+ level.setCell(targetIndex, targetMask); 
   
     var colIndex=(targetIndex/level.height)|0; 
  var rowIndex=(targetIndex%level.height); 
@@ -6508,8 +6746,15 @@ function repositionEntitiesAtCell(positionIndex) {
         if (layerMovement!==0) { 
             var thismoved = repositionEntitiesOnLayer(positionIndex,layer,layerMovement); 
             if (thismoved) { 
+    if (state.metadata.tween_length) { 
+     var delta = dirMasksDelta[layerMovement]; 
+     var targetIndex = (positionIndex+delta[1]+delta[0]*level.height); 
+ 
+     newMovedEntities["p"+targetIndex+"-l"+layer] = layerMovement; 
+    } 
+ 
                 movementMask.ishiftclear(layerMovement, 5*layer); 
-                moved = true; 
+    moved = true; 
             } 
         } 
     } 
@@ -7603,6 +7848,12 @@ function twiddleMetadataExtras() {
     againinterval=150; 
   } 
  
+  if (state.metadata.tween_length!==undefined) { 
+ tweeninterval=Math.max(state.metadata.tween_length*1000, 0); 
+ } else { 
+  tweeninterval = 0; 
+ } 
+ 
   if (state.metadata.key_repeat_interval!==undefined) { 
     repeatinterval=state.metadata.key_repeat_interval*1000; 
   } else { 
@@ -7783,11 +8034,12 @@ function applyRules(rules, loopPoint, startRuleGroupindex, bannedGroup){
  
 //if this returns!=null, need to go back and reprocess 
 function resolveMovements(level, bannedGroup){ 
-    var moved=true; 
+ var moved=true; 
+ 
     while(moved){ 
         moved=false; 
         for (var i=0;i<level.n_tiles;i++) { 
-          moved = repositionEntitiesAtCell(i) || moved; 
+    moved = repositionEntitiesAtCell(i) || moved; 
         } 
     } 
     var doUndo=false; 
@@ -7883,6 +8135,10 @@ var playerPositionsAtTurnStart;
  
 /* returns a bool indicating if anything changed */ 
 function processInput(dir,dontDoWin,dontModify,bak) { 
+ if (!dontModify) { 
+  newMovedEntities = {}; 
+ } 
+ 
 var startDir = dir; 
  
  againing = false; 
@@ -7977,7 +8233,8 @@ playerPositionsAtTurnStart = getPlayerPositions();
           
  
  
-         applyRules(state.rules, state.loopPoint, startRuleGroupIndex, bannedGroup); 
+   applyRules(state.rules, state.loopPoint, startRuleGroupIndex, bannedGroup); 
+    
          var shouldUndo = resolveMovements(level,bannedGroup); 
  
          if (shouldUndo) { 
@@ -8040,6 +8297,16 @@ playerPositionsAtTurnStart = getPlayerPositions();
           return false; 
         } 
  
+  /// Taken from zarawesome, thank you :) 
+  if (level.commandQueue.indexOf('undo')>=0) { 
+   if (verbose_logging) { 
+    consoleCacheDump(); 
+    consolePrint('UNDO command executed, undoing turn.',true); 
+   } 
+   messagetext = ""; 
+   DoUndo(true,false); 
+   return true; 
+  } 
  
         if (playerPositionsAtTurnStart.length>0 && state.metadata.require_player_movement!==undefined && dir >= 0) { 
          var somemoved=false; 
@@ -8062,17 +8329,6 @@ playerPositionsAtTurnStart = getPlayerPositions();
          } 
          //play player cantmove sounds here 
         } 
-   
-  /// Taken from zarawesome, thank you :) 
-     if (level.commandQueue.indexOf('undo')>=0) { 
-      if (verbose_logging) { 
-       consoleCacheDump(); 
-       consolePrint('UNDO command executed, undoing turn.',true); 
-   } 
-   messagetext = ""; 
-      DoUndo(true,false); 
-      return true; 
-  } 
  
  
  
@@ -8138,7 +8394,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
             consoleCacheDump(); 
            } 
            addUndoState(bak); 
-           DoUndo(true,false); 
+           DoUndo(true,false, false); 
      return true; 
     } else { 
      if (dir!==-1 && save_backup) { 
@@ -8240,6 +8496,9 @@ playerPositionsAtTurnStart = getPlayerPositions();
   if (verbose_logging) {  
    consolePrint(`Turn complete`);     
   } 
+ 
+  currentMovedEntities = newMovedEntities; 
+  tweentimer = 0; 
    
      level.commandQueue=[]; 
      level.commandQueueSourceRules=[]; 
@@ -8639,7 +8898,7 @@ function updateCameraPositionTarget() {
               : getCameraPosition(playerPosition[coord] - boundaryVector + direction, levelDimension, screenDimension); 
         } 
     }) 
-}</script> <script>function logErrorCacheable(e,n,r){if(compiling||r){if(void 0===n)return logErrorNoLine(e,r);var t='<a onclick="jumpToLine('+n.toString()+');"  href="javascript:void(0);"><span class="errorTextLineNumber"> line '+n.toString()+'</span></a> : <span class="errorText">'+e+"</span>";errorStrings.indexOf(t)>=0&&!r||(consolePrint(t),errorStrings.push(t),errorCount++)}}function logError(e,n,r){if(compiling||r){if(void 0===n)return logErrorNoLine(e,r);var t='<a onclick="jumpToLine('+n.toString()+');"  href="javascript:void(0);"><span class="errorTextLineNumber"> line '+n.toString()+'</span></a> : <span class="errorText">'+e+"</span>";errorStrings.indexOf(t)>=0&&!r||(consolePrint(t,!0),errorStrings.push(t),errorCount++)}}function logWarning(e,n,r){if(compiling||r){if(void 0===n)return logWarningNoLine(e,r);var t='<a onclick="jumpToLine('+n.toString()+');"  href="javascript:void(0);"><span class="errorTextLineNumber"> line '+n.toString()+'</span></a> : <span class="warningText">'+e+"</span>";errorStrings.indexOf(t)>=0&&!r||(consolePrint(t,!0),errorStrings.push(t))}}function logWarningNoLine(e,n){if(compiling||n){var r='<span class="warningText">'+e+"</span>";errorStrings.indexOf(r)>=0&&!n||(consolePrint(r,!0),errorStrings.push(r)),errorCount++}}function logErrorNoLine(e,n){if(compiling||n){var r='<span class="errorText">'+e+"</span>";errorStrings.indexOf(r)>=0&&!n||(consolePrint(r,!0),errorStrings.push(r)),errorCount++}}function logBetaMessage(e,n){if(compiling||n){var r='<span class="betaText">'+e+"</span>";errorStrings.indexOf(r)>=0&&!n||(consoleError(r),errorStrings.push(r))}}function blankLineHandle(e){"levels"===e.section?e.levels[e.levels.length-1].length>0&&e.levels.push([]):"objects"===e.section&&(e.objects_section=0)}var compiling=!1,errorStrings=[],errorCount=0,twiddleable_params=["background_color","text_color","key_repeat_interval","realtime_interval","again_interval","flickscreen","zoomscreen","smoothscreen","noundo","norestart"];"function"!=typeof Object.assign&&function(){Object.assign=function(e){"use strict";if(void 0===e||null===e)throw new TypeError("Cannot convert undefined or null to object");for(var n=Object(e),r=1;r<arguments.length;r++){var t=arguments[r];if(void 0!==t&&null!==t)for(var o in t)t.hasOwnProperty(o)&&(n[o]=t[o])}return n}}();var codeMirrorFn=function(){"use strict";function e(e,n){if(void 0!==e.objects[n])return logError('Object "'+n+'" defined multiple times.',e.lineNumber),"ERROR";for(var r=0;r<e.legend_synonyms.length;r++){var t=e.legend_synonyms[r];t[0]==n&&logError('Name "'+n+'" already in use.',e.lineNumber)}for(var r=0;r<e.legend_aggregates.length;r++){var t=e.legend_aggregates[r];t[0]==n&&logError('Name "'+n+'" already in use.',e.lineNumber)}for(var r=0;r<e.legend_properties.length;r++){var t=e.legend_properties[r];t[0]==n&&logError('Name "'+n+'" already in use.',e.lineNumber)}}var n=["objects","legend","sounds","collisionlayers","rules","winconditions","levels"],r=["sfx0","sfx1","sfx2","sfx3","sfx4","sfx5","sfx6","sfx7","sfx8","sfx9","sfx10","cancel","checkpoint","restart","win","message","again","undo","nosave","quit","zoomscreen","flickscreen","smoothscreen","again_interval","realtime_interval","key_repeat_interval","noundo","norestart","background_color","text_color","goto"],t=/[\p{L}\p{N}_]+[\p{Z}\s]*/u,o=/\d+\b/,s=/(objects|collisionlayers|legend|sounds|rules|winconditions|levels)(?![\p{L}\p{N}_])[\p{Z}\s]*/u,i=/[\=]+/,a=/[^\(]+/,l=/[ \,]*/,c=/(move|action|create|destroy|cantmove|undo|restart|titlescreen|startgame|cancel|endgame|startlevel|endlevel|showmessage|closemessage|sfx0|sfx1|sfx2|sfx3|sfx4|sfx5|sfx6|sfx7|sfx8|sfx9|sfx10)\b[\p{Z}\s]*/u,u=/^(action|up|down|left|right|\^|v|\<|\>|moving|stationary|parallel|perpendicular|horizontal|orthogonal|vertical|no|randomdir|random)$/,g=/^(startloop|endloop)$/,d=/^(up|down|left|right|horizontal|vertical|orthogonal|late|rigid)$/,m=/[\p{Z}\s]*(up|down|left|right|horizontal|vertical|orthogonal)(?![\p{L}\p{N}_])[\p{Z}\s]*/u,p=/^(all|any|no|some)$/,f=["title","author","homepage","background_color","text_color","key_repeat_interval","realtime_interval","again_interval","flickscreen","zoomscreen","smoothscreen","color_palette","youtube","sprite_size","level_select_unlocked_ahead","level_select_solve_symbol","custom_font","mouse_left","mouse_drag","mouse_right","mouse_rdrag","mouse_up","mouse_rup","local_radius","font_size"],h=["run_rules_on_level_start","norepeat_action","require_player_movement","debug","verbose_logging","throttle_movement","noundo","noaction","norestart","scanline","case_sensitive","level_select","continue_is_level_select","level_select_lock","settings","runtime_metadata_twiddling","runtime_metadata_twiddling_debug","smoothscreen_debug","skip_title_screen"],v=["checkpoint","objects","collisionlayers","legend","sounds","rules","...","winconditions","levels","|","[","]","up","down","left","right","late","rigid","^","v",">","<","no","randomdir","random","horizontal","vertical","any","all","no","some","moving","stationary","parallel","perpendicular","action","nosave","message","global","zoomscreen","flickscreen","smoothscreen","noundo","norestart","background_color","text_color","goto"];return{copyState:function(e){var n={};for(var r in e.objects)if(e.objects.hasOwnProperty(r)){var t=e.objects[r];n[r]={colors:t.colors.concat([]),lineNumber:t.lineNumber,spritematrix:t.spritematrix.concat([])}}for(var o=[],r=0;r<e.collisionLayers.length;r++)o.push(e.collisionLayers[r].concat([]));for(var s=[],i=[],a=[],l=[],c=[],u=[],r=0;r<e.legend_synonyms.length;r++)s.push(e.legend_synonyms[r].concat([]));for(var r=0;r<e.legend_aggregates.length;r++)i.push(e.legend_aggregates[r].concat([]));for(var r=0;r<e.legend_properties.length;r++)a.push(e.legend_properties[r].concat([]));for(var r=0;r<e.sounds.length;r++)l.push(e.sounds[r].concat([]));for(var r=0;r<e.levels.length;r++)c.push(e.levels[r].concat([]));for(var r=0;r<e.winconditions.length;r++)u.push(e.winconditions[r].concat([]));var g=Object.assign({},e.original_case_names);return{lineNumber:e.lineNumber,objects:n,collisionLayers:o,commentLevel:e.commentLevel,section:e.section,visitedSections:e.visitedSections.concat([]),objects_candname:e.objects_candname,objects_section:e.objects_section,objects_spritematrix:e.objects_spritematrix.concat([]),tokenIndex:e.tokenIndex,currentSection:e.currentSection,legend_synonyms:s,legend_aggregates:i,legend_properties:a,sounds:l,rules:e.rules.concat([]),names:e.names.concat([]),winconditions:u,original_case_names:g,abbrevNames:e.abbrevNames.concat([]),metadata:e.metadata.concat([]),sprite_size:e.sprite_size,case_sensitive:e.case_sensitive,levels:c,STRIDE_OBJ:e.STRIDE_OBJ,STRIDE_MOV:e.STRIDE_MOV}},blankLine:function(e){"levels"===e.section&&e.levels[e.levels.length-1].length>0&&e.levels.push([])},token:function(b,_){function x(e){function n(e){return e.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g,"\\$&")}var r;r=_.case_sensitive?new RegExp("\\b"+n(e)+"\\b"):new RegExp("\\b"+n(e)+"\\b","i");var t=E.match(r);null!=t&&(_.original_case_names[e]=t[0])}var E=b.string,y=b.sol();y&&(_.case_sensitive||(b.string=b.string.toLowerCase()),_.tokenIndex=0),b.eatWhile(/[ \t]/);var N=b.peek();if("("===N&&-4!==_.tokenIndex)b.next(),_.commentLevel++;else if(")"===N&&(b.next(),_.commentLevel>0&&0===--_.commentLevel))return"comment";if(_.commentLevel>0){for(;;){if(b.eatWhile(/[^\(\)]+/),b.eol())break;if(N=b.peek(),"("===N?_.commentLevel++:")"===N&&_.commentLevel--,b.next(),0===_.commentLevel)break}return"comment"}if(b.eatWhile(/[ \t]/),y&&b.eol())return blankLineHandle(_);if(y&&b.match(i,!0))return"EQUALSBIT";if(y&&b.match(s,!0)){_.section=b.string.slice(0,b.pos).trim().toLowerCase(),_.visitedSections.indexOf(_.section)>=0&&logError('cannot duplicate sections (you tried to duplicate "'+_.section+'").',_.lineNumber),_.visitedSections.push(_.section);var R=n.indexOf(_.section);if(0==R?(_.objects_section=0,_.visitedSections.length>1&&logError('section "'+_.section+'" must be the first section',_.lineNumber)):-1==_.visitedSections.indexOf(n[R-1])&&(-1===R?logError('no such section as "'+_.section+'".',_.lineNumber):logError('section "'+_.section+'" is out of order, must follow  "'+n[R-1]+'".',_.lineNumber)),"sounds"===_.section){for(var O in _.objects)_.objects.hasOwnProperty(O)&&_.names.push(O);for(var k=0;k<_.legend_synonyms.length;k++){var O=_.legend_synonyms[k][0];_.names.push(O)}for(var k=0;k<_.legend_aggregates.length;k++){var O=_.legend_aggregates[k][0];_.names.push(O)}for(var k=0;k<_.legend_properties.length;k++){var O=_.legend_properties[k][0];_.names.push(O)}}else if("levels"===_.section){for(var O in _.objects)_.objects.hasOwnProperty(O)&&1==O.length&&_.abbrevNames.push(O);for(var k=0;k<_.legend_synonyms.length;k++)1==_.legend_synonyms[k][0].length&&_.abbrevNames.push(_.legend_synonyms[k][0]);for(var k=0;k<_.legend_aggregates.length;k++)1==_.legend_aggregates[k][0].length&&_.abbrevNames.push(_.legend_aggregates[k][0])}return"HEADER"}if(void 0===_.section&&logError('must start with section "OBJECTS"',_.lineNumber),b.eol())return null;switch(_.section){case"objects":var j=function(){var e=y?b.match(t,!0):b.match(/[^\p{Z}\s\()]+[\p{Z}\s]*/u,!0);if(null==e)return b.match(a,!0),b.pos>0&&logWarning('Unknown junk in object section (possibly: the main names for objects have to be words containing only the letters a-z0.9 - if you want to call them something like ",", do it in the legend section).',_.lineNumber),"ERROR";var n=e[0].trim();if(void 0!==_.objects[n])return logError('Object "'+n+'" defined multiple times.',_.lineNumber),"ERROR";for(var r=0;r<_.legend_synonyms.length;r++){_.legend_synonyms[r][0]==n&&logError('Name "'+n+'" already in use.',_.lineNumber)}if(v.indexOf(n)>=0&&logWarning('You named an object "'+n+"\", but this is a keyword. Don't do that!",_.lineNumber),y)_.objects_candname=n,x(n),_.objects[_.objects_candname]={lineNumber:_.lineNumber,colors:[],spritematrix:[],cloneSprite:""};else{if("copy:"==n.substring(0,5)&&n.length>5){var o=n.substring(5);return""!=_.objects[_.objects_candname].cloneSprite?(logError("You already assigned a sprite parent for "+o+", you can't have more than one!",_.lineNumber),"ERROR"):o==_.objects_candname?(logError("You attempted to set the sprite parent for "+o+" to "+o+"! Please don't, and keep the recursion in check.",_.lineNumber),"ERROR"):(_.objects[_.objects_candname].cloneSprite=o,"SPRITEPARENT")}x(n);var s=[n,_.objects_candname];s.lineNumber=_.lineNumber,_.legend_synonyms.push(s)}if(_.case_sensitive&&("player"==n.toLowerCase()&&"player"!=n||"background"==n.toLowerCase()&&"background"!=n)){var s=[n.toLowerCase(),_.objects_candname];s.lineNumber=_.lineNumber,_.legend_synonyms.push(s)}return _.objects_section=1,"NAME"};switch(y&&2==_.objects_section&&(_.objects_section=3),y&&1==_.objects_section&&(_.objects_section=2),_.objects_section){case 0:case 1:return _.objects_spritematrix=[],j();case 2:b.string=b.string.toLowerCase(),_.tokenIndex=0;var L=b.match(reg_color,!0);if(null==L){var I=b.match(t,!0)||b.match(a,!0);return logError("Was looking for color for object "+_.objects_candname+', got "'+I+'" instead.',_.lineNumber),null}void 0===_.objects[_.objects_candname].colors?_.objects[_.objects_candname].colors=[L[0].trim()]:_.objects[_.objects_candname].colors.push(L[0].trim());var w=L[0].trim().toLowerCase();return w in colorPalettes.arnecolors?"COLOR COLOR-"+w.toUpperCase():"transparent"===w?"COLOR FADECOLOR":"MULTICOLOR"+L[0];case 3:var N=b.eat(/[.\d]/),S=_.objects_spritematrix;if(void 0===N)return 0===S.length?j():(logError("Unknown junk in spritematrix for object "+_.objects_candname+".",_.lineNumber),b.match(a,!0),null);y&&S.push("");var C=_.objects[_.objects_candname];if(S[S.length-1]+=N,S[S.length-1].length>_.sprite_size)return logError("Sprites must be "+_.sprite_size+" wide and "+_.sprite_size+" high.",_.lineNumber),b.match(a,!0),null;if(C.spritematrix=_.objects_spritematrix,S.length===_.sprite_size&&S[S.length-1].length==_.sprite_size&&(_.objects_section=0),"."!==N){var O=parseInt(N);return O>=C.colors.length?(logError("Trying to access color number "+O+" from the color palette of sprite "+_.objects_candname+", but there are only "+C.colors.length+" defined in it.",_.lineNumber),"ERROR"):isNaN(O)?(logError('Invalid character "'+N+'" in sprite for '+_.objects_candname,_.lineNumber),"ERROR"):"COLOR BOLDCOLOR COLOR-"+C.colors[O].toUpperCase()}return"COLOR FADECOLOR";default:window.console.logError("EEK shouldn't get here.")}break;case"sounds":if(y){var T=!0,A=a.exec(b.string)[0].split(/[\p{Z}\s]/u).filter(function(e){return""!==e});A.push(_.lineNumber),_.sounds.push(A)}if(null!==(z=b.match(c,!0)))return"SOUNDVERB";if(null!==(z=b.match(m,!0)))return"DIRECTION";if(null!==(z=b.match(o,!0)))return _.tokenIndex++,"SOUND";if(null!==(z=b.match(/[^\[\|\]\p{Z}\s]*/u,!0))){var D=z[0].trim();if(_.names.indexOf(D)>=0)return"NAME"}else z=b.match(a,!0);return logError('unexpected sound token "'+z+'".',_.lineNumber),b.match(a,!0),"ERROR";case"collisionlayers":y&&(_.collisionLayers.push([]),_.tokenIndex=0);var M=b.match(t,!0);if(null===M){var Z=b.pos;return b.match(l,!0),b.pos==Z&&(logError("error detected - unexpected character "+b.peek(),_.lineNumber),b.next()),null}var z=M[0].trim(),B=function(e){if(_.case_sensitive||(e=e.toLowerCase()),e in _.objects)return[e];for(var n=0;n<_.legend_synonyms.length;n++){var r=_.legend_synonyms[n];if(r[0]===e)return B(r[1])}for(var n=0;n<_.legend_aggregates.length;n++){var r=_.legend_aggregates[n];if(r[0]===e)return logError('"'+e+'" is an aggregate (defined using "and"), and cannot be added to a single layer because its constituent objects must be able to coexist.',_.lineNumber),[]}for(var n=0;n<_.legend_properties.length;n++){var r=_.legend_properties[n];if(r[0]===e){return[].concat.apply([],r.slice(1).map(B))}}return logError('Cannot add "'+z+'" to a collision layer; it has not been declared.',_.lineNumber),[]};"background"===z.toLowerCase()?(_.collisionLayers.length>0&&_.collisionLayers[_.collisionLayers.length-1].length>0&&logError("Background must be in a layer by itself.",_.lineNumber),_.tokenIndex=1):0!==_.tokenIndex&&logError("Background must be in a layer by itself.",_.lineNumber);var W=B(z);if(0===_.collisionLayers.length)return logError("no layers found.",_.lineNumber),"ERROR";for(var P=[],k=0;k<W.length;k++)for(var z=W[k],G=0;G<=_.collisionLayers.length-1;G++){var U=_.collisionLayers[G];U.indexOf(z)>=0&&G!=_.collisionLayers.length-1&&P.push(G)}if(P.length>0){for(var V='Object "'+z+'" included in multiple collision layers ( layers ',k=0;k<P.length;k++)V+="#"+(P[k]+1)+", ";V+="#"+_.collisionLayers.length,logWarning(V+" ). You should fix this!",_.lineNumber)}return _.collisionLayers[_.collisionLayers.length-1]=_.collisionLayers[_.collisionLayers.length-1].concat(W),W.length>0?"NAME":"ERROR";case"legend":if(y){var Y=b.string.replace("="," = ");Y=a.exec(Y)[0];var A=Y.split(/[\p{Z}\s]/u).filter(function(e){return""!==e}),T=!0;if(A.length>0){var z=A[0];_.case_sensitive||(z=z.toLowerCase()),v.indexOf(z)>=0&&logWarning('You named an object "'+z+"\", but this is a keyword. Don't do that!",_.lineNumber),A.indexOf(z,2)>=2&&logError("You can't define object "+z.toUpperCase()+" in terms of itself!",_.lineNumber),e(_,z)}if(T)if(A.length<3)T=!1;else if("="!==A[1])T=!1;else if(3===A.length){var $=[A[0],A[2]];_.case_sensitive||($[1]=$[1].toLowerCase()),$.lineNumber=_.lineNumber,x(A[0]),_.legend_synonyms.push($)}else if(A.length%2==0)T=!1;else{var F=A[3].toLowerCase();if("and"===F){for(var B=(function(e){if(_.case_sensitive||(e=e.toLowerCase()),e in _.objects)return[e];for(var n=0;n<_.legend_synonyms.length;n++){var r=_.legend_synonyms[n];if(r[0]===e)return B(r[1])}for(var n=0;n<_.legend_aggregates.length;n++){var r=_.legend_aggregates[n];if(r[0]===e)return[].concat.apply([],r.slice(1).map(B))}for(var n=0;n<_.legend_properties.length;n++){var r=_.legend_properties[n];if(r[0]===e)return logError("Cannot define an aggregate (using 'and') in terms of properties (something that uses 'or').",_.lineNumber),T=!1,[e]}return[e]}),k=5;k<A.length;k+=2)if("and"!==A[k].toLowerCase()){T=!1;break}if(T){for(var K=[A[0]].concat(B(A[2])).concat(B(A[4])),k=6;k<A.length;k+=2)K=K.concat(B(A[k]));K.lineNumber=_.lineNumber,x(K[0]),_.legend_aggregates.push(K)}}else if("or"===F){for(var B=(function(e){if(_.case_sensitive||(e=e.toLowerCase()),e in _.objects)return[e];for(var n=0;n<_.legend_synonyms.length;n++){var r=_.legend_synonyms[n];if(r[0]===e)return B(r[1])}for(var n=0;n<_.legend_aggregates.length;n++){var r=_.legend_aggregates[n];r[0]===e&&(logError("Cannot define a property (using 'or') in terms of aggregates (something that uses 'and').",_.lineNumber),T=!1)}for(var n=0;n<_.legend_properties.length;n++){var r=_.legend_properties[n];if(r[0]===e)return[].concat.apply([],r.slice(1).map(B))}return[e]}),k=5;k<A.length;k+=2)if("or"!==A[k].toLowerCase()){T=!1;break}if(T){for(var K=[A[0]].concat(B(A[2])).concat(B(A[4])),k=6;k<A.length;k+=2)_.case_sensitive?K.push(A[k]):K.push(A[k].toLowerCase());K.lineNumber=_.lineNumber,x(K[0]),_.legend_properties.push(K)}}else T=!1}else;if(!1===T)return logError("incorrect format of legend - should be one of A = B, A = B or C ( or D ...), A = B and C (and D ...)",_.lineNumber),b.match(a,!0),"ERROR";_.tokenIndex=0}if(0===_.tokenIndex)return b.match(/[^=]*/,!0),_.tokenIndex++,"NAME";if(1===_.tokenIndex)return b.next(),b.match(/[\p{Z}\s]*/u,!0),_.tokenIndex++,"ASSSIGNMENT";var M=b.match(t,!0);if(null===M)return logError("Something bad's happening in the LEGEND",_.lineNumber),b.match(a,!0),"ERROR";var z=M[0].trim();if(_.tokenIndex%2==0){return!1===function(e){if(_.case_sensitive||(e=e.toLowerCase()),e in _.objects)return!0;for(var n=0;n<_.legend_aggregates.length;n++){var r=_.legend_aggregates[n];if(r[0]===e)return!0}for(var n=0;n<_.legend_properties.length;n++){var r=_.legend_properties[n];if(r[0]===e)return!0}for(var n=0;n<_.legend_synonyms.length;n++){var r=_.legend_synonyms[n];if(r[0]===e)return!0}return!1}(z)?(logError('Cannot reference "'+z+'" in the LEGEND section; it has not been defined yet.',_.lineNumber),_.tokenIndex++,"ERROR"):(_.tokenIndex++,"NAME")}return _.tokenIndex++,"LOGICWORD";case"rules":if(y){var q=a.exec(b.string)[0];_.rules.push([q,_.lineNumber,E]),_.tokenIndex=0}if(-4===_.tokenIndex)return b.skipToEnd(),"MESSAGE";if(b.match(/[\p{Z}\s]*->[\p{Z}\s]*/u,!0))return"ARROW";if("["===N||"|"===N||"]"===N||"+"===N)return"+"!==N&&(_.tokenIndex=1),b.next(),b.match(/[\p{Z}\s]*/u,!0),"BRACKET";var D=b.match(/[^\[\|\]\p{Z}\s]*/u,!0)[0].trim();return 0===_.tokenIndex&&g.exec(D)?"BRACKET":0===_.tokenIndex&&d.exec(D)?(b.match(/[\p{Z}\s]*/u,!0),"DIRECTION"):1===_.tokenIndex&&u.exec(D)?(b.match(/[\p{Z}\s]*/u,!0),"DIRECTION"):_.names.indexOf(D)>=0?y?(logError("Identifiers cannot appear outside of square brackets in rules, only directions can.",_.lineNumber),"ERROR"):(b.match(/[\p{Z}\s]*/u,!0),"NAME"):(D=D.toLowerCase(),"..."===D?"DIRECTION":"rigid"===D?"DIRECTION":"random"===D?"DIRECTION":"global"===D?"DIRECTION":r.indexOf(D)>=0?(("message"===D||"goto"===D||twiddleable_params.includes(D))&&(_.tokenIndex=-4),"COMMAND"):(logError('Name "'+D+'", referred to in a rule, does not exist.',_.lineNumber),"ERROR"));case"winconditions":if(y){var H=a.exec(b.string),J=H[0].split(/[\p{Z}\s]/u),Q=J.filter(function(e){return""!==e});Q.push(_.lineNumber),_.winconditions.push(Q),_.tokenIndex=-1}_.tokenIndex++;var X=b.match(/[\p{Z}\s]*[\p{L}\p{N}_]+[\p{Z}\s]*/u);if(null===X)return logError("incorrect format of win condition.",_.lineNumber),b.match(a,!0),"ERROR";var ee=X[0].trim();if(0===_.tokenIndex)return p.exec(ee)?"LOGICWORD":"ERROR";if(2===_.tokenIndex)return"on"!=ee?(logError('Expecting the word "ON" but got "'+ee.toUpperCase()+"'.",_.lineNumber),"ERROR"):"LOGICWORD";if(1===_.tokenIndex||3===_.tokenIndex)return-1===_.names.indexOf(ee)?(logError('Error in win condition: "'+ee+'" is not a valid object name.',_.lineNumber),"ERROR"):"NAME";break;case"levels":if(y){if(b.match(/[\p{Z}\s]*message\b[\p{Z}\s]*/u,!0)){_.tokenIndex=1;var ne=["message",E.slice(b.pos).trim(),_.lineNumber,_.currentSection];return 0==_.levels[_.levels.length-1].length?_.levels.splice(_.levels.length-1,0,ne):_.levels.push(ne),"MESSAGE_VERB"}if(b.match(/[\p{Z}\s]*message[\p{Z}\s]*/u,!0)){logWarning("You probably meant to put a space after 'message' innit.  That's ok, I'll still interpret it as a message, but you probably want to put a space there.",_.lineNumber),_.tokenIndex=1;var ne=["message",E.slice(b.pos).trim(),_.lineNumber,_.currentSection];return 0==_.levels[_.levels.length-1].length?_.levels.splice(_.levels.length-1,0,ne):_.levels.push(ne),"MESSAGE_VERB"}if(b.match(/\s*section\s*/i,!0))return _.tokenIndex=3,_.currentSection=E.slice(b.pos).trim(),"SECTION_VERB";if(b.match(/\s*goto\s*/i,!0)){_.tokenIndex=4;var ne=["goto",E.slice(b.pos).trim(),_.lineNumber,_.currentSection];return 0==_.levels[_.levels.length-1].length?_.levels.splice(_.levels.length-1,0,ne):_.levels.push(ne),"GOTO_VERB"}var re=b.match(a,!1)[0].trim();_.tokenIndex=2;var te=_.levels[_.levels.length-1];"\n"==te[0]?_.levels.push([_.lineNumber,_.currentSection,re]):(0==te.length&&(te.push(_.lineNumber),te.push(_.currentSection)),te.push(re),te.length>2&&re.length!=te[2].length&&logWarning("Maps must be rectangular, yo (In a level, the length of each row must be the same).",_.lineNumber))}else{if(1==_.tokenIndex)return b.skipToEnd(),"MESSAGE";if(3==_.tokenIndex)return b.skipToEnd(),"SECTION";if(4==_.tokenIndex)return b.skipToEnd(),"GOTO"}if(2===_.tokenIndex&&!b.eol()){var N=b.peek();return b.next(),_.abbrevNames.indexOf(N)>=0?"LEVEL":(logError('Key "'+N+'" not found. Do you need to add it to the legend, or define a new object?',_.lineNumber),"ERROR")}break;default:if(y&&(_.tokenIndex=0),0!=_.tokenIndex)return b.match(a,!0),"METADATATEXT";var X=b.match(/[\p{Z}\s]*[\p{L}\p{N}_]+[\p{Z}\s]*/u);if(null!==X){var oe=X[0].trim();if(y){if(f.indexOf(oe)>=0){"youtube"!==oe&&"author"!==oe&&"homepage"!==oe&&"title"!==oe&&"custom_font"!==oe||(b.string=E);var se=b.match(a,!1);return null!=se?"sprite_size"==oe?_.sprite_size=parseInt(se[0].trim(),10):(_.metadata.push(oe),_.metadata.push(se[0].trim())):logError('MetaData "'+oe+'" needs a value.',_.lineNumber),_.tokenIndex=1,"METADATA"}return h.indexOf(oe)>=0?("case_sensitive"==oe&&(_.case_sensitive=!0),_.metadata.push(oe),_.metadata.push("true"),_.tokenIndex=-1,"METADATA"):(logError("Unrecognised stuff in the prelude.",_.lineNumber),"ERROR")}return-1==_.tokenIndex?(logError('MetaData "'+oe+'" has no parameters.',_.lineNumber),"ERROR"):"METADATA"}}return b.eol()?null:b.eol()?void 0:(b.next(),null)},startState:function(){return{objects:{},lineNumber:0,commentLevel:0,section:"",visitedSections:[],objects_candname:"",objects_section:0,objects_spritematrix:[],collisionLayers:[],tokenIndex:0,currentSection:null,legend_synonyms:[],legend_aggregates:[],legend_properties:[],sounds:[],rules:[],names:[],winconditions:[],metadata:[],sprite_size:5,case_sensitive:!1,original_case_names:{},abbrevNames:[],levels:[[]],subsection:""}}}};window.CodeMirror.defineMode("puzzle",codeMirrorFn);</script> <script>'use strict'; 
+}</script> <script>function logErrorCacheable(e,n,r){if(compiling||r){if(void 0===n)return logErrorNoLine(e,r);var t='<a onclick="jumpToLine('+n.toString()+');"  href="javascript:void(0);"><span class="errorTextLineNumber"> line '+n.toString()+'</span></a> : <span class="errorText">'+e+"</span>";errorStrings.indexOf(t)>=0&&!r||(consolePrint(t),errorStrings.push(t),errorCount++)}}function logError(e,n,r){if(compiling||r){if(void 0===n)return logErrorNoLine(e,r);var t='<a onclick="jumpToLine('+n.toString()+');"  href="javascript:void(0);"><span class="errorTextLineNumber"> line '+n.toString()+'</span></a> : <span class="errorText">'+e+"</span>";errorStrings.indexOf(t)>=0&&!r||(consolePrint(t,!0),errorStrings.push(t),errorCount++)}}function logWarning(e,n,r){if(compiling||r){if(void 0===n)return logWarningNoLine(e,r);var t='<a onclick="jumpToLine('+n.toString()+');"  href="javascript:void(0);"><span class="errorTextLineNumber"> line '+n.toString()+'</span></a> : <span class="warningText">'+e+"</span>";errorStrings.indexOf(t)>=0&&!r||(consolePrint(t,!0),errorStrings.push(t))}}function logWarningNoLine(e,n){if(compiling||n){var r='<span class="warningText">'+e+"</span>";errorStrings.indexOf(r)>=0&&!n||(consolePrint(r,!0),errorStrings.push(r)),errorCount++}}function logErrorNoLine(e,n){if(compiling||n){var r='<span class="errorText">'+e+"</span>";errorStrings.indexOf(r)>=0&&!n||(consolePrint(r,!0),errorStrings.push(r)),errorCount++}}function logBetaMessage(e,n){if(compiling||n){var r='<span class="betaText">'+e+"</span>";errorStrings.indexOf(r)>=0&&!n||(consoleError(r),errorStrings.push(r))}}function blankLineHandle(e){"levels"===e.section?e.levels[e.levels.length-1].length>0&&e.levels.push([]):"objects"===e.section&&(e.objects_section=0)}var compiling=!1,errorStrings=[],errorCount=0,twiddleable_params=["background_color","text_color","key_repeat_interval","realtime_interval","again_interval","flickscreen","zoomscreen","smoothscreen","noundo","norestart","message_text_align"];"function"!=typeof Object.assign&&function(){Object.assign=function(e){"use strict";if(void 0===e||null===e)throw new TypeError("Cannot convert undefined or null to object");for(var n=Object(e),r=1;r<arguments.length;r++){var t=arguments[r];if(void 0!==t&&null!==t)for(var o in t)t.hasOwnProperty(o)&&(n[o]=t[o])}return n}}();var codeMirrorFn=function(){"use strict";function e(e,n){if(void 0!==e.objects[n])return logError('Object "'+n+'" defined multiple times.',e.lineNumber),"ERROR";for(var r=0;r<e.legend_synonyms.length;r++){var t=e.legend_synonyms[r];t[0]==n&&logError('Name "'+n+'" already in use.',e.lineNumber)}for(var r=0;r<e.legend_aggregates.length;r++){var t=e.legend_aggregates[r];t[0]==n&&logError('Name "'+n+'" already in use.',e.lineNumber)}for(var r=0;r<e.legend_properties.length;r++){var t=e.legend_properties[r];t[0]==n&&logError('Name "'+n+'" already in use.',e.lineNumber)}}var n=["objects","legend","sounds","collisionlayers","rules","winconditions","levels"],r=["sfx0","sfx1","sfx2","sfx3","sfx4","sfx5","sfx6","sfx7","sfx8","sfx9","sfx10","cancel","checkpoint","restart","win","message","again","undo","nosave","quit","zoomscreen","flickscreen","smoothscreen","again_interval","realtime_interval","key_repeat_interval","noundo","norestart","background_color","text_color","goto","message_text_align"],t=/[\p{L}\p{N}_]+[\p{Z}\s]*/u,o=/\d+\b/,s=/(objects|collisionlayers|legend|sounds|rules|winconditions|levels)(?![\p{L}\p{N}_])[\p{Z}\s]*/u,i=/[\=]+/,a=/[^\(]+/,l=/[ \,]*/,c=/(move|action|create|destroy|cantmove|undo|restart|titlescreen|startgame|cancel|endgame|startlevel|endlevel|showmessage|closemessage|sfx0|sfx1|sfx2|sfx3|sfx4|sfx5|sfx6|sfx7|sfx8|sfx9|sfx10)\b[\p{Z}\s]*/u,u=/^(action|up|down|left|right|\^|v|\<|\>|moving|stationary|parallel|perpendicular|horizontal|orthogonal|vertical|no|randomdir|random)$/,g=/^(startloop|endloop)$/,d=/^(up|down|left|right|horizontal|vertical|orthogonal|late|rigid)$/,m=/[\p{Z}\s]*(up|down|left|right|horizontal|vertical|orthogonal)(?![\p{L}\p{N}_])[\p{Z}\s]*/u,p=/^(all|any|no|some)$/,f=["title","author","homepage","background_color","text_color","key_repeat_interval","realtime_interval","again_interval","flickscreen","zoomscreen","smoothscreen","color_palette","youtube","sprite_size","level_select_unlocked_ahead","level_select_solve_symbol","custom_font","mouse_left","mouse_drag","mouse_right","mouse_rdrag","mouse_up","mouse_rup","local_radius","font_size","tween_length","tween_easing","tween_snap","message_text_align","text_controls","text_message_continue","level_select_unlocked_rollover"],h=["run_rules_on_level_start","norepeat_action","require_player_movement","debug","verbose_logging","throttle_movement","noundo","noaction","norestart","scanline","case_sensitive","level_select","continue_is_level_select","level_select_lock","settings","runtime_metadata_twiddling","runtime_metadata_twiddling_debug","smoothscreen_debug","skip_title_screen","nokeyboard"],v=["checkpoint","objects","collisionlayers","legend","sounds","rules","...","winconditions","levels","|","[","]","up","down","left","right","late","rigid","^","v",">","<","no","randomdir","random","horizontal","vertical","any","all","no","some","moving","stationary","parallel","perpendicular","action","nosave","message","global","zoomscreen","flickscreen","smoothscreen","noundo","norestart","background_color","text_color","goto","message_text_align"];return{copyState:function(e){var n={};for(var r in e.objects)if(e.objects.hasOwnProperty(r)){var t=e.objects[r];n[r]={colors:t.colors.concat([]),lineNumber:t.lineNumber,spritematrix:t.spritematrix.concat([])}}for(var o=[],r=0;r<e.collisionLayers.length;r++)o.push(e.collisionLayers[r].concat([]));for(var s=[],i=[],a=[],l=[],c=[],u=[],r=0;r<e.legend_synonyms.length;r++)s.push(e.legend_synonyms[r].concat([]));for(var r=0;r<e.legend_aggregates.length;r++)i.push(e.legend_aggregates[r].concat([]));for(var r=0;r<e.legend_properties.length;r++)a.push(e.legend_properties[r].concat([]));for(var r=0;r<e.sounds.length;r++)l.push(e.sounds[r].concat([]));for(var r=0;r<e.levels.length;r++)c.push(e.levels[r].concat([]));for(var r=0;r<e.winconditions.length;r++)u.push(e.winconditions[r].concat([]));var g=Object.assign({},e.original_case_names);return{lineNumber:e.lineNumber,objects:n,collisionLayers:o,commentLevel:e.commentLevel,section:e.section,visitedSections:e.visitedSections.concat([]),objects_candname:e.objects_candname,objects_section:e.objects_section,objects_spritematrix:e.objects_spritematrix.concat([]),tokenIndex:e.tokenIndex,currentSection:e.currentSection,legend_synonyms:s,legend_aggregates:i,legend_properties:a,sounds:l,rules:e.rules.concat([]),names:e.names.concat([]),winconditions:u,original_case_names:g,abbrevNames:e.abbrevNames.concat([]),metadata:e.metadata.concat([]),sprite_size:e.sprite_size,case_sensitive:e.case_sensitive,levels:c,STRIDE_OBJ:e.STRIDE_OBJ,STRIDE_MOV:e.STRIDE_MOV}},blankLine:function(e){"levels"===e.section&&e.levels[e.levels.length-1].length>0&&e.levels.push([])},token:function(b,_){function x(e){function n(e){return e.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g,"\\$&")}var r;r=_.case_sensitive?new RegExp("\\b"+n(e)+"\\b"):new RegExp("\\b"+n(e)+"\\b","i");var t=E.match(r);null!=t&&(_.original_case_names[e]=t[0])}var E=b.string,y=b.sol();y&&(_.case_sensitive||(b.string=b.string.toLowerCase()),_.tokenIndex=0),b.eatWhile(/[ \t]/);var N=b.peek();if("("===N&&-4!==_.tokenIndex)b.next(),_.commentLevel++;else if(")"===N&&(b.next(),_.commentLevel>0&&0===--_.commentLevel))return"comment";if(_.commentLevel>0){for(;;){if(b.eatWhile(/[^\(\)]+/),b.eol())break;if(N=b.peek(),"("===N?_.commentLevel++:")"===N&&_.commentLevel--,b.next(),0===_.commentLevel)break}return"comment"}if(b.eatWhile(/[ \t]/),y&&b.eol())return blankLineHandle(_);if(y&&b.match(i,!0))return"EQUALSBIT";if(y&&b.match(s,!0)){_.section=b.string.slice(0,b.pos).trim().toLowerCase(),_.visitedSections.indexOf(_.section)>=0&&logError('cannot duplicate sections (you tried to duplicate "'+_.section+'").',_.lineNumber),_.visitedSections.push(_.section);var k=n.indexOf(_.section);if(0==k?(_.objects_section=0,_.visitedSections.length>1&&logError('section "'+_.section+'" must be the first section',_.lineNumber)):-1==_.visitedSections.indexOf(n[k-1])&&(-1===k?logError('no such section as "'+_.section+'".',_.lineNumber):logError('section "'+_.section+'" is out of order, must follow  "'+n[k-1]+'".',_.lineNumber)),"sounds"===_.section){for(var R in _.objects)_.objects.hasOwnProperty(R)&&_.names.push(R);for(var O=0;O<_.legend_synonyms.length;O++){var R=_.legend_synonyms[O][0];_.names.push(R)}for(var O=0;O<_.legend_aggregates.length;O++){var R=_.legend_aggregates[O][0];_.names.push(R)}for(var O=0;O<_.legend_properties.length;O++){var R=_.legend_properties[O][0];_.names.push(R)}}else if("levels"===_.section){for(var R in _.objects)_.objects.hasOwnProperty(R)&&1==R.length&&_.abbrevNames.push(R);for(var O=0;O<_.legend_synonyms.length;O++)1==_.legend_synonyms[O][0].length&&_.abbrevNames.push(_.legend_synonyms[O][0]);for(var O=0;O<_.legend_aggregates.length;O++)1==_.legend_aggregates[O][0].length&&_.abbrevNames.push(_.legend_aggregates[O][0])}return"HEADER"}if(void 0===_.section&&logError('must start with section "OBJECTS"',_.lineNumber),b.eol())return null;switch(_.section){case"objects":var j=function(){var e=y?b.match(t,!0):b.match(/[^\p{Z}\s\()]+[\p{Z}\s]*/u,!0);if(null==e)return b.match(a,!0),b.pos>0&&logWarning('Unknown junk in object section (possibly: the main names for objects have to be words containing only the letters a-z0.9 - if you want to call them something like ",", do it in the legend section).',_.lineNumber),"ERROR";var n=e[0].trim();if(void 0!==_.objects[n])return logError('Object "'+n+'" defined multiple times.',_.lineNumber),"ERROR";for(var r=0;r<_.legend_synonyms.length;r++){_.legend_synonyms[r][0]==n&&logError('Name "'+n+'" already in use.',_.lineNumber)}if(v.indexOf(n)>=0&&logWarning('You named an object "'+n+"\", but this is a keyword. Don't do that!",_.lineNumber),y)_.objects_candname=n,x(n),_.objects[_.objects_candname]={lineNumber:_.lineNumber,colors:[],spritematrix:[],cloneSprite:""};else{if("copy:"==n.substring(0,5)&&n.length>5){var o=n.substring(5);return""!=_.objects[_.objects_candname].cloneSprite?(logError("You already assigned a sprite parent for "+o+", you can't have more than one!",_.lineNumber),"ERROR"):o==_.objects_candname?(logError("You attempted to set the sprite parent for "+o+" to "+o+"! Please don't, and keep the recursion in check.",_.lineNumber),"ERROR"):(_.objects[_.objects_candname].cloneSprite=o,"SPRITEPARENT")}x(n);var s=[n,_.objects_candname];s.lineNumber=_.lineNumber,_.legend_synonyms.push(s)}if(_.case_sensitive&&("player"==n.toLowerCase()&&"player"!=n||"background"==n.toLowerCase()&&"background"!=n)){var s=[n.toLowerCase(),_.objects_candname];s.lineNumber=_.lineNumber,_.legend_synonyms.push(s)}return _.objects_section=1,"NAME"};switch(y&&2==_.objects_section&&(_.objects_section=3),y&&1==_.objects_section&&(_.objects_section=2),_.objects_section){case 0:case 1:return _.objects_spritematrix=[],j();case 2:b.string=b.string.toLowerCase(),_.tokenIndex=0;var L=b.match(reg_color,!0);if(null==L){var I=b.match(t,!0)||b.match(a,!0);return logError("Was looking for color for object "+_.objects_candname+', got "'+I+'" instead.',_.lineNumber),null}void 0===_.objects[_.objects_candname].colors?_.objects[_.objects_candname].colors=[L[0].trim()]:_.objects[_.objects_candname].colors.push(L[0].trim());var w=L[0].trim().toLowerCase();return w in colorPalettes.arnecolors?"COLOR COLOR-"+w.toUpperCase():"transparent"===w?"COLOR FADECOLOR":"MULTICOLOR"+L[0];case 3:var N=b.eat(/[.\d]/),S=_.objects_spritematrix;if(void 0===N)return 0===S.length?j():(logError("Unknown junk in spritematrix for object "+_.objects_candname+".",_.lineNumber),b.match(a,!0),null);y&&S.push("");var C=_.objects[_.objects_candname];if(S[S.length-1]+=N,S[S.length-1].length>_.sprite_size)return logError("Sprites must be "+_.sprite_size+" wide and "+_.sprite_size+" high.",_.lineNumber),b.match(a,!0),null;if(C.spritematrix=_.objects_spritematrix,S.length===_.sprite_size&&S[S.length-1].length==_.sprite_size&&(_.objects_section=0),"."!==N){var R=parseInt(N);return R>=C.colors.length?(logError("Trying to access color number "+R+" from the color palette of sprite "+_.objects_candname+", but there are only "+C.colors.length+" defined in it.",_.lineNumber),"ERROR"):isNaN(R)?(logError('Invalid character "'+N+'" in sprite for '+_.objects_candname,_.lineNumber),"ERROR"):"COLOR BOLDCOLOR COLOR-"+C.colors[R].toUpperCase()}return"COLOR FADECOLOR";default:window.console.logError("EEK shouldn't get here.")}break;case"sounds":if(y){var T=!0,A=a.exec(b.string)[0].split(/[\p{Z}\s]/u).filter(function(e){return""!==e});A.push(_.lineNumber),_.sounds.push(A)}if(null!==(z=b.match(c,!0)))return"SOUNDVERB";if(null!==(z=b.match(m,!0)))return"DIRECTION";if(null!==(z=b.match(o,!0)))return _.tokenIndex++,"SOUND";if(null!==(z=b.match(/[^\[\|\]\p{Z}\s]*/u,!0))){var D=z[0].trim();if(_.names.indexOf(D)>=0)return"NAME"}else z=b.match(a,!0);return logError('unexpected sound token "'+z+'".',_.lineNumber),b.match(a,!0),"ERROR";case"collisionlayers":y&&(_.collisionLayers.push([]),_.tokenIndex=0);var M=b.match(t,!0);if(null===M){var Z=b.pos;return b.match(l,!0),b.pos==Z&&(logError("error detected - unexpected character "+b.peek(),_.lineNumber),b.next()),null}var z=M[0].trim(),B=function(e){if(_.case_sensitive||(e=e.toLowerCase()),e in _.objects)return[e];for(var n=0;n<_.legend_synonyms.length;n++){var r=_.legend_synonyms[n];if(r[0]===e)return B(r[1])}for(var n=0;n<_.legend_aggregates.length;n++){var r=_.legend_aggregates[n];if(r[0]===e)return logError('"'+e+'" is an aggregate (defined using "and"), and cannot be added to a single layer because its constituent objects must be able to coexist.',_.lineNumber),[]}for(var n=0;n<_.legend_properties.length;n++){var r=_.legend_properties[n];if(r[0]===e){return[].concat.apply([],r.slice(1).map(B))}}return logError('Cannot add "'+z+'" to a collision layer; it has not been declared.',_.lineNumber),[]};"background"===z.toLowerCase()?(_.collisionLayers.length>0&&_.collisionLayers[_.collisionLayers.length-1].length>0&&logError("Background must be in a layer by itself.",_.lineNumber),_.tokenIndex=1):0!==_.tokenIndex&&logError("Background must be in a layer by itself.",_.lineNumber);var W=B(z);if(0===_.collisionLayers.length)return logError("no layers found.",_.lineNumber),"ERROR";for(var P=[],O=0;O<W.length;O++)for(var z=W[O],G=0;G<=_.collisionLayers.length-1;G++){var U=_.collisionLayers[G];U.indexOf(z)>=0&&G!=_.collisionLayers.length-1&&P.push(G)}if(P.length>0){for(var V='Object "'+z+'" included in multiple collision layers ( layers ',O=0;O<P.length;O++)V+="#"+(P[O]+1)+", ";V+="#"+_.collisionLayers.length,logWarning(V+" ). You should fix this!",_.lineNumber)}return _.collisionLayers[_.collisionLayers.length-1]=_.collisionLayers[_.collisionLayers.length-1].concat(W),W.length>0?"NAME":"ERROR";case"legend":if(y){var Y=b.string.replace("="," = ");Y=a.exec(Y)[0];var A=Y.split(/[\p{Z}\s]/u).filter(function(e){return""!==e}),T=!0;if(A.length>0){var z=A[0];_.case_sensitive||(z=z.toLowerCase()),v.indexOf(z)>=0&&logWarning('You named an object "'+z+"\", but this is a keyword. Don't do that!",_.lineNumber),A.indexOf(z,2)>=2&&logError("You can't define object "+z.toUpperCase()+" in terms of itself!",_.lineNumber),e(_,z)}if(T)if(A.length<3)T=!1;else if("="!==A[1])T=!1;else if(3===A.length){var $=[A[0],A[2]];_.case_sensitive||($[1]=$[1].toLowerCase()),$.lineNumber=_.lineNumber,x(A[0]),_.legend_synonyms.push($)}else if(A.length%2==0)T=!1;else{var F=A[3].toLowerCase();if("and"===F){for(var B=(function(e){if(_.case_sensitive||(e=e.toLowerCase()),e in _.objects)return[e];for(var n=0;n<_.legend_synonyms.length;n++){var r=_.legend_synonyms[n];if(r[0]===e)return B(r[1])}for(var n=0;n<_.legend_aggregates.length;n++){var r=_.legend_aggregates[n];if(r[0]===e)return[].concat.apply([],r.slice(1).map(B))}for(var n=0;n<_.legend_properties.length;n++){var r=_.legend_properties[n];if(r[0]===e)return logError("Cannot define an aggregate (using 'and') in terms of properties (something that uses 'or').",_.lineNumber),T=!1,[e]}return[e]}),O=5;O<A.length;O+=2)if("and"!==A[O].toLowerCase()){T=!1;break}if(T){for(var K=[A[0]].concat(B(A[2])).concat(B(A[4])),O=6;O<A.length;O+=2)K=K.concat(B(A[O]));K.lineNumber=_.lineNumber,x(K[0]),_.legend_aggregates.push(K)}}else if("or"===F){for(var B=(function(e){if(_.case_sensitive||(e=e.toLowerCase()),e in _.objects)return[e];for(var n=0;n<_.legend_synonyms.length;n++){var r=_.legend_synonyms[n];if(r[0]===e)return B(r[1])}for(var n=0;n<_.legend_aggregates.length;n++){var r=_.legend_aggregates[n];r[0]===e&&(logError("Cannot define a property (using 'or') in terms of aggregates (something that uses 'and').",_.lineNumber),T=!1)}for(var n=0;n<_.legend_properties.length;n++){var r=_.legend_properties[n];if(r[0]===e)return[].concat.apply([],r.slice(1).map(B))}return[e]}),O=5;O<A.length;O+=2)if("or"!==A[O].toLowerCase()){T=!1;break}if(T){for(var K=[A[0]].concat(B(A[2])).concat(B(A[4])),O=6;O<A.length;O+=2)_.case_sensitive?K.push(A[O]):K.push(A[O].toLowerCase());K.lineNumber=_.lineNumber,x(K[0]),_.legend_properties.push(K)}}else T=!1}else;if(!1===T)return logError("incorrect format of legend - should be one of A = B, A = B or C ( or D ...), A = B and C (and D ...)",_.lineNumber),b.match(a,!0),"ERROR";_.tokenIndex=0}if(0===_.tokenIndex)return b.match(/[^=]*/,!0),_.tokenIndex++,"NAME";if(1===_.tokenIndex)return b.next(),b.match(/[\p{Z}\s]*/u,!0),_.tokenIndex++,"ASSSIGNMENT";var M=b.match(t,!0);if(null===M)return logError("Something bad's happening in the LEGEND",_.lineNumber),b.match(a,!0),"ERROR";var z=M[0].trim();if(_.tokenIndex%2==0){return!1===function(e){if(_.case_sensitive||(e=e.toLowerCase()),e in _.objects)return!0;for(var n=0;n<_.legend_aggregates.length;n++){var r=_.legend_aggregates[n];if(r[0]===e)return!0}for(var n=0;n<_.legend_properties.length;n++){var r=_.legend_properties[n];if(r[0]===e)return!0}for(var n=0;n<_.legend_synonyms.length;n++){var r=_.legend_synonyms[n];if(r[0]===e)return!0}return!1}(z)?(logError('Cannot reference "'+z+'" in the LEGEND section; it has not been defined yet.',_.lineNumber),_.tokenIndex++,"ERROR"):(_.tokenIndex++,"NAME")}return _.tokenIndex++,"LOGICWORD";case"rules":if(y){var q=a.exec(b.string)[0];_.rules.push([q,_.lineNumber,E]),_.tokenIndex=0}if(-4===_.tokenIndex)return b.skipToEnd(),"MESSAGE";if(b.match(/[\p{Z}\s]*->[\p{Z}\s]*/u,!0))return"ARROW";if("["===N||"|"===N||"]"===N||"+"===N)return"+"!==N&&(_.tokenIndex=1),b.next(),b.match(/[\p{Z}\s]*/u,!0),"BRACKET";var D=b.match(/[^\[\|\]\p{Z}\s]*/u,!0)[0].trim();return 0===_.tokenIndex&&g.exec(D)?"BRACKET":0===_.tokenIndex&&d.exec(D)?(b.match(/[\p{Z}\s]*/u,!0),"DIRECTION"):1===_.tokenIndex&&u.exec(D)?(b.match(/[\p{Z}\s]*/u,!0),"DIRECTION"):_.names.indexOf(D)>=0?y?(logError("Identifiers cannot appear outside of square brackets in rules, only directions can.",_.lineNumber),"ERROR"):(b.match(/[\p{Z}\s]*/u,!0),"NAME"):(D=D.toLowerCase(),"..."===D?"DIRECTION":"rigid"===D?"DIRECTION":"random"===D?"DIRECTION":"global"===D?"DIRECTION":r.indexOf(D)>=0?(("message"===D||"goto"===D||twiddleable_params.includes(D))&&(_.tokenIndex=-4),"COMMAND"):(logError('Name "'+D+'", referred to in a rule, does not exist.',_.lineNumber),"ERROR"));case"winconditions":if(y){var H=a.exec(b.string),J=H[0].split(/[\p{Z}\s]/u),Q=J.filter(function(e){return""!==e});Q.push(_.lineNumber),_.winconditions.push(Q),_.tokenIndex=-1}_.tokenIndex++;var X=b.match(/[\p{Z}\s]*[\p{L}\p{N}_]+[\p{Z}\s]*/u);if(null===X)return logError("incorrect format of win condition.",_.lineNumber),b.match(a,!0),"ERROR";var ee=X[0].trim();if(0===_.tokenIndex)return p.exec(ee)?"LOGICWORD":"ERROR";if(2===_.tokenIndex)return"on"!=ee?(logError('Expecting the word "ON" but got "'+ee.toUpperCase()+"'.",_.lineNumber),"ERROR"):"LOGICWORD";if(1===_.tokenIndex||3===_.tokenIndex)return-1===_.names.indexOf(ee)?(logError('Error in win condition: "'+ee+'" is not a valid object name.',_.lineNumber),"ERROR"):"NAME";break;case"levels":if(y){if(b.match(/[\p{Z}\s]*message\b[\p{Z}\s]*/u,!0)){_.tokenIndex=1;var ne=["message",E.slice(b.pos).trim(),_.lineNumber,_.currentSection];return 0==_.levels[_.levels.length-1].length?_.levels.splice(_.levels.length-1,0,ne):_.levels.push(ne),"MESSAGE_VERB"}if(b.match(/[\p{Z}\s]*message[\p{Z}\s]*/u,!0)){logWarning("You probably meant to put a space after 'message' innit.  That's ok, I'll still interpret it as a message, but you probably want to put a space there.",_.lineNumber),_.tokenIndex=1;var ne=["message",E.slice(b.pos).trim(),_.lineNumber,_.currentSection];return 0==_.levels[_.levels.length-1].length?_.levels.splice(_.levels.length-1,0,ne):_.levels.push(ne),"MESSAGE_VERB"}if(b.match(/\s*section\s*/i,!0))return _.tokenIndex=3,_.currentSection=E.slice(b.pos).trim(),"SECTION_VERB";if(b.match(/\s*goto\s*/i,!0)){_.tokenIndex=4;var ne=["goto",E.slice(b.pos).trim(),_.lineNumber,_.currentSection];return 0==_.levels[_.levels.length-1].length?_.levels.splice(_.levels.length-1,0,ne):_.levels.push(ne),"GOTO_VERB"}var re=b.match(a,!1)[0].trim();_.tokenIndex=2;var te=_.levels[_.levels.length-1];"\n"==te[0]?_.levels.push([_.lineNumber,_.currentSection,re]):(0==te.length&&(te.push(_.lineNumber),te.push(_.currentSection)),te.push(re),te.length>2&&re.length!=te[2].length&&logWarning("Maps must be rectangular, yo (In a level, the length of each row must be the same).",_.lineNumber))}else{if(1==_.tokenIndex)return b.skipToEnd(),"MESSAGE";if(3==_.tokenIndex)return b.skipToEnd(),"SECTION";if(4==_.tokenIndex)return b.skipToEnd(),"GOTO"}if(2===_.tokenIndex&&!b.eol()){var N=b.peek();return b.next(),_.abbrevNames.indexOf(N)>=0?"LEVEL":(logError('Key "'+N+'" not found. Do you need to add it to the legend, or define a new object?',_.lineNumber),"ERROR")}break;default:if(y&&(_.tokenIndex=0),0!=_.tokenIndex)return b.match(a,!0),"METADATATEXT";var X=b.match(/[\p{Z}\s]*[\p{L}\p{N}_]+[\p{Z}\s]*/u);if(null!==X){var oe=X[0].trim();if(y){if(f.indexOf(oe)>=0){"youtube"!==oe&&"author"!==oe&&"homepage"!==oe&&"title"!==oe&&"custom_font"!==oe&&"text_controls"!==oe&&"text_message_continue"!==oe||(b.string=E);var se=b.match(a,!1);return null!=se?"sprite_size"==oe?_.sprite_size=parseInt(se[0].trim(),10):(_.metadata.push(oe),_.metadata.push(se[0].trim())):logError('MetaData "'+oe+'" needs a value.',_.lineNumber),_.tokenIndex=1,"METADATA"}return h.indexOf(oe)>=0?("case_sensitive"==oe&&(_.case_sensitive=!0),_.metadata.push(oe),_.metadata.push("true"),_.tokenIndex=-1,"METADATA"):(logError("Unrecognised stuff in the prelude.",_.lineNumber),"ERROR")}return-1==_.tokenIndex?(logError('MetaData "'+oe+'" has no parameters.',_.lineNumber),"ERROR"):"METADATA"}}return b.eol()?null:b.eol()?void 0:(b.next(),null)},startState:function(){return{objects:{},lineNumber:0,commentLevel:0,section:"",visitedSections:[],objects_candname:"",objects_section:0,objects_spritematrix:[],collisionLayers:[],tokenIndex:0,currentSection:null,legend_synonyms:[],legend_aggregates:[],legend_properties:[],sounds:[],rules:[],names:[],winconditions:[],metadata:[],sprite_size:5,case_sensitive:!1,original_case_names:{},abbrevNames:[],levels:[[]],subsection:""}}}};window.CodeMirror.defineMode("puzzle",codeMirrorFn);</script> <script>'use strict'; 
  
 function isColor(str) { 
  str = str.trim(); 
@@ -9315,7 +9574,7 @@ var simpleRelativeDirections = ['^', 'v', '<', '>'];
 var reg_directions_only = /^(\>|\<|\^|v|up|down|left|right|moving|stationary|no|randomdir|random|horizontal|vertical|orthogonal|perpendicular|parallel|action)$/i; 
 //redeclaring here, i don't know why 
 var commandwords = ["sfx0","sfx1","sfx2","sfx3","sfx4","sfx5","sfx6","sfx7","sfx8","sfx9","sfx10","cancel","checkpoint","restart","win","message","again","undo", 
-  "nosave","quit","zoomscreen","flickscreen","smoothscreen","again_interval","realtime_interval","key_repeat_interval",'noundo','norestart','background_color','text_color','goto']; 
+  "nosave","quit","zoomscreen","flickscreen","smoothscreen","again_interval","realtime_interval","key_repeat_interval",'noundo','norestart','background_color','text_color','goto','message_text_align']; 
 function directionalRule(rule) { 
     for (var i = 0; i < rule.lhs.length; i++) { 
         var cellRow = rule.lhs[i]; 
@@ -11018,7 +11277,7 @@ function twiddleMetaData(state, update = false) {
   if (args.length > 2) { 
    const cameraSpeedMatch = args[2].match(/^(?<speed>\d+(\.\d+)?)$/) 
    if (cameraSpeedMatch) { 
-    smoothscreen.cameraSpeed = parseFloat(cameraSpeedMatch.groups.speed) 
+    smoothscreen.cameraSpeed = clamp(parseFloat(cameraSpeedMatch.groups.speed), 0, 1) 
    } else { 
     logErrorNoLine('smoothscreen given third argument ' + args[2] + ' but must be a number') 
     validArguments = false 
@@ -11591,7 +11850,12 @@ function loadFile(str) {
  
  generateSoundData(state); 
  
- formatHomePage(state); 
+    formatHomePage(state); 
+     
+    //Puzzlescript Plus errors 
+    if (state.metadata.tween_length && state.lateRules.length >= 1) { 
+        logWarning("Using tweens in a game that also has LATE rules is currently experimental! If you change objects that moved with LATE then tweens might not play!", undefined, false); 
+    } 
  
  delete state.commentLevel; 
  delete state.names; 
@@ -11708,7 +11972,7 @@ function qualifyURL(url) {
     var a = document.createElement('a'); 
     a.href = url; 
     return a.href; 
-}</script> <script>function selectText(e,t){t=t||window.event;var l=document.getElementById(e);if(t&&(t.ctrlKey||t.metaKey)){if(solving)return;var o=["console"].concat(l.innerHTML.split("<br>")),n=levelFromString(state,o);loadLevelFromLevelDat(state,n,null),canvasResize()}else if(document.selection){var i=document.body.createTextRange();i.moveToElementText(l),i.select()}else if(window.getSelection){var i=document.createRange();i.selectNode(l);var r=window.getSelection();r.removeAllRanges(),r.addRange(i)}}function recalcLevelBounds(){}function arrCopy(e,t,l,o,n){for(;n--;)l[o++]=e[t]++}function adjustLevel(e,t,l){backups.push(backupLevel());var o=e.clone();e.width+=t,e.height+=l,e.n_tiles=e.width*e.height,e.objects=new Int32Array(e.n_tiles*STRIDE_OBJ);var n=new BitVec(STRIDE_OBJ);n.ibitset(state.backgroundid);for(var i=0;i<e.n_tiles;++i)e.setCell(i,n);return e.movements=new Int32Array(e.objects.length),columnAdded=!0,RebuildLevelArrays(),o}function addLeftColumn(){for(var e=adjustLevel(level,1,0),t=1;t<level.width;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o-level.height))}}function addRightColumn(){for(var e=adjustLevel(level,1,0),t=0;t<level.width-1;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o))}}function addTopRow(){for(var e=adjustLevel(level,0,1),t=0;t<level.width;++t)for(var l=1;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o-t-1))}}function addBottomRow(){for(var e=adjustLevel(level,0,1),t=0;t<level.width;++t)for(var l=0;l<level.height-1;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o-t))}}function removeLeftColumn(){if(!(level.width<=1))for(var e=adjustLevel(level,-1,0),t=0;t<level.width;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o+level.height))}}function removeRightColumn(){if(!(level.width<=1))for(var e=adjustLevel(level,-1,0),t=0;t<level.width;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o))}}function removeTopRow(){if(!(level.height<=1))for(var e=adjustLevel(level,0,-1),t=0;t<level.width;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o+t+1))}}function removeBottomRow(){if(!(level.height<=1))for(var e=adjustLevel(level,0,-1),t=0;t<level.width;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o+t))}}function matchGlyph(e,t){for(var l,o=-1,n=0;n<t.length;++n){var i=t[n][0],r=t[n][1],a=t[n][2];if(r.bitsSetInArray(e.data)){for(var s=0,c=0;c<32*STRIDE_OBJ;++c)a.get(c)&&e.get(c)&&s++,r.get(c)&&e.get(c)&&s++;s>o&&(o=s,l=i)}}return o>0?l:(logErrorNoLine("Wasn't able to approximate a glyph value for some tiles, using '.' as a placeholder.",!0),".")}function printLevel(){var e=[];for(var t in state.glyphDict)if(state.glyphDict.hasOwnProperty(t)&&1===t.length){for(var l=state.glyphDict[t],o=new BitVec(STRIDE_OBJ),n=0;n<l.length;n++){var i=l[n];i>=0&&o.ibitset(i)}var r=o.clone(),a=state.layerMasks[state.backgroundlayer];o.iclear(a),e.push([t,o,r])}selectableint++;var s="selectable"+selectableint,c='Printing level contents:<br><br><span id="'+s+'" onclick="selectText(\''+s+"',event)\"><br>";cache_console_messages=!1;for(var d=0;d<level.height;d++){for(var n=0;n<level.width;n++){var u=d+n*level.height,v=level.getCell(u),l=matchGlyph(v,e);l in htmlEntityMap&&(l=htmlEntityMap[l]),c+=l}d<level.height-1&&(c+="<br>")}c+="</span><br><br>",consolePrint(c,!0)}function levelEditorClick(e,t){if(mouseCoordY<=-2){var l=editorRowCount-(-mouseCoordY-2)-1,o=mouseCoordX+(screenwidth-1)*l;-1===mouseCoordX?printLevel():mouseCoordX>=0&&o<glyphImages.length&&(glyphSelectedIndex=o,redraw())}else if(mouseCoordX>-1&&mouseCoordY>-1&&mouseCoordX<screenwidth-2&&mouseCoordY<screenheight-2-editorRowCount){for(var n=glyphImagesCorrespondance[glyphSelectedIndex],i=state.glyphDict[n],r=new BitVec(STRIDE_OBJ),a=0;a<i.length;a++){var s=i[a];s>=0&&r.ibitset(s)}var c=state.layerMasks[state.backgroundlayer];r.bitsClearInArray(c.data)&&r.ibitset(state.backgroundid);var d=mouseCoordY+mouseCoordX*level.height,u=level.getCell(d);if(u.equals(r))return;!1===anyEditsSinceMouseDown&&(anyEditsSinceMouseDown=!0,backups.push(backupLevel())),level.setCell(d,r),redraw()}else t&&(-1===mouseCoordX?(addLeftColumn(),canvasResize()):mouseCoordX===screenwidth-2&&(addRightColumn(),canvasResize()),-1===mouseCoordY?(addTopRow(),canvasResize()):mouseCoordY===screenheight-2-editorRowCount&&(addBottomRow(),canvasResize()))}function levelEditorRightClick(e,t){if(-2===mouseCoordY)mouseCoordX<=glyphImages.length&&(glyphSelectedIndex=mouseCoordX,redraw());else if(mouseCoordX>-1&&mouseCoordY>-1&&mouseCoordX<screenwidth-2&&mouseCoordY<screenheight-2-editorRowCount){var l=mouseCoordY+mouseCoordX*level.height,o=new BitVec(STRIDE_OBJ);o.ibitset(state.backgroundid),level.setCell(l,o),redraw()}else t&&(-1===mouseCoordX?(removeLeftColumn(),canvasResize()):mouseCoordX===screenwidth-2&&(removeRightColumn(),canvasResize()),-1===mouseCoordY?(removeTopRow(),canvasResize()):mouseCoordY===screenheight-2-editorRowCount&&(removeBottomRow(),canvasResize()))}function getTilesTraversingPoints(e,t,l,o){if(cellwidth!==cellheight)throw"Error: Cell is not square.";for(var n=l-e,i=o-t,r=t*n,a=e*i-r,s=cellwidth*(Math.abs(n)+Math.abs(i)),c=2*a-s,d=2*a+s,u=Math.floor(e/cellwidth),v=Math.floor(t/cellheight),g=Math.floor(l/cellwidth),m=Math.floor(o/cellheight),h=cellwidth-1,f=g-u>=0?1:-1,p=m-v>=0?1:-1,y=v,C=[],S=[],w=u;w!=g+f;w+=f)for(var k=!1,b=y;b!=m+p;b+=p){if(b>=level.height||b<0||w>=level.width||w<0)throw error="Mouse input loop failed; it:"+w+" "+b+" cell1:"+u+" "+v+" cell2:"+g+" "+m,console.log(error),error;if(function(e,t){return fOfPointTimesTwo=i*e-n*t,c<fOfPointTimesTwo==fOfPointTimesTwo<=d}(2*w*cellwidth+h,2*b*cellwidth+h))C.push(w),S.push(b),k=!0,y=b;else if(k)break}for(var M=("mouse_obstacle"in state.metadata),x=[u],T=[v];u!==g||v!==m;){if(v>=level.height||v<0||u>=level.width||u<0)throw error="Mouse input loop failed; cell1:"+u+" "+v+" cell2:"+g+" "+m,console.log(error),error;if(hitObstacle=function(){var e=screenOffsetY+v+(screenOffsetX+u)*level.height,t=level.getCell(e);return!!state.obstacleMask.anyBitsInCommon(t)},cellCornerXTimesTwo=2*u*cellwidth+h+f*cellwidth,cellCornerYTimesTwo=2*v*cellwidth+h+p*cellwidth,fOfPointTimesTwo=i*cellCornerXTimesTwo-n*cellCornerYTimesTwo,fOfPointTimesTwo>2*a==p>0!=f>0?(u+=f,M&&hitObstacle()&&(u-=f,v+=p)):(v+=p,M&&hitObstacle()&&(v-=p,u+=f)),M&&hitObstacle())break;x.push(u),T.push(v)}if(M)C=x,S=T;else for(var w=0;w<C.length;w++)if(C[w]!==x[w]||S[w]!==T[w]){try{displayError("line tile placement algorithm discrepancies detected")}catch(e){}throw consolePrint("line tile placement algorithm discrepancies detected",!0),"line tile placement algorithm discrepancies detected"}return{tileListX:C,tileListY:S}}function mouseAction(e,t,l){if(textMode){if(!t)return;if(!titleScreen||quittingTitleScreen||titleSelected)!1===messageselected&&state.levels[curlevel].message&&(messageselected=!0,timer=0,quittingMessageScreen=!0,tryPlayCloseMessageSound(),titleScreen=!1,drawMessageScreen());else if(0===titleMode)titleButtonSelected();else if(1===titleMode)5===mouseCoordY&&titleSelectOptions>=1?(titleSelection=0,titleButtonSelected()):6===mouseCoordY&&titleSelectOptions>=3?(titleSelection=1,titleButtonSelected()):7===mouseCoordY&&titleSelectOptions>=2?(2===titleSelectOptions?titleSelection=1:titleSelection=2,titleButtonSelected()):8===mouseCoordY&&titleSelectOptions>=4&&(titleSelection=3,titleButtonSelected());else if(2===titleMode)if(0===mouseCoordY)titleSelection=0,goToTitleScreen(),tryPlayTitleSound(),canvasResize();else if(2===mouseCoordY)0!=levelSelectScrollPos&&levelSelectScroll(-3);else if(12===mouseCoordY)titleSelectOptions-amountOfLevelsOnScreen>levelSelectScrollPos&&levelSelectScroll(3);else{var o=-1;switch(mouseCoordY){case 3:o=0;break;case 4:o=1;break;case 5:o=2;break;case 6:o=3;break;case 7:o=4;break;case 8:o=5;break;case 9:o=6;break;case 10:o=7;break;case 11:o=8}-1!=o&&(o+=levelSelectScrollPos)<titleSelectOptions&&(titleSelection=o,titleSelected=!0,messageselected=!1,timer=0,quittingTitleScreen=!0,generateLevelSelectScreen())}}else if(x1=x2,y1=y2,x2=mousePixelX,y2=mousePixelY,x2=Math.max(0,Math.min(cellwidth*screenwidth-1,mousePixelX)),y2=Math.max(0,Math.min(cellheight*screenheight-1,mousePixelY)),t){if(mouseCoordX>=0&&mouseCoordY>=0&&mouseCoordX<screenwidth&&mouseCoordY<screenheight){var n=screenOffsetY+mouseCoordY+(screenOffsetX+mouseCoordX)*level.height;if(lastCoord=n,againing);else try{var i=backupLevel(),r=level.getCell(n);r.ibitset(l),level.setCell(n,r);var a=5;pushInput(a),processInput(a,!1,!1,i)&&redraw()}catch(e){console.log(e),consolePrint(e,!0)}}}else for(var s=getTilesTraversingPoints(x1,y1,x2,y2),c=s.tileListX,d=s.tileListY,u=0;u<c.length;u++){var n=screenOffsetY+d[u]+(screenOffsetX+c[u])*level.height;if(lastCoord!==n)if(lastCoord=n,againing);else try{var i=backupLevel(),r=level.getCell(n);r.ibitset(l),level.setCell(n,r);var a=5;pushInput(a),processInput(a,!1,!1,i)&&redraw()}catch(e){console.log(e),consolePrint(e,!0)}}}function onMouseDown(e){if(!e.handled){ULBS();var t=0===e.button;e.button;if("touchstart"==e.type&&(t=!0),t&&(e.ctrlKey||e.metaKey)&&(t=!1,!0),t){if(lastDownTarget=e.target,keybuffer=[],e.target===canvas||"tapFocusIndicator"===e.target.className){if(setMouseCoord(e),dragging=!0,rightdragging=!1,anyEditsSinceMouseDown=!1,levelEditorOpened&&!textMode)return levelEditorClick(e,!0);if("mouse_left"in state.metadata)return mouseAction(e,!0,state.lmbID)}dragging=!1,rightdragging=!1}else if(2===e.button||0===e.button&&(e.ctrlKey||e.metaKey))if("gameCanvas"===e.target.id){if(setMouseCoord(e),dragging=!1,rightdragging=!0,levelEditorOpened)return levelEditorRightClick(e,!0);if("mouse_right"in state.metadata)return mouseAction(e,!0,state.rmbID)}else dragging=!1,rightdragging=!1;else 1===e.button&&!1===textMode&&levelEditorOpened&&(pushInput("undo"),DoUndo(!1,!0),canvasResize());e.handled=!0}}function rightClickCanvas(e){return"mouse_right"in state.metadata?prevent(e):levelEditorOpened?prevent(e):void 0}function onMouseUp(e){if(!e.handled){if(dragging=!1,rightdragging=!1,0===e.button){if(e.target===canvas&&(setMouseCoord(e),"mouse_up"in state.metadata))return mouseAction(e,!0,state.lmbupID)}else if(2===e.button&&"gameCanvas"===e.target.id&&(setMouseCoord(e),"mouse_rup"in state.metadata))return mouseAction(e,!0,state.rmbupID);e.handled=!0}}function onKeyDown(e){ULBS(),e=e||window.event,!IDE&&[32,37,38,39,40].indexOf(e.keyCode)>-1&&(e&&(e.ctrlKey||e.metaKey)||prevent(e)),IDE||77!==e.keyCode||toggleMute(),keybuffer.indexOf(e.keyCode)>=0||((lastDownTarget===canvas||window.Mobile&&lastDownTarget===window.Mobile.focusIndicator)&&-1===keybuffer.indexOf(e.keyCode)&&(e&&(e.ctrlKey||e.metaKey)||(keybuffer.splice(keyRepeatIndex,0,e.keyCode),keyRepeatTimer=0,checkKey(e,!e.repeat))),!0===canDump&&(74===e.keyCode&&(e.ctrlKey||e.metaKey)?(dumpTestCase(),prevent(e)):75===e.keyCode&&(e.ctrlKey||e.metaKey)?(makeGIF(),prevent(e)):83===e.keyCode&&(e.ctrlKey||e.metaKey)?(saveClick(),prevent(e)):66===e.keyCode&&(e.ctrlKey||e.metaKey)?(rebuildClick(),prevent(e),e.target.blur(),canvas.focus()):82===e.keyCode&&(e.ctrlKey||e.metaKey)?(runClick(),prevent(e),e.target.blur(),canvas.focus()):120===e.keyCode?(prevent(e),solve()):119===e.keyCode?(prevent(e),stopSolving()):13===e.keyCode&&(e.ctrlKey||e.metaKey)&&(canvas.focus(),editor.display.input.blur(),e.shiftKey?runClick():rebuildClick(),prevent(e))))}function relMouseCoords(e){var t=0,l=0,o=0,n=0,i=this;do{t+=i.offsetLeft-i.scrollLeft,l+=i.offsetTop-i.scrollTop}while(i=i.offsetParent);return null==e.touches?(o=e.pageX-t,n=e.pageY-l):(o=e.touches[0].pageX-t,n=e.touches[0].pageY-l),{x:o,y:n}}function onKeyUp(e){e=e||window.event;var t=keybuffer.indexOf(e.keyCode);t>=0&&(keybuffer.splice(t,1),keyRepeatIndex>=t&&keyRepeatIndex--)}function onMyFocus(e){keybuffer=[],keyRepeatIndex=0,keyRepeatTimer=0}function onMyBlur(e){keybuffer=[],keyRepeatIndex=0,keyRepeatTimer=0}function setMouseCoord(e){var t=canvas.relMouseCoords(e);(isNaN(t.x)||isNaN(t.y))&&console.warn("[SetMouseCoord] Did not recieve valid mouse coords from event. \t\t\tIgnoring it (since I'm assuming this is a faked keypress that was generated on mobile)."),mousePixelX=t.x-xoffset,mousePixelY=t.y-yoffset,mouseCoordX=Math.floor(mousePixelX/cellwidth),mouseCoordY=Math.floor(mousePixelY/cellheight)}function mouseMove(e){e.handled||(levelEditorOpened?(setMouseCoord(e),dragging?levelEditorClick(e,!1):rightdragging&&levelEditorRightClick(e,!1),redraw()):dragging&&"mouse_drag"in state.metadata?(setMouseCoord(e),mouseAction(e,!1,state.dragID),redraw()):rightdragging&&"mouse_rdrag"in state.metadata&&(setMouseCoord(e),mouseAction(e,!1,state.rdragID),redraw()),e.handled=!0)}function onMouseIn(){mouseInCanvas=!0}function onMouseOut(){mouseInCanvas=!1}function onMouseWheel(e){mouseInCanvas&&!e.ctrlKey&&(normalizedDelta=Math.sign(e.deltaY),titleScreen&&2==titleMode&&(state.metadata.mouse_left||state.metadata.mouse_drag)&&(levelSelectScroll(normalizedDelta),redraw(),prevent(e)),levelEditorOpened&&(glyphSelectedIndex=clamp(glyphSelectedIndex+normalizedDelta,0,glyphCount()-1),redraw(),prevent(e)))}function levelSelectScroll(e){levelSelectScrollPos=clamp(levelSelectScrollPos+e,0,Math.max(state.sections.length-amountOfLevelsOnScreen,0)),titleSelection=clamp(titleSelection+e,0,state.sections.length-1),generateLevelSelectScreen()}function clamp(e,t,l){return Math.min(Math.max(e,t),l)}function prevent(e){return e.preventDefault&&e.preventDefault(),e.stopImmediatePropagation&&e.stopImmediatePropagation(),e.stopPropagation&&e.stopPropagation(),e.returnValue=!1,!1}function titleButtonSelected(){!1===titleSelected&&(tryPlayStartGameSound(),titleSelected=!0,messageselected=!1,timer=0,quittingTitleScreen=!0,generateTitleScreen(),canvasResize())}function pollGamepads(){function e(e,t){return!(e.length<t)&&("object"==typeof e[t]?e[t].pressed:1==e[t])}function t(e,t,l){return!(e.length<t)&&e[t]*l>.5}function l(e){-1===keybuffer.indexOf(e)&&(keybuffer.splice(keyRepeatIndex,0,e),keyRepeatTimer=0,checkKey({keyCode:e},!0)),n.splice(0,0,e)}function o(){for(var e=0;e<gamepadKeys.length;e++)if(!(n.indexOf(gamepadKeys[e])>=0)){var t=keybuffer.indexOf(gamepadKeys[e]);t>=0&&(keybuffer.splice(t,1),keyRepeatIndex>=t&&keyRepeatIndex--)}gamepadKeys=n}var n=[],i=navigator.getGamepads?navigator.getGamepads():navigator.webkitGetGamepads?navigator.webkitGetGamepads():[];if(null==i||0==i.length)return void o();for(var r=0;r<i.length;r++){var a=i[r];null!=a&&a.connected&&((e(a.buttons,3)||e(a.buttons,4))&&l(82),(e(a.buttons,1)||t(a.axes,2,1))&&l(90),(e(a.buttons,2)||e(a.buttons,0)||e(a.buttons,5)||t(a.axes,1,1))&&l(88),e(a.buttons,7)&&l(27),e(a.buttons,6)&&l(69),(t(a.axes,0,1)||t(a.axes,6,1))&&l(39),(t(a.axes,0,-1)||t(a.axes,6,-1))&&l(37),(t(a.axes,1,-1)||t(a.axes,7,-1))&&l(38),(t(a.axes,1,1)||t(a.axes,7,1))&&l(40))}o()}function checkKey(e,t){if(ULBS(),!(winning||e&&(e.ctrlKey||e.metaKey||e.altKey))){var l=-1;switch(e.keyCode){case 65:case 37:l=1;break;case 38:case 87:l=0;break;case 68:case 39:l=3;break;case 83:case 40:l=2;break;case 80:printLevel();break;case 13:case 32:case 67:case 88:if(t&&ignoreNotJustPressedAction&&(ignoreNotJustPressedAction=!1),!1===t&&ignoreNotJustPressedAction)return;if(!1!==norepeat_action&&!t)return;l=4;break;case 85:case 90:if(!1===textMode)return pushInput("undo"),DoUndo(!1,!0),canvasResize(),prevent(e);break;case 82:if(!1===textMode&&t)return pushInput("restart"),DoRestart(),canvasResize(),prevent(e);break;case 27:if(solving){stopSolving();break}if(!1===titleScreen||titleMode>1)return(timer/1e3>.5||titleMode>1)&&(titleSelection=0,timer=0,!1===titleScreen&&void 0!==state.metadata.level_select?gotoLevelSelectScreen():goToTitleScreen(),tryPlayTitleSound(),canvasResize()),prevent(e);break;case 69:if(!solving&&canOpenEditor)return t&&(titleScreen&&("EMPTY GAME"===state.title?compile(["loadFirstNonMessageLevel"]):nextLevel()),levelEditorOpened=!levelEditorOpened,!1===levelEditorOpened&&printLevel(),restartTarget=backupLevel(),canvasResize()),prevent(e);break;case 48:case 49:case 50:case 51:case 52:case 53:case 54:case 55:case 56:case 57:if(levelEditorOpened&&t){var o=9;return e.keyCode>=49&&(o=e.keyCode-49),o<glyphImages.length?glyphSelectedIndex=o:consolePrint("Trying to select tile outside of range in level editor.",!0),canvasResize(),prevent(e)}break;case 189:if(levelEditorOpened&&t&&glyphSelectedIndex>0)return glyphSelectedIndex--,canvasResize(),prevent(e);break;case 187:if(levelEditorOpened&&t&&glyphSelectedIndex+1<glyphImages.length)return glyphSelectedIndex++,canvasResize(),prevent(e)}if(throttle_movement&&l>=0&&l<=3){if(lastinput==l&&input_throttle_timer<repeatinterval)return;lastinput=l,input_throttle_timer=0}if(textMode){if(!throttle_movement){if(lastinput==l&&input_throttle_timer<repeatinterval)return;lastinput=l,input_throttle_timer=0}if(0===state.levels.length);else if(titleScreen)0===titleMode?4===l&&t&&titleButtonSelected():4==l&&t?!1===titleSelected&&(tryPlayStartGameSound(),titleSelected=!0,messageselected=!1,timer=0,quittingTitleScreen=!0,1==titleMode?generateTitleScreen():2==titleMode&&generateLevelSelectScreen(),redraw()):0!==l&&2!==l||(0===l?titleSelection--:titleSelection++,titleSelection>=titleSelectOptions?titleSelection-=titleSelectOptions:titleSelection<0&&(titleSelection+=titleSelectOptions),1==titleMode?generateTitleScreen():2==titleMode&&generateLevelSelectScreen(),redraw());else if(4==l&&t){if(unitTesting)return void nextLevel();!1===messageselected&&(messageselected=!0,timer=0,quittingMessageScreen=!0,tryPlayCloseMessageSound(),titleScreen=!1,drawMessageScreen())}}else if(!againing&&l>=0)return 4===l&&"noaction"in state.metadata||(pushInput(l),processInput(l)&&redraw()),prevent(e)}}function update(){var e=!1;if(timer+=deltatime,input_throttle_timer+=deltatime,quittingTitleScreen&&timer/1e3>.3&&(quittingTitleScreen=!1,titleMode<=1?nextLevel():2==titleMode&&gotoLevel(titleSelection)),againing&&timer>againinterval&&0==messagetext.length&&processInput(-1)&&(e=!0,keyRepeatTimer=0,autotick=0),quittingMessageScreen&&timer/1e3>.15&&(quittingMessageScreen=!1,""===messagetext?nextLevel():(messagetext="",textMode=!1,titleScreen=!1,titleMode=curlevel>0||null!==curlevelTarget?1:0,titleSelected=!1,ignoreNotJustPressedAction=!0,titleSelection=0,canvasResize(),checkWin())),winning&&timer/1e3>.5&&(winning=!1,nextLevel()),pollGamepads(),keybuffer.length>0){keyRepeatTimer+=deltatime;var t=throttle_movement?repeatinterval:repeatinterval/Math.sqrt(keybuffer.length);if(keyRepeatTimer>t){keyRepeatTimer=0,keyRepeatIndex=(keyRepeatIndex+1)%keybuffer.length;checkKey({keyCode:keybuffer[keyRepeatIndex]},!1)}}!(autotickinterval>0)||textMode||levelEditorOpened||againing||winning||(autotick+=deltatime,autotick>autotickinterval&&(autotick=0,pushInput("tick"),processInput(-1)&&(e=!0))),(e||"undefined"!=typeof state&&void 0!==state.metadata.smoothscreen)&&redraw()}var keyRepeatTimer=0,keyRepeatIndex=0,input_throttle_timer=0,lastinput=-100,dragging=!1,rightdragging=!1,columnAdded=!1,htmlEntityMap={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;","/":"&#x2F;"},selectableint=0,lastCoord,x1=5,y1=5,x2=5,y2=5,anyEditsSinceMouseDown=!1;HTMLCanvasElement.prototype.relMouseCoords=relMouseCoords;var mouseCoordX=0,mouseCoordY=0,mousePixelX=0,mousePixelY=0;mouseInCanvas=!1,document.addEventListener("touchstart",onMouseDown,!1),document.addEventListener("touchmove",mouseMove,!1),document.addEventListener("touchend",onMouseUp,!1),document.addEventListener("mousedown",onMouseDown,!1),document.addEventListener("mouseup",onMouseUp,!1),document.addEventListener("mousemove",mouseMove,!1),document.addEventListener("contextmenu",rightClickCanvas,!1),document.addEventListener("keydown",onKeyDown,!1),document.addEventListener("keyup",onKeyUp,!1),document.addEventListener("wheel",onMouseWheel,{passive:!1}),window.addEventListener("focus",onMyFocus,!1),window.addEventListener("blur",onMyBlur,!1),canvas.addEventListener("mouseenter",onMouseIn,!1),canvas.addEventListener("mouseleave",onMouseOut,!1);var gamepadKeys=[],looping=!1,loop=function(){looping=!0;try{update()}catch(e){console.error(e)}if("hidden"===document.visibilityState)return void(looping=!1);setTimeout(loop,deltatime)};document.addEventListener("visibilitychange",function(){"visible"===document.visibilityState&&!1===looping&&loop()}),loop();</script> <script>/* 
+}</script> <script>function selectText(e,t){t=t||window.event;var l=document.getElementById(e);if(t&&(t.ctrlKey||t.metaKey)){if(solving)return;var o=["console"].concat(l.innerHTML.split("<br>")),n=levelFromString(state,o);loadLevelFromLevelDat(state,n,null),canvasResize()}else if(document.selection){var i=document.body.createTextRange();i.moveToElementText(l),i.select()}else if(window.getSelection){var i=document.createRange();i.selectNode(l);var r=window.getSelection();r.removeAllRanges(),r.addRange(i)}}function recalcLevelBounds(){}function arrCopy(e,t,l,o,n){for(;n--;)l[o++]=e[t]++}function adjustLevel(e,t,l){backups.push(backupLevel());var o=e.clone();e.width+=t,e.height+=l,e.n_tiles=e.width*e.height,e.objects=new Int32Array(e.n_tiles*STRIDE_OBJ);var n=new BitVec(STRIDE_OBJ);n.ibitset(state.backgroundid);for(var i=0;i<e.n_tiles;++i)e.setCell(i,n);return e.movements=new Int32Array(e.objects.length),columnAdded=!0,RebuildLevelArrays(),o}function addLeftColumn(){for(var e=adjustLevel(level,1,0),t=1;t<level.width;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o-level.height))}}function addRightColumn(){for(var e=adjustLevel(level,1,0),t=0;t<level.width-1;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o))}}function addTopRow(){for(var e=adjustLevel(level,0,1),t=0;t<level.width;++t)for(var l=1;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o-t-1))}}function addBottomRow(){for(var e=adjustLevel(level,0,1),t=0;t<level.width;++t)for(var l=0;l<level.height-1;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o-t))}}function removeLeftColumn(){if(!(level.width<=1))for(var e=adjustLevel(level,-1,0),t=0;t<level.width;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o+level.height))}}function removeRightColumn(){if(!(level.width<=1))for(var e=adjustLevel(level,-1,0),t=0;t<level.width;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o))}}function removeTopRow(){if(!(level.height<=1))for(var e=adjustLevel(level,0,-1),t=0;t<level.width;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o+t+1))}}function removeBottomRow(){if(!(level.height<=1))for(var e=adjustLevel(level,0,-1),t=0;t<level.width;++t)for(var l=0;l<level.height;++l){var o=t*level.height+l;level.setCell(o,e.getCell(o+t))}}function matchGlyph(e,t){for(var l,o=-1,n=0;n<t.length;++n){var i=t[n][0],r=t[n][1],a=t[n][2];if(r.bitsSetInArray(e.data)){for(var s=0,c=0;c<32*STRIDE_OBJ;++c)a.get(c)&&e.get(c)&&s++,r.get(c)&&e.get(c)&&s++;s>o&&(o=s,l=i)}}return o>0?l:(logErrorNoLine("Wasn't able to approximate a glyph value for some tiles, using '.' as a placeholder.",!0),".")}function printLevel(){var e=[];for(var t in state.glyphDict)if(state.glyphDict.hasOwnProperty(t)&&1===t.length){for(var l=state.glyphDict[t],o=new BitVec(STRIDE_OBJ),n=0;n<l.length;n++){var i=l[n];i>=0&&o.ibitset(i)}var r=o.clone(),a=state.layerMasks[state.backgroundlayer];o.iclear(a),e.push([t,o,r])}selectableint++;var s="selectable"+selectableint,c='Printing level contents:<br><br><span id="'+s+'" onclick="selectText(\''+s+"',event)\"><br>";cache_console_messages=!1;for(var d=0;d<level.height;d++){for(var n=0;n<level.width;n++){var u=d+n*level.height,v=level.getCell(u),l=matchGlyph(v,e);l in htmlEntityMap&&(l=htmlEntityMap[l]),c+=l}d<level.height-1&&(c+="<br>")}c+="</span><br><br>",consolePrint(c,!0)}function levelEditorClick(e,t){if(mouseCoordY<=-2){var l=editorRowCount-(-mouseCoordY-2)-1,o=mouseCoordX+(screenwidth-1)*l;-1===mouseCoordX?printLevel():mouseCoordX>=0&&o<glyphImages.length&&(glyphSelectedIndex=o,redraw())}else if(mouseCoordX>-1&&mouseCoordY>-1&&mouseCoordX<screenwidth-2&&mouseCoordY<screenheight-2-editorRowCount){for(var n=glyphImagesCorrespondance[glyphSelectedIndex],i=state.glyphDict[n],r=new BitVec(STRIDE_OBJ),a=0;a<i.length;a++){var s=i[a];s>=0&&r.ibitset(s)}var c=state.layerMasks[state.backgroundlayer];r.bitsClearInArray(c.data)&&r.ibitset(state.backgroundid);var d=mouseCoordY+mouseCoordX*level.height,u=level.getCell(d);if(u.equals(r))return;!1===anyEditsSinceMouseDown&&(anyEditsSinceMouseDown=!0,backups.push(backupLevel())),level.setCell(d,r),redraw()}else t&&(-1===mouseCoordX?(addLeftColumn(),canvasResize()):mouseCoordX===screenwidth-2&&(addRightColumn(),canvasResize()),-1===mouseCoordY?(addTopRow(),canvasResize()):mouseCoordY===screenheight-2-editorRowCount&&(addBottomRow(),canvasResize()))}function levelEditorRightClick(e,t){if(-2===mouseCoordY)mouseCoordX<=glyphImages.length&&(glyphSelectedIndex=mouseCoordX,redraw());else if(mouseCoordX>-1&&mouseCoordY>-1&&mouseCoordX<screenwidth-2&&mouseCoordY<screenheight-2-editorRowCount){var l=mouseCoordY+mouseCoordX*level.height,o=new BitVec(STRIDE_OBJ);o.ibitset(state.backgroundid),level.setCell(l,o),redraw()}else t&&(-1===mouseCoordX?(removeLeftColumn(),canvasResize()):mouseCoordX===screenwidth-2&&(removeRightColumn(),canvasResize()),-1===mouseCoordY?(removeTopRow(),canvasResize()):mouseCoordY===screenheight-2-editorRowCount&&(removeBottomRow(),canvasResize()))}function getTilesTraversingPoints(e,t,l,o){if(cellwidth!==cellheight)throw"Error: Cell is not square.";for(var n=l-e,i=o-t,r=t*n,a=e*i-r,s=cellwidth*(Math.abs(n)+Math.abs(i)),c=2*a-s,d=2*a+s,u=Math.floor(e/cellwidth),v=Math.floor(t/cellheight),g=Math.floor(l/cellwidth),m=Math.floor(o/cellheight),h=cellwidth-1,f=g-u>=0?1:-1,p=m-v>=0?1:-1,y=v,C=[],S=[],w=u;w!=g+f;w+=f)for(var k=!1,b=y;b!=m+p;b+=p){if(b>=level.height||b<0||w>=level.width||w<0)throw error="Mouse input loop failed; it:"+w+" "+b+" cell1:"+u+" "+v+" cell2:"+g+" "+m,console.log(error),error;if(function(e,t){return fOfPointTimesTwo=i*e-n*t,c<fOfPointTimesTwo==fOfPointTimesTwo<=d}(2*w*cellwidth+h,2*b*cellwidth+h))C.push(w),S.push(b),k=!0,y=b;else if(k)break}for(var M=("mouse_obstacle"in state.metadata),x=[u],T=[v];u!==g||v!==m;){if(v>=level.height||v<0||u>=level.width||u<0)throw error="Mouse input loop failed; cell1:"+u+" "+v+" cell2:"+g+" "+m,console.log(error),error;if(hitObstacle=function(){var e=screenOffsetY+v+(screenOffsetX+u)*level.height,t=level.getCell(e);return!!state.obstacleMask.anyBitsInCommon(t)},cellCornerXTimesTwo=2*u*cellwidth+h+f*cellwidth,cellCornerYTimesTwo=2*v*cellwidth+h+p*cellwidth,fOfPointTimesTwo=i*cellCornerXTimesTwo-n*cellCornerYTimesTwo,fOfPointTimesTwo>2*a==p>0!=f>0?(u+=f,M&&hitObstacle()&&(u-=f,v+=p)):(v+=p,M&&hitObstacle()&&(v-=p,u+=f)),M&&hitObstacle())break;x.push(u),T.push(v)}if(M)C=x,S=T;else for(var w=0;w<C.length;w++)if(C[w]!==x[w]||S[w]!==T[w]){try{displayError("line tile placement algorithm discrepancies detected")}catch(e){}throw consolePrint("line tile placement algorithm discrepancies detected",!0),"line tile placement algorithm discrepancies detected"}return{tileListX:C,tileListY:S}}function mouseAction(e,t,l){if(textMode){if(!t)return;if(titleScreen){if(quittingTitleScreen||titleSelected)return;if(0===titleMode)titleButtonSelected();else if(1===titleMode)5===mouseCoordY&&titleSelectOptions>=1?(titleSelection=0,titleButtonSelected()):6===mouseCoordY&&titleSelectOptions>=3?(titleSelection=1,titleButtonSelected()):7===mouseCoordY&&titleSelectOptions>=2?(2===titleSelectOptions?titleSelection=1:titleSelection=2,titleButtonSelected()):8===mouseCoordY&&titleSelectOptions>=4&&(titleSelection=3,titleButtonSelected());else if(2===titleMode){if(quittingTitleScreen||titleSelected)return;if(0===mouseCoordY)titleSelection=0,goToTitleScreen(),tryPlayTitleSound(),canvasResize();else if(2===mouseCoordY)0!=levelSelectScrollPos&&levelSelectScroll(-3);else if(12===mouseCoordY)titleSelectOptions-amountOfLevelsOnScreen>levelSelectScrollPos&&levelSelectScroll(3);else{var o=-1;switch(mouseCoordY){case 3:o=0;break;case 4:o=1;break;case 5:o=2;break;case 6:o=3;break;case 7:o=4;break;case 8:o=5;break;case 9:o=6;break;case 10:o=7;break;case 11:o=8}-1!=o&&(o+=levelSelectScrollPos)<titleSelectOptions&&(titleSelection=o,titleSelected=!0,messageselected=!1,timer=0,quittingTitleScreen=!0,generateLevelSelectScreen())}}}else!1===messageselected&&state.levels[curlevel].message&&(messageselected=!0,timer=0,quittingMessageScreen=!0,tryPlayCloseMessageSound(),titleScreen=!1,drawMessageScreen())}else if(x1=x2,y1=y2,x2=mousePixelX,y2=mousePixelY,x2=Math.max(0,Math.min(cellwidth*screenwidth-1,mousePixelX)),y2=Math.max(0,Math.min(cellheight*screenheight-1,mousePixelY)),t){if(mouseCoordX>=0&&mouseCoordY>=0&&mouseCoordX<screenwidth&&mouseCoordY<screenheight){var n=screenOffsetY+mouseCoordY+(screenOffsetX+mouseCoordX)*level.height;if(lastCoord=n,againing);else try{var i=backupLevel(),r=level.getCell(n);r.ibitset(l),level.setCell(n,r);var a=5;pushInput(a),processInput(a,!1,!1,i)&&redraw()}catch(e){console.log(e),consolePrint(e,!0)}}}else for(var s=getTilesTraversingPoints(x1,y1,x2,y2),c=s.tileListX,d=s.tileListY,u=0;u<c.length;u++){var n=screenOffsetY+d[u]+(screenOffsetX+c[u])*level.height;if(lastCoord!==n)if(lastCoord=n,againing);else try{var i=backupLevel(),r=level.getCell(n);r.ibitset(l),level.setCell(n,r);var a=5;pushInput(a),processInput(a,!1,!1,i)&&redraw()}catch(e){console.log(e),consolePrint(e,!0)}}}function onMouseDown(e){if(!e.handled){ULBS();var t=0===e.button;e.button;if("touchstart"==e.type&&(t=!0),t&&(e.ctrlKey||e.metaKey)&&(t=!1,!0),t){if(lastDownTarget=e.target,keybuffer=[],e.target===canvas||"tapFocusIndicator"===e.target.className){if(setMouseCoord(e),dragging=!0,rightdragging=!1,anyEditsSinceMouseDown=!1,levelEditorOpened&&!textMode)return levelEditorClick(e,!0);if("mouse_left"in state.metadata)return prevent(e),mouseAction(e,!0,state.lmbID)}dragging=!1,rightdragging=!1}else if(2===e.button||0===e.button&&(e.ctrlKey||e.metaKey))if("gameCanvas"===e.target.id){if(setMouseCoord(e),dragging=!1,rightdragging=!0,levelEditorOpened)return levelEditorRightClick(e,!0);if("mouse_right"in state.metadata)return mouseAction(e,!0,state.rmbID)}else dragging=!1,rightdragging=!1;else 1===e.button&&!1===textMode&&levelEditorOpened&&(pushInput("undo"),DoUndo(!1,!0),canvasResize());e.handled=!0}}function rightClickCanvas(e){return"mouse_right"in state.metadata?prevent(e):levelEditorOpened?prevent(e):void 0}function onMouseUp(e){if(!e.handled){if(dragging=!1,rightdragging=!1,0===e.button){if(e.target===canvas&&(setMouseCoord(e),"mouse_up"in state.metadata))return prevent(e),mouseAction(e,!0,state.lmbupID)}else if(2===e.button&&"gameCanvas"===e.target.id&&(setMouseCoord(e),"mouse_rup"in state.metadata))return mouseAction(e,!0,state.rmbupID);e.handled=!0}}function onKeyDown(e){ULBS(),e=e||window.event,!IDE&&[32,37,38,39,40].indexOf(e.keyCode)>-1&&(e&&(e.ctrlKey||e.metaKey)||prevent(e)),IDE||77!==e.keyCode||toggleMute(),keybuffer.indexOf(e.keyCode)>=0||((lastDownTarget===canvas||window.Mobile&&lastDownTarget===window.Mobile.focusIndicator)&&-1===keybuffer.indexOf(e.keyCode)&&(e&&(e.ctrlKey||e.metaKey)||(keybuffer.splice(keyRepeatIndex,0,e.keyCode),keyRepeatTimer=0,checkKey(e,!e.repeat))),!0===canDump&&(74===e.keyCode&&(e.ctrlKey||e.metaKey)?(dumpTestCase(),prevent(e)):75===e.keyCode&&(e.ctrlKey||e.metaKey)?(makeGIF(),prevent(e)):83===e.keyCode&&(e.ctrlKey||e.metaKey)?(saveClick(),prevent(e)):66===e.keyCode&&(e.ctrlKey||e.metaKey)?(rebuildClick(),prevent(e),e.target.blur(),canvas.focus()):82===e.keyCode&&(e.ctrlKey||e.metaKey)?(runClick(),prevent(e),e.target.blur(),canvas.focus()):120===e.keyCode?(prevent(e),solve()):119===e.keyCode?(prevent(e),stopSolving()):13===e.keyCode&&(e.ctrlKey||e.metaKey)&&(canvas.focus(),editor.display.input.blur(),e.shiftKey?runClick():rebuildClick(),prevent(e))))}function relMouseCoords(e){var t=0,l=0,o=0,n=0,i=this;do{t+=i.offsetLeft-i.scrollLeft,l+=i.offsetTop-i.scrollTop}while(i=i.offsetParent);return null==e.touches?(o=e.pageX-t,n=e.pageY-l):(o=e.touches[0].pageX-t,n=e.touches[0].pageY-l),{x:o,y:n}}function onKeyUp(e){e=e||window.event;var t=keybuffer.indexOf(e.keyCode);t>=0&&(keybuffer.splice(t,1),keyRepeatIndex>=t&&keyRepeatIndex--)}function onMyFocus(e){keybuffer=[],keyRepeatIndex=0,keyRepeatTimer=0}function onMyBlur(e){keybuffer=[],keyRepeatIndex=0,keyRepeatTimer=0}function setMouseCoord(e){var t=canvas.relMouseCoords(e);(isNaN(t.x)||isNaN(t.y))&&console.warn("[SetMouseCoord] Did not recieve valid mouse coords from event. \t\t\tIgnoring it (since I'm assuming this is a faked keypress that was generated on mobile)."),mousePixelX=t.x-xoffset,mousePixelY=t.y-yoffset,mouseCoordX=Math.floor(mousePixelX/cellwidth),mouseCoordY=Math.floor(mousePixelY/cellheight)}function mouseMove(e){e.handled||(levelEditorOpened?(setMouseCoord(e),dragging?levelEditorClick(e,!1):rightdragging&&levelEditorRightClick(e,!1),redraw()):dragging&&"mouse_drag"in state.metadata?(setMouseCoord(e),mouseAction(e,!1,state.dragID),redraw()):rightdragging&&"mouse_rdrag"in state.metadata&&(setMouseCoord(e),mouseAction(e,!1,state.rdragID),redraw()),e.handled=!0)}function onMouseIn(){mouseInCanvas=!0}function onMouseOut(){mouseInCanvas=!1}function onMouseWheel(e){mouseInCanvas&&!e.ctrlKey&&(normalizedDelta=Math.sign(e.deltaY),titleScreen&&2==titleMode&&(state.metadata.mouse_left||state.metadata.mouse_drag)&&(levelSelectScroll(normalizedDelta),redraw(),prevent(e)),levelEditorOpened&&(glyphSelectedIndex=clamp(glyphSelectedIndex+normalizedDelta,0,glyphCount()-1),redraw(),prevent(e)))}function levelSelectScroll(e){levelSelectScrollPos=clamp(levelSelectScrollPos+e,0,Math.max(state.sections.length-amountOfLevelsOnScreen,0)),titleSelection=clamp(titleSelection+e,0,state.sections.length-1),generateLevelSelectScreen()}function clamp(e,t,l){return Math.min(Math.max(e,t),l)}function prevent(e){return e.preventDefault&&e.preventDefault(),e.stopImmediatePropagation&&e.stopImmediatePropagation(),e.stopPropagation&&e.stopPropagation(),e.returnValue=!1,!1}function titleButtonSelected(){!1===titleSelected&&(tryPlayStartGameSound(),titleSelected=!0,messageselected=!1,timer=0,quittingTitleScreen=!0,generateTitleScreen(),canvasResize())}function pollGamepads(){function e(e,t){return!(e.length<t)&&("object"==typeof e[t]?e[t].pressed:1==e[t])}function t(e,t,l){return!(e.length<t)&&e[t]*l>.5}function l(e){-1===keybuffer.indexOf(e)&&(keybuffer.splice(keyRepeatIndex,0,e),keyRepeatTimer=0,checkKey({keyCode:e},!0)),n.splice(0,0,e)}function o(){for(var e=0;e<gamepadKeys.length;e++)if(!(n.indexOf(gamepadKeys[e])>=0)){var t=keybuffer.indexOf(gamepadKeys[e]);t>=0&&(keybuffer.splice(t,1),keyRepeatIndex>=t&&keyRepeatIndex--)}gamepadKeys=n}var n=[],i=navigator.getGamepads?navigator.getGamepads():navigator.webkitGetGamepads?navigator.webkitGetGamepads():[];if(null==i||0==i.length)return void o();for(var r=0;r<i.length;r++){var a=i[r];null!=a&&a.connected&&((e(a.buttons,3)||e(a.buttons,4))&&l(82),(e(a.buttons,1)||t(a.axes,2,1))&&l(90),(e(a.buttons,2)||e(a.buttons,0)||e(a.buttons,5)||t(a.axes,1,1))&&l(88),e(a.buttons,7)&&l(27),e(a.buttons,6)&&l(69),(t(a.axes,0,1)||t(a.axes,6,1))&&l(39),(t(a.axes,0,-1)||t(a.axes,6,-1))&&l(37),(t(a.axes,1,-1)||t(a.axes,7,-1))&&l(38),(t(a.axes,1,1)||t(a.axes,7,1))&&l(40))}o()}function checkKey(e,t){if(ULBS(),!(winning||e&&(e.ctrlKey||e.metaKey||e.altKey))){var l=-1;switch(e.keyCode){case 65:case 37:l=1;break;case 38:case 87:l=0;break;case 68:case 39:l=3;break;case 83:case 40:l=2;break;case 80:printLevel();break;case 13:case 32:case 67:case 88:if(t&&ignoreNotJustPressedAction&&(ignoreNotJustPressedAction=!1),!1===t&&ignoreNotJustPressedAction)return;if(!1!==norepeat_action&&!t)return;l=4;break;case 85:case 90:if(!1===textMode)return pushInput("undo"),DoUndo(!1,!0),canvasResize(),prevent(e);break;case 82:if(!1===textMode&&t)return pushInput("restart"),DoRestart(),canvasResize(),prevent(e);break;case 27:if(solving){stopSolving();break}if(!1===titleScreen||titleMode>1)return(timer/1e3>.5||titleMode>1)&&!quittingTitleScreen&&(titleSelection=0,timer=0,!1===titleScreen&&void 0!==state.metadata.level_select?gotoLevelSelectScreen():goToTitleScreen(),tryPlayTitleSound(),canvasResize()),prevent(e);break;case 69:if(!solving&&canOpenEditor)return t&&(titleScreen&&("EMPTY GAME"===state.title?compile(["loadFirstNonMessageLevel"]):nextLevel()),levelEditorOpened=!levelEditorOpened,!1===levelEditorOpened&&printLevel(),restartTarget=backupLevel(),canvasResize()),prevent(e);break;case 48:case 49:case 50:case 51:case 52:case 53:case 54:case 55:case 56:case 57:if(levelEditorOpened&&t){var o=9;return e.keyCode>=49&&(o=e.keyCode-49),o<glyphImages.length?glyphSelectedIndex=o:consolePrint("Trying to select tile outside of range in level editor.",!0),canvasResize(),prevent(e)}break;case 189:if(levelEditorOpened&&t&&glyphSelectedIndex>0)return glyphSelectedIndex--,canvasResize(),prevent(e);break;case 187:if(levelEditorOpened&&t&&glyphSelectedIndex+1<glyphImages.length)return glyphSelectedIndex++,canvasResize(),prevent(e)}if(throttle_movement&&l>=0&&l<=3){if(lastinput==l&&input_throttle_timer<repeatinterval)return;lastinput=l,input_throttle_timer=0}if(textMode){if(!throttle_movement){if(lastinput==l&&input_throttle_timer<repeatinterval)return;lastinput=l,input_throttle_timer=0}if(0===state.levels.length);else if(titleScreen){if(0===titleMode)4===l&&t&&titleButtonSelected();else if(4==l&&t)!1===titleSelected&&(tryPlayStartGameSound(),titleSelected=!0,messageselected=!1,timer=0,quittingTitleScreen=!0,1==titleMode?generateTitleScreen():2==titleMode&&generateLevelSelectScreen(),redraw());else if(0===l||2===l){if(quittingTitleScreen||titleSelected)return;0===l?titleSelection--:titleSelection++,titleSelection>=titleSelectOptions?titleSelection-=titleSelectOptions:titleSelection<0&&(titleSelection+=titleSelectOptions),1==titleMode?generateTitleScreen():2==titleMode&&generateLevelSelectScreen(),redraw()}}else if(4==l&&t){if(unitTesting)return void nextLevel();!1===messageselected&&(messageselected=!0,timer=0,quittingMessageScreen=!0,tryPlayCloseMessageSound(),titleScreen=!1,drawMessageScreen())}}else if(!againing&&l>=0)return 4===l&&"noaction"in state.metadata||(pushInput(l),processInput(l)&&redraw()),prevent(e)}}function update(){var e=!1;if(timer+=deltatime,tweentimer+=deltatime,input_throttle_timer+=deltatime,quittingTitleScreen&&timer/1e3>.3&&(quittingTitleScreen=!1,titleMode<=1?nextLevel():2==titleMode&&gotoLevel(titleSelection)),againing&&timer>againinterval&&0==messagetext.length&&processInput(-1)&&(e=!0,keyRepeatTimer=0,autotick=0),quittingMessageScreen&&timer/1e3>.15&&(quittingMessageScreen=!1,""===messagetext?nextLevel():(messagetext="",textMode=!1,titleScreen=!1,titleMode=curlevel>0||null!==curlevelTarget?1:0,titleSelected=!1,ignoreNotJustPressedAction=!0,titleSelection=0,canvasResize(),checkWin())),winning&&timer/1e3>.5&&(winning=!1,nextLevel()),pollGamepads(),keybuffer.length>0){keyRepeatTimer+=deltatime;var t=throttle_movement?repeatinterval:repeatinterval/Math.sqrt(keybuffer.length);if(keyRepeatTimer>t){keyRepeatTimer=0,keyRepeatIndex=(keyRepeatIndex+1)%keybuffer.length;checkKey({keyCode:keybuffer[keyRepeatIndex]},!1)}}!(autotickinterval>0)||textMode||levelEditorOpened||againing||winning||(autotick+=deltatime,autotick>autotickinterval&&(autotick=0,pushInput("tick"),processInput(-1)&&(e=!0))),(e||"undefined"!=typeof state&&(void 0!==state.metadata.smoothscreen||void 0!==state.metadata.tween_length))&&redraw()}var keyRepeatTimer=0,keyRepeatIndex=0,input_throttle_timer=0,lastinput=-100,dragging=!1,rightdragging=!1,columnAdded=!1,htmlEntityMap={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;","/":"&#x2F;"},selectableint=0,lastCoord,x1=5,y1=5,x2=5,y2=5,anyEditsSinceMouseDown=!1;HTMLCanvasElement.prototype.relMouseCoords=relMouseCoords;var mouseCoordX=0,mouseCoordY=0,mousePixelX=0,mousePixelY=0;mouseInCanvas=!1,document.addEventListener("touchstart",onMouseDown,{passive:!1}),document.addEventListener("touchmove",mouseMove,!1),document.addEventListener("touchend",onMouseUp,{passive:!1}),document.addEventListener("mousedown",onMouseDown,!1),document.addEventListener("mouseup",onMouseUp,!1),document.addEventListener("mousemove",mouseMove,!1),document.addEventListener("contextmenu",rightClickCanvas,!1),document.addEventListener("keydown",onKeyDown,!1),document.addEventListener("keyup",onKeyUp,!1),document.addEventListener("wheel",onMouseWheel,{passive:!1}),window.addEventListener("focus",onMyFocus,!1),window.addEventListener("blur",onMyBlur,!1),canvas.addEventListener("mouseenter",onMouseIn,!1),canvas.addEventListener("mouseleave",onMouseOut,!1);var gamepadKeys=[],looping=!1,loop=function(){looping=!0;try{update()}catch(e){console.error(e)}if("hidden"===document.visibilityState)return void(looping=!1);setTimeout(loop,deltatime)};document.addEventListener("visibilitychange",function(){"visible"===document.visibilityState&&!1===looping&&loop()}),loop();</script> <script>/* 
  * Add gesture support for mobile devices. 
  */ 
  

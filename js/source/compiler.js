@@ -675,7 +675,7 @@ var simpleRelativeDirections = ['^', 'v', '<', '>'];
 var reg_directions_only = /^(\>|\<|\^|v|up|down|left|right|moving|stationary|no|randomdir|random|horizontal|vertical|orthogonal|perpendicular|parallel|action)$/i;
 //redeclaring here, i don't know why
 var commandwords = ["sfx0","sfx1","sfx2","sfx3","sfx4","sfx5","sfx6","sfx7","sfx8","sfx9","sfx10","cancel","checkpoint","restart","win","message","again","undo",
-  "nosave","quit","zoomscreen","flickscreen","smoothscreen","again_interval","realtime_interval","key_repeat_interval",'noundo','norestart','background_color','text_color','goto'];
+  "nosave","quit","zoomscreen","flickscreen","smoothscreen","again_interval","realtime_interval","key_repeat_interval",'noundo','norestart','background_color','text_color','goto','message_text_align'];
 function directionalRule(rule) {
     for (var i = 0; i < rule.lhs.length; i++) {
         var cellRow = rule.lhs[i];
@@ -2378,7 +2378,7 @@ function twiddleMetaData(state, update = false) {
 		if (args.length > 2) {
 			const cameraSpeedMatch = args[2].match(/^(?<speed>\d+(\.\d+)?)$/)
 			if (cameraSpeedMatch) {
-				smoothscreen.cameraSpeed = parseFloat(cameraSpeedMatch.groups.speed)
+				smoothscreen.cameraSpeed = clamp(parseFloat(cameraSpeedMatch.groups.speed), 0, 1)
 			} else {
 				logErrorNoLine('smoothscreen given third argument ' + args[2] + ' but must be a number')
 				validArguments = false
@@ -2951,7 +2951,12 @@ function loadFile(str) {
 
 	generateSoundData(state);
 
-	formatHomePage(state);
+    formatHomePage(state);
+    
+    //Puzzlescript Plus errors
+    if (state.metadata.tween_length && state.lateRules.length >= 1) {
+        logWarning("Using tweens in a game that also has LATE rules is currently experimental! If you change objects that moved with LATE then tweens might not play!", undefined, false);
+    }
 
 	delete state.commentLevel;
 	delete state.names;

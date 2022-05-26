@@ -1,4 +1,3 @@
-
 var RandomGen = new RNG();
 
 var intro_template = [
@@ -224,36 +223,49 @@ function generateTitleScreen()
 		}
 	}
 
-	var noAction = 'noaction' in state.metadata;	
-	var noUndo = 'noundo' in state.metadata;
-	var noRestart = 'norestart' in state.metadata;
+	if (state.metadata.text_controls) {
+		for (var i=0;i<titleImage.length;i++)
+		{
+			titleImage[i]=titleImage[i].replace(/\./g, ' ');
+		}
 
-	titleImage[10] = ".arrow keys to move...............";
-
-	if (noAction) {
-		titleImage[11]=".X to select......................";
+		var customText = state.metadata.text_controls;
+		var wrappedText = wordwrap(customText, 35, true);
+		if (wrappedText[0]) {titleImage[10] = wrappedText[0]}
+		if (wrappedText[1]) {titleImage[11] = wrappedText[1]}
+		if (wrappedText[2]) {titleImage[12] = wrappedText[2]}
 	} else {
-		titleImage[11]=" X to action......................"
-	}
+		var noAction = 'noaction' in state.metadata;	
+		var noUndo = 'noundo' in state.metadata;
+		var noRestart = 'norestart' in state.metadata;
 
-	if (noUndo && noRestart) {
-		titleImage[12]="..................................";
-	} else if (noUndo) {
-		titleImage[12]=".R to restart.....................";
-	} else if (noRestart) {
-		titleImage[12]=".Z to undo........................";
-	} else {
-		titleImage[12]=".Z to undo, R to restart..........";
-	}
+		titleImage[10] = ".arrow keys to move...............";
 
-	if ("mouse_left" in state.metadata || "mouse_drag" in state.metadata || "mouse_up" in state.metadata) {
-		titleImage[10]="..................................";
-		titleImage[11]=".MOUSE to interact................";
-		titleImage[12]=".MMB to undo, R to restart........";
-	}
-	for (var i=0;i<titleImage.length;i++)
-	{
-		titleImage[i]=titleImage[i].replace(/\./g, ' ');
+		if (noAction) {
+			titleImage[11]=".X to select......................";
+		} else {
+			titleImage[11]=" X to action......................"
+		}
+
+		if (noUndo && noRestart) {
+			titleImage[12]="..................................";
+		} else if (noUndo) {
+			titleImage[12]=".R to restart.....................";
+		} else if (noRestart) {
+			titleImage[12]=".Z to undo........................";
+		} else {
+			titleImage[12]=".Z to undo, R to restart..........";
+		}
+
+		if ("mouse_left" in state.metadata || "mouse_drag" in state.metadata || "mouse_up" in state.metadata) {
+			titleImage[10]="..................................";
+			titleImage[11]=".MOUSE to interact................";
+			titleImage[12]=".MMB to undo, R to restart........";
+		}
+		for (var i=0;i<titleImage.length;i++)
+		{
+			titleImage[i]=titleImage[i].replace(/\./g, ' ');
+		}
 	}
 
 	var width = titleImage[0].length;
@@ -396,11 +408,19 @@ function generateLevelSelectScreen() {
 			}
 		}
 
-		if(state.metadata.level_select_unlocked_ahead === undefined) {
+		if(state.metadata.level_select_unlocked_ahead !== undefined && state.metadata.level_select_unlocked_rollover !== undefined) {
+			logErrorNoLine("You can't both have level select unlocked ahead & rollover methods, please choose just one!", true);
+			unlockedUntil += 1;
+		} else if (state.metadata.level_select_unlocked_rollover !== undefined) {
+			unlockedUntil = solvedSections.length + Number(state.metadata.level_select_unlocked_rollover) - 1;
+		}
+		else if(state.metadata.level_select_unlocked_ahead === undefined) {
 			unlockedUntil += 1;
 		} else {
 			unlockedUntil += Number(state.metadata.level_select_unlocked_ahead);
 		}	
+
+		console.log("total: " + state.sections.length + "unsolved: " + unsolvedSections + " until:" + unlockedUntil)
 	}
 	//console.log(unlockedUntil);
 
@@ -547,16 +567,31 @@ function deepClone(item) {
     return result;
 }
 
-function wordwrap( str, width ) {
+function wordwrap( str, width, handleNewlines = false ) {
  
     width = width || 75;
     var cut = true;
  
-    if (!str) { return str; }
+	if (!str) { return str; }
+	
+	//console.log("Before: "+str)
  
-    var regex = '.{1,' +width+ '}(\\s|$)' + (cut ? '|.{' +width+ '}|.+$' : '|\\S+?(\\s|$)');
- 
-    return str.match( RegExp(regex, 'g') );
+	var regex = '.{1,' +width+ '}(\\s|$)' + (cut ? '|.{' +width+ '}|.+$' : '|\\S+?(\\s|$)');
+
+	if (!handleNewlines) {
+	
+		return str.match( RegExp(regex, 'g') );
+	} else {
+		splitNewlines = str.split("\\n");
+		var splitString  = [];
+	
+		splitNewlines.forEach(splitStr => {
+			splitString = splitString.concat(splitStr.match( RegExp(regex, 'g') ));
+		}) 
+		
+		//console.log(splitString);
+		return splitString;
+	}
  
 }
 
@@ -567,14 +602,25 @@ function drawMessageScreen() {
 
 	titleMode=0;
 	textMode=true;
-	if ("mouse_left" in state.metadata || "mouse_drag" in state.metadata || "mouse_up" in state.metadata)
-		titleImage = deepClone(messagecontainer_template_mouse);
-	else
+	if ("text_message_continue" in state.metadata) {
 		titleImage = deepClone(messagecontainer_template);
 
-	for (var i=0;i<titleImage.length;i++)
-	{
-		titleImage[i]=titleImage[i].replace(/\./g, ' ');
+		for (var i=0;i<titleImage.length;i++)
+		{
+			titleImage[i]=titleImage[i].replace(/\./g, ' ');
+		}
+
+		titleImage[10] = state.metadata.text_message_continue;
+	} else {
+		if ("mouse_left" in state.metadata || "mouse_drag" in state.metadata || "mouse_up" in state.metadata)
+			titleImage = deepClone(messagecontainer_template_mouse);
+		else
+			titleImage = deepClone(messagecontainer_template);
+
+		for (var i=0;i<titleImage.length;i++)
+		{
+			titleImage[i]=titleImage[i].replace(/\./g, ' ');
+		}
 	}
 
 	var emptyLineStr = titleImage[9];
@@ -592,7 +638,7 @@ function drawMessageScreen() {
 		message = messagetext;
 	}
 	
-	splitMessage = wordwrap(message,titleImage[0].length);
+	splitMessage = wordwrap(message,titleImage[0].length, true);
 
 
 	var offset = 5-((splitMessage.length/2)|0);
@@ -602,11 +648,20 @@ function drawMessageScreen() {
 
 	var count = Math.min(splitMessage.length,12);
 	for (var i=0;i<count;i++) {
-		var m = splitMessage[i];
+		if (!splitMessage[i]) {continue;}
+		var m = splitMessage[i].trimRight();
 		var row = offset+i;	
 		var messageLength=m.length;
 		var lmargin = ((width-messageLength)/2)|0;
-		var rmargin = width-messageLength-lmargin;
+		if (state.metadata.message_text_align) {
+			var align = state.metadata.message_text_align.toLowerCase();
+			if (align == "left") {
+				lmargin = 0;
+			} else if (align == "right") {
+				lmargin = (width-messageLength);
+			}
+		}
+		//var rmargin = width-messageLength-lmargin;
 		var rowtext = titleImage[row];
 		titleImage[row]=rowtext.slice(0,lmargin)+m+rowtext.slice(lmargin+m.length);		
 	}
@@ -642,6 +697,8 @@ function loadLevelFromLevelDat(state,leveldat,randomseed,clearinputhistory) {
 	titleMode=showContinueOptionOnTitleScreen()?1:0;
 	titleSelection=0;
   titleSelected=false;
+  dragging = false;
+  rightdragging = false;
   state.metadata = deepClone(state.default_metadata);
     againing=false;
     if (leveldat===undefined) {
@@ -652,7 +709,8 @@ function loadLevelFromLevelDat(state,leveldat,randomseed,clearinputhistory) {
     if (leveldat.message !== undefined) {
       // This "level" is actually a message.
       ignoreNotJustPressedAction=true;
-      tryPlayShowMessageSound();
+	  tryPlayShowMessageSound();
+	  twiddleMetadataExtras();
       drawMessageScreen();
       canvasResize();
       clearInputHistory();
@@ -945,9 +1003,15 @@ function setGameState(_state, command, randomseed) {
     }
 
     if (state.metadata.key_repeat_interval!==undefined) {
-    repeatinterval=state.metadata.key_repeat_interval*1000;
+    	repeatinterval=state.metadata.key_repeat_interval*1000;
     } else {
       repeatinterval=150;
+	}
+	
+	if (state.metadata.tween_length!==undefined) {
+		tweeninterval=state.metadata.tween_length*1000;
+    } else {
+		tweeninterval = 0;
     }
 
     if (state.metadata.again_interval!==undefined) {
@@ -1136,10 +1200,17 @@ function RebuildLevelArrays() {
 }
 
 var messagetext="";
-function restoreLevel(lev, snapCamera) {
+var currentMovedEntities = {};
+var newMovedEntities = {};
+function restoreLevel(lev, snapCamera, resetTween = true) {
 	var diffing = lev.hasOwnProperty("diff");
 
 	oldflickscreendat=lev.oldflickscreendat.concat([]);
+
+	if (resetTween) {
+		currentMovedEntities = {};
+		//console.log("Wiped movedEntities (level)")
+	}
 
 	if (diffing){
 		var index=0;
@@ -1332,7 +1403,7 @@ function backupDiffers(){
 	}
 }
 
-function DoUndo(force,ignoreDuplicates) {
+function DoUndo(force,ignoreDuplicates, resetTween = true) {
   if ((!levelEditorOpened)&&('noundo' in state.metadata && force!==true)) {
     return;
   }
@@ -1348,7 +1419,7 @@ function DoUndo(force,ignoreDuplicates) {
 
   if (backups.length>0) {
     var torestore = backups[backups.length-1];
-    restoreLevel(torestore);
+    restoreLevel(torestore, null, resetTween);
     backups = backups.splice(0,backups.length-1);
     if (! force) {
       tryPlayUndoSound();
@@ -1451,7 +1522,7 @@ function repositionEntitiesOnLayer(positionIndex,layer,dirMask)
 
     var layerMask = state.layerMasks[layer];
     var targetMask = level.getCellInto(targetIndex,_o7);
-    var sourceMask = level.getCellInto(positionIndex,_o8);
+	var sourceMask = level.getCellInto(positionIndex,_o8);
 
     if (layerMask.anyBitsInCommon(targetMask) && (dirMask!=16)) {
         return false;
@@ -1475,7 +1546,7 @@ function repositionEntitiesOnLayer(positionIndex,layer,dirMask)
     targetMask.ior(movingEntities);
 
     level.setCell(positionIndex, sourceMask);
-    level.setCell(targetIndex, targetMask);
+	level.setCell(targetIndex, targetMask);
 	
     var colIndex=(targetIndex/level.height)|0;
 	var rowIndex=(targetIndex%level.height);
@@ -1498,8 +1569,15 @@ function repositionEntitiesAtCell(positionIndex) {
         if (layerMovement!==0) {
             var thismoved = repositionEntitiesOnLayer(positionIndex,layer,layerMovement);
             if (thismoved) {
+				if (state.metadata.tween_length) {
+					var delta = dirMasksDelta[layerMovement];
+					var targetIndex = (positionIndex+delta[1]+delta[0]*level.height);
+
+					newMovedEntities["p"+targetIndex+"-l"+layer] = layerMovement;
+				}
+
                 movementMask.ishiftclear(layerMovement, 5*layer);
-                moved = true;
+				moved = true;
             }
         }
     }
@@ -2593,6 +2671,12 @@ function twiddleMetadataExtras() {
     againinterval=150;
   }
 
+  if (state.metadata.tween_length!==undefined) {
+	tweeninterval=Math.max(state.metadata.tween_length*1000, 0);
+	} else {
+		tweeninterval = 0;
+	}
+
   if (state.metadata.key_repeat_interval!==undefined) {
     repeatinterval=state.metadata.key_repeat_interval*1000;
   } else {
@@ -2773,11 +2857,12 @@ function applyRules(rules, loopPoint, startRuleGroupindex, bannedGroup){
 
 //if this returns!=null, need to go back and reprocess
 function resolveMovements(level, bannedGroup){
-    var moved=true;
+	var moved=true;
+
     while(moved){
         moved=false;
         for (var i=0;i<level.n_tiles;i++) {
-          moved = repositionEntitiesAtCell(i) || moved;
+		  moved = repositionEntitiesAtCell(i) || moved;
         }
     }
     var doUndo=false;
@@ -2873,6 +2958,10 @@ var playerPositionsAtTurnStart;
 
 /* returns a bool indicating if anything changed */
 function processInput(dir,dontDoWin,dontModify,bak) {
+	if (!dontModify) {
+		newMovedEntities = {};
+	}
+
 var startDir = dir;
 
 	againing = false;
@@ -2967,7 +3056,8 @@ playerPositionsAtTurnStart = getPlayerPositions();
         	
 
 
-        	applyRules(state.rules, state.loopPoint, startRuleGroupIndex, bannedGroup);
+			applyRules(state.rules, state.loopPoint, startRuleGroupIndex, bannedGroup);
+			
         	var shouldUndo = resolveMovements(level,bannedGroup);
 
         	if (shouldUndo) {
@@ -3030,6 +3120,16 @@ playerPositionsAtTurnStart = getPlayerPositions();
           return false;
         }
 
+		/// Taken from zarawesome, thank you :)
+		if (level.commandQueue.indexOf('undo')>=0) {
+			if (verbose_logging) {
+				consoleCacheDump();
+				consolePrint('UNDO command executed, undoing turn.',true);
+			}
+			messagetext = "";
+			DoUndo(true,false);
+			return true;
+		}
 
         if (playerPositionsAtTurnStart.length>0 && state.metadata.require_player_movement!==undefined && dir >= 0) {
         	var somemoved=false;
@@ -3052,17 +3152,6 @@ playerPositionsAtTurnStart = getPlayerPositions();
         	}
         	//play player cantmove sounds here
         }
-		
-		/// Taken from zarawesome, thank you :)
-	    if (level.commandQueue.indexOf('undo')>=0) {
-	    	if (verbose_logging) {
-	    		consoleCacheDump();
-	    		consolePrint('UNDO command executed, undoing turn.',true);
-			}
-			messagetext = "";
-    		DoUndo(true,false);
-    		return true;
-		}
 
 
 
@@ -3128,7 +3217,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
 	        			consoleCacheDump();
 	        		}
 	        		addUndoState(bak);
-	        		DoUndo(true,false);
+	        		DoUndo(true,false, false);
 					return true;
 				} else {
 					if (dir!==-1 && save_backup) {
@@ -3230,6 +3319,9 @@ playerPositionsAtTurnStart = getPlayerPositions();
 		if (verbose_logging) { 
 			consolePrint(`Turn complete`);    
 		}
+
+		currentMovedEntities = newMovedEntities;
+		tweentimer = 0;
 		
 	    level.commandQueue=[];
 	    level.commandQueueSourceRules=[];

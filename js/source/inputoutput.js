@@ -484,7 +484,11 @@ function mouseAction(event,click,id) {
 	if (textMode) {
 		if (!click)
 			return;
-		if (titleScreen && !quittingTitleScreen && !titleSelected) {
+		if (titleScreen) {
+			if (quittingTitleScreen || titleSelected) {
+				return;
+			}
+
 			if (titleMode===0) {
 				titleButtonSelected();
 			} else if (titleMode===1) {
@@ -508,6 +512,9 @@ function mouseAction(event,click,id) {
 					titleButtonSelected();
 				}
 			} else if (titleMode===2) {
+				if (quittingTitleScreen || titleSelected) {
+					return;
+				}
 				//console.log(mouseCoordY);
 				if (mouseCoordY===0) {
 					titleSelection = 0;
@@ -660,6 +667,7 @@ function onMouseDown(event) {
         	if (levelEditorOpened && !textMode) {
         		return levelEditorClick(event,true);
         	} else if ("mouse_left" in state.metadata) {
+				prevent(event)
 				return mouseAction(event,true,state.lmbID);		// must break to not execute dragging=false;
 			}
         }
@@ -713,6 +721,7 @@ function onMouseUp(event) {
         if (event.target===canvas) {
         	setMouseCoord(event);
         	if ("mouse_up" in state.metadata) {
+				prevent(event); //Prevent "ghost click" on mobile
 				return mouseAction(event,true,state.lmbupID);
 			}
         }
@@ -907,9 +916,9 @@ function onMouseOut() {
 	//console.log("Cursor moved out of canvas")
 }
 
-document.addEventListener('touchstart', onMouseDown, false);
+document.addEventListener('touchstart', onMouseDown, {passive: false});
 document.addEventListener('touchmove', mouseMove, false);
-document.addEventListener('touchend', onMouseUp, false);
+document.addEventListener('touchend', onMouseUp, {passive: false});
 
 document.addEventListener('mousedown', onMouseDown, false);
 document.addEventListener('mouseup', onMouseUp, false);
@@ -1183,7 +1192,8 @@ function checkKey(e,justPressed) {
         		break;
         	}
         	if (titleScreen===false || titleMode > 1) {
-				if (timer/1000>0.5 || titleMode > 1) {
+				if ((timer/1000>0.5 || titleMode > 1) && !quittingTitleScreen) {
+
 					titleSelection = 0;
 					
 					timer = 0;
@@ -1316,6 +1326,10 @@ function checkKey(e,justPressed) {
 	    			}
     			}
     			else if (inputdir===0||inputdir===2) {
+					if (quittingTitleScreen || titleSelected) {
+						return;
+					}
+					
     				if (inputdir===0){
     					titleSelection--;    					
     				} else {
@@ -1370,8 +1384,10 @@ function checkKey(e,justPressed) {
 function update() {
     var draw = false;
 
-    timer+=deltatime;
-    input_throttle_timer+=deltatime;
+	timer+=deltatime;
+	tweentimer+=deltatime;
+	input_throttle_timer+=deltatime;
+
     if (quittingTitleScreen) {
         if (timer/1000>0.3) {
 			quittingTitleScreen=false;
@@ -1442,7 +1458,7 @@ function update() {
     }
 
 	if (draw || (typeof state !== "undefined" && 
-		state.metadata.smoothscreen !== undefined)) {
+		(state.metadata.smoothscreen !== undefined || state.metadata.tween_length !== undefined))) {
       redraw();
 	}
 }
