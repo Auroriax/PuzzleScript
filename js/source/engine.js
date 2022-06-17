@@ -420,7 +420,7 @@ function generateLevelSelectScreen() {
 			unlockedUntil += Number(state.metadata.level_select_unlocked_ahead);
 		}	
 
-		console.log("total: " + state.sections.length + "unsolved: " + unsolvedSections + " until:" + unlockedUntil)
+		//console.log("total: " + state.sections.length + "unsolved: " + unsolvedSections + " until:" + unlockedUntil)
 	}
 	//console.log(unlockedUntil);
 

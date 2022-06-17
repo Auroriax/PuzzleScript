@@ -638,7 +638,7 @@ function mouseAction(event,click,id) {
 
 var anyEditsSinceMouseDown = false;
 
-function onMouseDown(event) {
+function onMouseDown(event, wasFiredByTouch = false) {
 
 	if (event.handled){
 		return;
@@ -667,7 +667,9 @@ function onMouseDown(event) {
         	if (levelEditorOpened && !textMode) {
         		return levelEditorClick(event,true);
         	} else if ("mouse_left" in state.metadata) {
-				prevent(event)
+				if (wasFiredByTouch) {
+					prevent(event)
+				}
 				return mouseAction(event,true,state.lmbID);		// must break to not execute dragging=false;
 			}
         }
@@ -710,7 +712,7 @@ function rightClickCanvas(event) {
 	}
 }
 
-function onMouseUp(event) {
+function onMouseUp(event, wasFiredByTouch = false) {
 	if (event.handled){
 		return;
 	}
@@ -721,7 +723,9 @@ function onMouseUp(event) {
         if (event.target===canvas) {
         	setMouseCoord(event);
         	if ("mouse_up" in state.metadata) {
-				prevent(event); //Prevent "ghost click" on mobile
+				if (wasFiredByTouch) {
+					prevent(event)
+				} //Prevent "ghost click" on mobile
 				return mouseAction(event,true,state.lmbupID);
 			}
         }
@@ -867,8 +871,7 @@ var mousePixelY=0;
 function setMouseCoord(e){
 	var coords = canvas.relMouseCoords(e);
 	if (isNaN(coords.x) || isNaN(coords.y)) {
-		console.warn("[SetMouseCoord] Did not recieve valid mouse coords from event. \
-			Ignoring it (since I'm assuming this is a faked keypress that was generated on mobile).")
+		console.warn("[SetMouseCoord] Did not recieve valid mouse coords from event. Ignoring it (since I'm assuming this is a faked keypress that was generated on mobile).")
 	}
     mousePixelX=coords.x-xoffset;
 	mousePixelY=coords.y-yoffset;
@@ -916,13 +919,22 @@ function onMouseOut() {
 	//console.log("Cursor moved out of canvas")
 }
 
-document.addEventListener('touchstart', onMouseDown, {passive: false});
+document.addEventListener('touchstart', onTouchDown, {passive: false});
 document.addEventListener('touchmove', mouseMove, false);
-document.addEventListener('touchend', onMouseUp, {passive: false});
+document.addEventListener('touchend', onTouchUp, {passive: false});
+
+function onTouchDown(event) {
+	onMouseDown(event, true)
+}
+
+function onTouchUp(event) {
+	onMouseUp(event, true)
+}
 
 document.addEventListener('mousedown', onMouseDown, false);
 document.addEventListener('mouseup', onMouseUp, false);
 document.addEventListener('mousemove', mouseMove, false);
+
 document.addEventListener('contextmenu', rightClickCanvas, false);
 document.addEventListener('keydown', onKeyDown, false);
 document.addEventListener('keyup', onKeyUp, false);
