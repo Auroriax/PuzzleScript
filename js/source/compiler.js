@@ -2954,8 +2954,14 @@ function loadFile(str) {
     formatHomePage(state);
     
     //Puzzlescript Plus errors
-    if (state.metadata.tween_length && state.lateRules.length >= 1) {
-        logWarning("Using tweens in a game that also has LATE rules is currently experimental! If you change objects that moved with LATE then tweens might not play!", undefined, false);
+    if (IDE) {
+        if (state.metadata.tween_length && state.lateRules.length >= 1) {
+            logWarning("[PS+] Using tweens in a game that also has LATE rules is currently experimental! If you change objects that moved with LATE then tweens might not play!", undefined, false);
+        }
+
+		if(state.metadata.level_select_unlocked_ahead !== undefined && state.metadata.level_select_unlocked_rollover !== undefined) {
+            logWarning("[PS+] You can't use both level_select_unlocked_ahead and level_select_unlocked_rollover at the same time, so please choose only one!", undefined, false);
+        }
     }
 
 	delete state.commentLevel;
@@ -3029,7 +3035,7 @@ function compile(command, text, randomseed) {
 
     if (errorCount > 0) {
         if (IDE===false){
-            consoleError('<span class="systemMessage">Errors detected during compilation; the game may not work correctly.  If this is an older game, and you think it just broke because of recent changes in the puzzlescript engine, please consider dropping an email to analytic@gmail.com with a link to the game and I\'ll try make sure it\'s back working ASAP.</span>');
+            consoleError('<span class="systemMessage">Errors detected during compilation; the game may not work correctly.  If this is an older game, and you think it just broke because of recent changes in the puzzlescript plus engine, consider letting me know via the issue tracker.</span>');
         } else{
             consoleError('<span class="systemMessage">Errors detected during compilation; the game may not work correctly.</span>');
         }
@@ -3063,6 +3069,10 @@ function compile(command, text, randomseed) {
 
     clearInputHistory();
 
+    if (isSitelocked() && IDE) {
+        logError("The game is sitelocked. To continue testing, add the current domain '"+window.location.origin+ "' to the list.", undefined, true);
+    }
+
     consoleCacheDump();
 
 }
@@ -3073,4 +3083,40 @@ function qualifyURL(url) {
     var a = document.createElement('a');
     a.href = url;
     return a.href;
+}
+
+function isSitelocked() {
+    if (state.metadata.sitelock_origin_whitelist === undefined && state.metadata.sitelock_hostname_whitelist === undefined) {
+        return false;
+    }
+
+    if (IDE == true) {
+        return false; //Don't sitelock in editor
+    }
+
+    if (state.metadata.sitelock_origin_whitelist === undefined) {
+        var origins = state.metadata.sitelock_origin_whitelist.split(" ");
+
+        var origin = window.location.origin;
+
+        for (var i = 0; i < origins.length; i += 1) {
+            if (origin == origins[i]) {
+                return false;
+            }
+        }
+    }
+
+    if (state.metadata.sitelock_hostname_whitelist == undefined) {
+        var hostnames = state.metadata.sitelock_hostname_whitelist.split(" ");
+
+        var hostname = window.location.hostname;
+
+        for (var i = 0; i < hostnames.length; i += 1) {
+            if (hostname == hostnames[i]) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }

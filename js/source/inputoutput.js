@@ -482,8 +482,16 @@ var y2 = 5;
 function mouseAction(event,click,id) {
 	
 	if (textMode) {
-		if (!click)
+		if (!click) {
+			if (quittingTitleScreen) {return;}
+
+			if (!mouseInCanvas || mouseCoordY < 0 || mouseCoordY > 12) {
+				hoverSelection = -1;
+			} else {
+				hoverSelection = mouseCoordY;
+			}
 			return;
+		}
 		if (titleScreen) {
 			if (quittingTitleScreen || titleSelected) {
 				return;
@@ -569,6 +577,8 @@ function mouseAction(event,click,id) {
 			drawMessageScreen();
 		}
 	} else {
+		if (winning) {return;}
+
 		x1 = x2;
 		y1 = y2;
 		x2 = mousePixelX;
@@ -893,7 +903,20 @@ function mouseMove(event) {
     		levelEditorRightClick(event,false);
     	}
 	    redraw();
-    } else if (dragging && "mouse_drag" in state.metadata) {
+	} else if (titleScreen && IsMouseGameInputEnabled()) {
+		var prevHoverSelection = hoverSelection;
+		setMouseCoord(event);
+		mouseAction(event,false,null);
+		if (prevHoverSelection != hoverSelection) {
+			if (titleMode == 1) {
+				generateTitleScreen();
+				redraw();
+			} else if (titleMode == 2) {
+				generateLevelSelectScreen();
+				redraw();
+			}
+		}
+	} else if (dragging && "mouse_drag" in state.metadata) {
     	setMouseCoord(event);
     	mouseAction(event,false,state.dragID);
 	    redraw();
@@ -951,7 +974,7 @@ function onMouseWheel(event) {
 	//console.log("Scroll "+event.deltaY);
 	normalizedDelta = Math.sign(event.deltaY);
 
-	if (titleScreen && titleMode == 2 && (state.metadata.mouse_left || state.metadata.mouse_drag)) {
+	if (titleScreen && titleMode == 2 && (IsMouseGameInputEnabled())) {
 		levelSelectScroll(normalizedDelta);
 
 		redraw();
@@ -992,6 +1015,8 @@ function titleButtonSelected() {
 		quittingTitleScreen=true;
 		generateTitleScreen();
 		canvasResize();
+
+		document.dispatchEvent(new Event("psplusGameStarted"));
 	}
 }
 
@@ -1316,6 +1341,7 @@ function checkKey(e,justPressed) {
     	if (state.levels.length===0) {
     		//do nothing
     	} else if (titleScreen) {
+			if (isSitelocked()) {return;}
     		if (titleMode===0) {
     			if (inputdir===4&&justPressed) {
     				titleButtonSelected();
@@ -1331,6 +1357,7 @@ function checkKey(e,justPressed) {
 						
 						if(titleMode == 1) {
 							generateTitleScreen();
+							document.dispatchEvent(new Event("psplusGameStarted"));
 						} else if(titleMode == 2) {
 							generateLevelSelectScreen();
 						}

@@ -1,3 +1,5 @@
+var onLevelRestarted = new Event("levelRestarted");
+
 var RandomGen = new RNG();
 
 var intro_template = [
@@ -15,6 +17,22 @@ var intro_template = [
   "...............................   ",
   "..............................    "
 ];
+
+var sitelock_template = [
+	"..................................",
+	"..................................",
+	"..................................",
+	"......Puzzle Script Terminal......",
+	"..............v 1.7+..............",
+	"..................................",
+	"..................................",
+	"..................................",
+	".....This game is sitelocked!.....",
+	"................................. ",
+	"................................  ",
+	"...............................   ",
+	"..............................    "
+  ];
 
 var messagecontainer_template = [
   "..................................",
@@ -96,19 +114,23 @@ var titletemplate_empty = [
 var title_options = [[
 	".............continue.............",
 	"...........#.continue.#...........",
-	"############.continue.############"
+	"############.continue.############",
+	"...........>.continue.<...........",
 ], [
 	"...........level select...........",
 	".........#.level select.#.........",
-	"##########.level select.##########"
+	"##########.level select.##########",
+	".........>.level select.<..........",
 ], [
 	".............settings.............",
 	"...........#.settings.#...........",
-	"############.settings.############"
+	"############.settings.############",
+	"...........>.settings.<...........",
 ], [
 	".............new game.............",
 	"...........#.new game.#...........",
-	"############.new game.############"
+	"############.new game.############",
+	"...........>.new game.<...........", //QQQ
 ]];
 
 var titleImage=[];
@@ -120,6 +142,7 @@ var titleMode=0;//1 means title screen with options, 2 means level select
 var titleSelection=0;
 var titleSelectOptions=2;
 var titleSelected=false;
+var hoverSelection=-1; //When mouse controls are enabled, over which row the mouse is hovering. -1 when disabled.
 
 function showContinueOptionOnTitleScreen(){
 	return (curlevel>0||curlevelTarget!==null)&&(curlevel in state.levels);
@@ -170,6 +193,11 @@ function generateTitleScreen()
 		return;
   }
 
+    if (isSitelocked()) {
+		titleImage = sitelock_template;
+		return;
+	}
+
 	var title = "PuzzleScript Game";
 	if (state.metadata.title!==undefined) {
 		title=state.metadata.title;
@@ -206,6 +234,13 @@ function generateTitleScreen()
 
 		for(var i = 0; i < titleSelectOptions; i++) {
 			var version = 0;
+			
+			var j = 0;
+			if(titleSelectOptions == 2 && i == 1) {
+				j = 1;
+			}
+			var lineInTitle = 5 + i + j;
+
 			if(titleSelection == i) {
 				if(titleSelected) {
 					version = 2;
@@ -214,12 +249,11 @@ function generateTitleScreen()
 				}
 			}
 
-			var j = 0;
-			if(titleSelectOptions == 2 && i == 1) {
-				j = 1;
+			if (hoverSelection == lineInTitle && !titleSelected && hoverSelection >= 0) {
+				version = 3;
 			}
 
-			titleImage[5 + i + j] = deepClone(title_options[availableOptions[i]][version]);
+			titleImage[lineInTitle] = deepClone(title_options[availableOptions[i]][version]);
 		}
 	}
 
@@ -257,7 +291,7 @@ function generateTitleScreen()
 			titleImage[12]=".Z to undo, R to restart..........";
 		}
 
-		if ("mouse_left" in state.metadata || "mouse_drag" in state.metadata || "mouse_up" in state.metadata) {
+		if (IsMouseGameInputEnabled()) {
 			titleImage[10]="..................................";
 			titleImage[11]=".MOUSE to interact................";
 			titleImage[12]=".MMB to undo, R to restart........";
@@ -365,9 +399,13 @@ function generateLevelSelectScreen() {
   */
 
 	titleImage = [
-		"ESC: Back             Level Select",
-		"                                  "
+		" [ ESC: Back ]                    ",
+		"           Level Select           "
 	];
+
+	if (hoverSelection == 0) {
+		titleImage[0] =	"[  ESC: Back  ]                   ";
+	}
 
 	amountOfLevelsOnScreen = 9;
 
@@ -391,7 +429,11 @@ function generateLevelSelectScreen() {
 	}
 
 	if (levelSelectScrollPos != 0) {
-		titleImage.push("            [ PREV ]              ");
+		if (hoverSelection == 2) {
+			titleImage.push("                        [  PREV  ]");
+		} else {
+			titleImage.push("                         [ PREV ] ");
+		}
 	} else {
 		titleImage.push("                                  ");
 	}
@@ -408,15 +450,12 @@ function generateLevelSelectScreen() {
 			}
 		}
 
-		if(state.metadata.level_select_unlocked_ahead !== undefined && state.metadata.level_select_unlocked_rollover !== undefined) {
-			logErrorNoLine("You can't both have level select unlocked ahead & rollover methods, please choose just one!", true);
+		if(state.metadata.level_select_unlocked_ahead === undefined) {
 			unlockedUntil += 1;
 		} else if (state.metadata.level_select_unlocked_rollover !== undefined) {
 			unlockedUntil = solvedSections.length + Number(state.metadata.level_select_unlocked_rollover) - 1;
 		}
-		else if(state.metadata.level_select_unlocked_ahead === undefined) {
-			unlockedUntil += 1;
-		} else {
+		else {
 			unlockedUntil += Number(state.metadata.level_select_unlocked_ahead);
 		}	
 
@@ -454,8 +493,12 @@ function generateLevelSelectScreen() {
 			solved_symbol = state.metadata.level_select_solve_symbol;
 		}
 		var line = (solved ? solved_symbol : " ") + " ";
+
+		var hover_symbol = " ";
+		if (selected) {hover_symbol = "#"}
+		if (hoverSelection - 3 + levelSelectScrollPos == i) {hover_symbol = ">"}
 		
-		line += (selected ? "#" : " ") + " " + name;
+		line += hover_symbol + " " + name;
 		for(var j = name.length; j < 25; j++) {
 			if(selected && titleSelected && j != name.length) {
 				line += "#";
@@ -469,7 +512,11 @@ function generateLevelSelectScreen() {
 	}
 
 	if (levelSelectScrollPos != titleSelectOptions - amountOfLevelsOnScreen && titleSelectOptions - amountOfLevelsOnScreen > 0) {
-		titleImage.push("            [ NEXT ]              ")
+		if (hoverSelection == 12) {
+			titleImage.push("                        [  NEXT  ]")
+		} else {
+			titleImage.push("                         [ NEXT ] ")
+		}
 	} else {
 		titleImage.push("                                  ");
 	}
@@ -478,7 +525,6 @@ function generateLevelSelectScreen() {
 		titleImage.push("                                  ");
 	}
 
-	regenSpriteImages();
 	redraw();
 }
 
@@ -489,7 +535,7 @@ function gotoLevel(sectionIndex) {
 
   if (sectionIndex < 0) {return;} //Invalid index
 
-  console.log(sectionIndex);
+  //console.log(sectionIndex);
 
 	againing = false;
 	messagetext = "";
@@ -612,7 +658,7 @@ function drawMessageScreen() {
 
 		titleImage[10] = state.metadata.text_message_continue;
 	} else {
-		if ("mouse_left" in state.metadata || "mouse_drag" in state.metadata || "mouse_up" in state.metadata)
+		if (IsMouseGameInputEnabled())
 			titleImage = deepClone(messagecontainer_template_mouse);
 		else
 			titleImage = deepClone(messagecontainer_template);
@@ -789,12 +835,14 @@ function loadLevelFromState(state,levelindex,randomseed) {
   curlevel=levelindex;
   curlevelTarget=null;
     if (leveldat!==undefined && leveldat.message===undefined) {
+		document.dispatchEvent(new CustomEvent("psplusLevelLoaded", {detail: levelindex}));
       if (levelindex=== 0){ 
       tryPlayStartLevelSound();
     } else {
       tryPlayStartLevelSound();     
     }
-    }
+	}
+
     loadLevelFromLevelDat(state,leveldat,randomseed);
 }
 
@@ -1202,7 +1250,7 @@ function RebuildLevelArrays() {
 var messagetext="";
 var currentMovedEntities = {};
 var newMovedEntities = {};
-function restoreLevel(lev, snapCamera, resetTween = true) {
+function restoreLevel(lev, snapCamera, resetTween = true, resetAutoTick = true) {
 	var diffing = lev.hasOwnProperty("diff");
 
 	oldflickscreendat=lev.oldflickscreendat.concat([]);
@@ -1270,8 +1318,8 @@ function restoreLevel(lev, snapCamera, resetTween = true) {
 			consolePrint("RUNTIME METADATA TWIDDLING: Reloaded level state that did not have saved metadata. "+
 			"Likely this state was recovered from a CHECKPOINT. Using the default metadata instead.", true);
 		}
-     state.metadata = deepClone(lev.metadata);
-     twiddleMetadataExtras();
+	 state.metadata = deepClone(lev.metadata);
+     twiddleMetadataExtras(resetAutoTick);
     }
 
     againing=false;
@@ -1373,6 +1421,7 @@ function DoRestart(force) {
 
 	restoreLevel(restartTarget, true);
 	tryPlayRestartSound();
+	document.dispatchEvent(new CustomEvent("psplusLevelRestarted", {detail: curlevel}));
 
 	if ('run_rules_on_level_start' in state.metadata) {
     	processInput(-1,true);
@@ -1403,7 +1452,7 @@ function backupDiffers(){
 	}
 }
 
-function DoUndo(force,ignoreDuplicates, resetTween = true) {
+function DoUndo(force,ignoreDuplicates, resetTween = true, resetAutoTick = true) {
   if ((!levelEditorOpened)&&('noundo' in state.metadata && force!==true)) {
     return;
   }
@@ -1419,7 +1468,7 @@ function DoUndo(force,ignoreDuplicates, resetTween = true) {
 
   if (backups.length>0) {
     var torestore = backups[backups.length-1];
-    restoreLevel(torestore, null, resetTween);
+    restoreLevel(torestore, null, resetTween, resetAutoTick);
     backups = backups.splice(0,backups.length-1);
     if (! force) {
       tryPlayUndoSound();
@@ -2656,9 +2705,11 @@ Rule.prototype.queueCommands = function() {
   }
 };
 
-function twiddleMetadataExtras() {
+function twiddleMetadataExtras(resetAutoTick = true) {
   if (state.metadata.realtime_interval!==undefined) {
-    autotick=0;
+	if (resetAutoTick) {
+		autotick=0;
+	}
     autotickinterval=state.metadata.realtime_interval*1000;
   } else {
     autotick=0;
@@ -3163,7 +3214,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
 			}
 			processOutputCommands(level.commandQueue);
     		addUndoState(bak);
-    		DoUndo(true,false);
+    		DoUndo(true,false, true, false);
     		tryPlayCancelSound();
     		return false;
 	    } 
@@ -3564,6 +3615,7 @@ function goToTitleScreen(){
 	messagetext="";
 	titleScreen=true;
 	textMode=true;
+	hoverSelection=-1;
 	doSetupTitleScreenLevelContinue();
   //titleSelection=showContinueOptionOnTitleScreen()?1:0;
   
@@ -3721,4 +3773,9 @@ function updateCameraPositionTarget() {
               : getCameraPosition(playerPosition[coord] - boundaryVector + direction, levelDimension, screenDimension);
         }
     })
+}
+
+
+function IsMouseGameInputEnabled() {
+	return "mouse_left" in state.metadata || "mouse_drag" in state.metadata || "mouse_up" in state.metadata;
 }
