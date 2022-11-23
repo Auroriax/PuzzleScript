@@ -492,14 +492,19 @@ function mouseAction(event,click,id) {
 			}
 			return;
 		}
+
+		if (event.type != "mousedown" && event.type != "touchstart") {
+			return;
+		}
+
 		if (titleScreen) {
 			if (quittingTitleScreen || titleSelected) {
 				return;
 			}
 
-			if (titleMode===0) {
+			if (titleMode===0) { //Title no save data
 				titleButtonSelected();
-			} else if (titleMode===1) {
+			} else if (titleMode===1) {//Title with save data
 				if (mouseCoordY===5 && titleSelectOptions >= 1) {
 					titleSelection=0;
 					titleButtonSelected();
@@ -519,7 +524,7 @@ function mouseAction(event,click,id) {
 					titleSelection=3;
 					titleButtonSelected();
 				}
-			} else if (titleMode===2) {
+			} else if (titleMode===2) { //Level select
 				if (quittingTitleScreen || titleSelected) {
 					return;
 				}
@@ -568,7 +573,7 @@ function mouseAction(event,click,id) {
 					}
 				}
 			}
-		} else if (messageselected===false && state.levels[curlevel].message) {
+		} else if (messageselected===false && (state.levels[curlevel].message !== undefined || messagetext != "")) {
 			messageselected=true;
 			timer=0;
 			quittingMessageScreen=true;
@@ -701,12 +706,11 @@ function onMouseDown(event, wasFiredByTouch = false) {
 		}
     } else if (event.button===1) {
 		//undo
-		if (textMode===false) {
-			if (levelEditorOpened) {
-				pushInput("undo");
-				DoUndo(false,true);
-				canvasResize(); // calls redraw
-			}
+		if (textMode===false && (IsMouseGameInputEnabled() || levelEditorOpened)) {
+			pushInput("undo");
+			DoUndo(false,true);
+			canvasResize(); // calls redraw
+			return prevent(event);
 		}
 	}
 	event.handled=true;
@@ -1329,8 +1333,8 @@ function checkKey(e,justPressed) {
     	}
     }
     if (textMode) {
-		if(!throttle_movement) {
-			if (lastinput==inputdir && input_throttle_timer < repeatinterval) {
+		if(!throttle_movement) { //If movement isn't throttled, then throttle it anyway
+			if (titleMode == 1 && lastinput==inputdir && input_throttle_timer < repeatinterval) { //Don't throttle on level select
 				return;
 			} else {
 				lastinput=inputdir;

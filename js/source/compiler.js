@@ -433,20 +433,31 @@ function generateExtraMembersPart2(state) {
 	function assignMouseObject(preludeTerm, defaultName) {
 		if (preludeTerm in state.metadata) {
 			var name = state.metadata[preludeTerm] || defaultName;
-			var id = null;
+            var id = null;
+            var object = null;
 			if (state.objects[name]) {
-				id = state.objects[name].id;
+                id = state.objects[name].id;
+                object = state.objects[name];
 			} else {
 				if (name in state.synonymsDict) {
 					var n = state.synonymsDict[name];
 					var o = state.objects[n];
-					id = o.id;
+                    id = o.id;
+                    object = o;
 				} else {
 					var o=state.objects[state.idDict[1]];
 					id=o.id;
 					logError(name + " object/alias has to be defined");
 				}
-			}
+            }
+            
+            if (object != null && object.layer !== undefined) {
+                var layerID = object.layer;
+                if (state.collisionLayers[layerID].length != 1) {
+                    logWarningNoLine("[PS+] Mouse object '"+name+"' (for input '"+ preludeTerm +"') could overlap with other objects on the same layer. Consider moving the object to its own layer.", true, false);
+                }
+            }
+
 			return id;
 		}
 	}
@@ -2952,17 +2963,6 @@ function loadFile(str) {
 	generateSoundData(state);
 
     formatHomePage(state);
-    
-    //Puzzlescript Plus errors
-    if (IDE) {
-        if (state.metadata.tween_length && state.lateRules.length >= 1) {
-            logWarning("[PS+] Using tweens in a game that also has LATE rules is currently experimental! If you change objects that moved with LATE then tweens might not play!", undefined, false);
-        }
-
-		if(state.metadata.level_select_unlocked_ahead !== undefined && state.metadata.level_select_unlocked_rollover !== undefined) {
-            logWarning("[PS+] You can't use both level_select_unlocked_ahead and level_select_unlocked_rollover at the same time, so please choose only one!", undefined, false);
-        }
-    }
 
 	delete state.commentLevel;
 	delete state.names;
@@ -3062,6 +3062,17 @@ function compile(command, text, randomseed) {
             }
         }
     }
+
+        //Puzzlescript Plus errors
+        if (IDE && state !== undefined) {
+            if (state.metadata.tween_length !== undefined && state.lateRules.length >= 1) {
+                logWarning("[PS+] Using tweens in a game that also has LATE rules is currently experimental! If you change objects that moved with LATE then tweens might not play!", undefined, true);
+            }
+    
+            if(state.metadata.level_select_unlocked_ahead !== undefined && state.metadata.level_select_unlocked_rollover !== undefined) {
+                logWarning("[PS+] You can't use both level_select_unlocked_ahead and level_select_unlocked_rollover at the same time, so please choose only one!", undefined, true);
+            }
+        }
 
     if (state!==null){//otherwise error
         setGameState(state, command, randomseed);
