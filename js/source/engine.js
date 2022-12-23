@@ -1293,6 +1293,44 @@ function RebuildLevelArrays() {
 var messagetext="";
 var currentMovedEntities = {};
 var newMovedEntities = {};
+
+function applyDiff(diff, level_objects) {
+
+	var index=0;
+	
+	while (index<diff.dat.length){
+		var start_index = diff.dat[index];
+		var copy_length = diff.dat[index+1];
+		if (copy_length===0){
+			break;//tail of buffer is all 0s
+		}
+		for (j=0;j<copy_length;j++){
+			level_objects[start_index+j]=diff.dat[index+2+j];
+		}
+		index += 2 + copy_length;
+	}
+}
+
+function unconsolidateDiff(before,after) {
+
+	// If before is not a diff, return it, otherwise generate a complete 'before' 
+	// state from the 'after' state and the 'diff' (remember, the diffs are all 
+	// backwards...).
+	if (!before.hasOwnProperty("diff")) {
+		return before;
+	}
+
+	var after_objects = new Int32Array(after.dat);
+	applyDiff(before, after_objects);
+
+	return {
+		dat: after_objects,
+		width: before.width,
+		height: before.height,
+		oldflickscreendat: before.oldflickscreendat
+	}
+}
+
 function restoreLevel(lev, snapCamera, resetTween = true, resetAutoTick = true) {
 	var diffing = lev.hasOwnProperty("diff");
 
@@ -1304,18 +1342,7 @@ function restoreLevel(lev, snapCamera, resetTween = true, resetAutoTick = true) 
 	}
 
 	if (diffing){
-		var index=0;
-		while (index<lev.dat.length){
-			var start_index = lev.dat[index];
-			var copy_length = lev.dat[index+1];
-			if (copy_length===0){
-				break;//tail of buffer is all 0s
-			}
-			for (j=0;j<copy_length;j++){
-				level.objects[start_index+j]=lev.dat[index+2+j];
-			}
-			index += 2 + copy_length;
-		}
+		applyDiff(lev, level.objects);
 	} else {	
 		level.objects = new Int32Array(lev.dat);
 	}
@@ -1495,7 +1522,7 @@ function backupDiffers(){
 	}
 }
 
-function DoUndo(force,ignoreDuplicates, resetTween = true, resetAutoTick = true) {
+function DoUndo(force,ignoreDuplicates, resetTween = true, resetAutoTick = true, forceSFX = false) {
   if ((!levelEditorOpened)&&('noundo' in state.metadata && force!==true)) {
     return;
   }
@@ -1513,7 +1540,7 @@ function DoUndo(force,ignoreDuplicates, resetTween = true, resetAutoTick = true)
     var torestore = backups[backups.length-1];
     restoreLevel(torestore, null, resetTween, resetAutoTick);
     backups = backups.splice(0,backups.length-1);
-    if (! force) {
+    if (! force || forceSFX) {
       tryPlayUndoSound();
     }
   }
@@ -3221,7 +3248,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
 				consolePrint('UNDO command executed, undoing turn.',true);
 			}
 			messagetext = "";
-			DoUndo(true,false);
+			DoUndo(true,false, true, true, true);
 			return true;
 		}
 
@@ -3241,7 +3268,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
 	    			consoleCacheDump();
 				}
         		addUndoState(bak);
-        		DoUndo(true,false);
+        		DoUndo(true,false, false);
         		return false;
         	}
         	//play player cantmove sounds here
@@ -3257,7 +3284,7 @@ playerPositionsAtTurnStart = getPlayerPositions();
 			}
 			processOutputCommands(level.commandQueue);
     		addUndoState(bak);
-    		DoUndo(true,false, true, false);
+    		DoUndo(true,false, false, false);
     		tryPlayCancelSound();
     		return false;
 	    } 
@@ -3315,7 +3342,13 @@ playerPositionsAtTurnStart = getPlayerPositions();
 					return true;
 				} else {
 					if (dir!==-1 && save_backup) {
-	    				addUndoState(bak);
+						addUndoState(bak);
+					} else if (backups.length > 0) {
+						// This is for the case that diffs break the undo buffer for real-time games 
+						// ( c f https://github.com/increpare/PuzzleScript/pull/796 ),
+						// because realtime ticks are ignored when the user presses undo and the backup
+						// array reflects this structure.  
+						backups[backups.length - 1] = unconsolidateDiff(backups[backups.length - 1], bak);					
 	    			}
 	    			modified=true;
 	    			updateCameraPositionTarget();

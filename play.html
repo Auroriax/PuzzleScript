@@ -164,7 +164,7 @@ a {
 }
 
 .tab-icon {
-    left: -0.5em;
+    left: 0;
     top: 70px;
     width: 18px;
     border-radius: 0 6px 6px 0;
@@ -311,7 +311,7 @@ function getData(){
 			var homepageLink = document.getElementById("homepagelink");
 			homepageLink.innerHTML=strip_http(homepage);
  			if (!homepage.match(/^https?:\/\//)) {
- 				homepage = "http://" + homepage;
+ 				homepage = "https://" + homepage;
  			}
  			homepageLink.href = homepage;
 		}
