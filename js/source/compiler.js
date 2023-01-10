@@ -976,6 +976,7 @@ if (tokens.indexOf('->') == -1) {
                         var messageIndex = findIndexAfterToken(origLine,tokens,i);
                         var messageStr = origLine.substring(messageIndex).trim();
                         if (messageStr===""){
+                            logError('[PS+] You included a twiddleable property, but did not specify a value. The twiddle may behave strangely. Please use "set", "default", "wipe", or specify the correct value. See the documentation for more info.', lineNumber);
                             messageStr=" ";
                             //needs to be nonempty or the system gets confused and thinks it's a whole level message rather than an interstitial.
                         }
@@ -2710,6 +2711,11 @@ function generateSoundData(state) {
         if (soundEvents.indexOf(sound[0]) >= 0) {
             if (sound.length > 4) {
                 logError("too much stuff to define a sound event.", lineNumber);
+            } else {
+                //out of an abundance of caution, doing a fallback warning rather than expanding the scope of the error #779
+                if (sound.length > 3) {
+                    logWarning("too much stuff to define a sound event.", lineNumber);
+                }
             }
             var seed = sound[1];
             if (validSeed(seed)) {
@@ -3071,6 +3077,14 @@ function compile(command, text, randomseed) {
     
             if(state.metadata.level_select_unlocked_ahead !== undefined && state.metadata.level_select_unlocked_rollover !== undefined) {
                 logWarning("[PS+] You can't use both level_select_unlocked_ahead and level_select_unlocked_rollover at the same time, so please choose only one!", undefined, true);
+            }
+
+            if(state.metadata.level_select === undefined && (state.metadata.level_select_lock !== undefined || state.metadata.level_select_unlocked_ahead !== undefined || state.metadata.level_select_unlocked_rollover !== undefined || state.metadata.continue_is_level_select !== undefined || state.metadata.level_select_solve_symbol !== undefined)) {
+                logWarning("[PS+] You're using level select prelude flags, but didn't define the 'level_select' flag.", undefined, true);
+            }
+
+            if(state.metadata.level_select_lock === undefined && (state.metadata.level_select_unlocked_ahead !== undefined || state.metadata.level_select_unlocked_rollover !== undefined)) {
+                logWarning("[PS+] You've defined a level unlock condition, but didn't define the 'level_select_lock' flag.", undefined, true);
             }
         }
 
