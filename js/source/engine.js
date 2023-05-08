@@ -2721,7 +2721,14 @@ Rule.prototype.queueCommands = function() {
 		var command=commands[i];
 		var already=false;
 		if (level.commandQueue.indexOf(command[0])>=0) {
-			continue;
+			if (state.metadata.runtime_metadata_twiddling !== undefined)
+			{
+				if (!twiddleable_params.includes(command[0])) {
+					continue;
+				} //Otherwise, allow multiple changes for twiddleable params per turn
+			} else {
+				continue;
+			}
 		}
 		level.commandQueue.push(command[0]);
 		level.commandQueueSourceRules.push(this);
@@ -2773,12 +2780,10 @@ Rule.prototype.queueCommands = function() {
 
       twiddleMetadataExtras()
 
-      if (state.metadata.runtime_metadata_twiddling_debug !== undefined) {
-        var log = "Metadata twiddled: Flag "+command[0] + " set to " + value;
-        if (value != command[1]) {
-          log += " ("+command[1]+")"
-        }
-        consolePrintFromRule(log,this,true);
+      if (verbose_logging) {
+		var inspect_ID =  addToDebugTimeline(level,this.lineNumber);
+		var logString = `-> Set ${command[0]} to ${value}.`;
+		consolePrint(logString,false,this.lineNumber,inspect_ID);
       }
     }   
   }
